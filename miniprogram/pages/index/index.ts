@@ -40,9 +40,11 @@ Component({
     scrollViewHeight: 0, // scroll-view 的可视高度（px）
     lastLoadTime: 0, // 上次分页加载的时间戳，用于防抖
     isScrollable: true, // Controls if the scroll-view can scroll
-    userInfo: null as WechatMiniprogram.UserInfo | null, // Holds user information
-    isLoggedIn: false, // Tracks login state
     showDrawer: false, // Controls the visibility of the drawer
+    showJobDetail: false, // Controls the visibility of the job detail drawer
+    selectedJobId: '', // The ID of the selected job
+    selectedCollection: '', // The collection name for the selected job
+
     isSearching: false, // Flag to differentiate between paginated loading and search
   },
   lifetimes: {
@@ -300,42 +302,18 @@ Component({
       this.setData({ showDrawer: !this.data.showDrawer })
     },
 
-    handleLogin() {
-      if (this.data.isLoggedIn) return
-
-      wx.getUserProfile({
-        desc: '用于完善用户资料',
-        success: (res) => {
-          this.setData({
-            userInfo: res.userInfo,
-            isLoggedIn: true,
-          })
-        },
-        fail: (err) => {
-          console.error('[jobs] getUserProfile failed', err)
-          wx.showToast({ title: '授权失败', icon: 'none' })
-        },
-      })
+    onJobTap(e: WechatMiniprogram.TouchEvent) {
+      const _id = e.currentTarget.dataset._id as string;
+      const collectionName = collectionMap[this.data.currentFilter] || 'domestic_remote_jobs';
+      this.setData({
+        selectedJobId: _id,
+        selectedCollection: collectionName,
+        showJobDetail: true,
+      });
     },
 
-    onJobTap(e: WechatMiniprogram.TouchEvent) {
-      const _id = e.currentTarget.dataset._id as string
-      const job = this.data.jobs.find((j) => j._id === _id)
-      const link = (job?.source_url || '').trim()
-
-      if (!link) {
-        wx.showToast({ title: '暂无可复制的链接', icon: 'none' })
-        return
-      }
-
-      wx.setClipboardData({
-        data: link,
-        success: () => wx.showToast({ title: '链接已复制', icon: 'none' }),
-        fail: (err) => {
-          console.error('[jobs] setClipboardData fail', err)
-          wx.showToast({ title: '复制失败', icon: 'none' })
-        },
-      })
+    closeJobDetail() {
+      this.setData({ showJobDetail: false });
     },
   },
 })

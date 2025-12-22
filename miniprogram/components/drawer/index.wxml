@@ -1,0 +1,15 @@
+<!--miniprogram/components/drawer/index.wxml-->
+<view wx:if="{{show}}" class="drawer-mask" bindtap="onClose"></view>
+<view class="drawer-menu {{show ? 'drawer-open' : ''}}">
+  <view class="drawer-header">
+    <block wx:if="{{isLoggedIn}}">
+      <image class="avatar" src="{{userInfo.avatarUrl}}" />
+    </block>
+    <block wx:else>
+      <view class="avatar-placeholder" bindtap="handleLogin"></view>
+    </block>
+    <text class="nickname">{{isLoggedIn ? userInfo.nickName : 'Click to Login'}}</text>
+  </view>
+  <!-- Other drawer content will go here -->
+</view>
+

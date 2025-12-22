@@ -25,22 +25,16 @@
     />
   </view>
 
-  <!-- Drawer Mask -->
-  <view wx:if="{{showDrawer}}" class="drawer-mask" bindtap="toggleDrawer"></view>
+  <!-- Drawer Component -->
+  <drawer show="{{showDrawer}}" bind:close="toggleDrawer" />
 
-  <!-- Drawer Menu -->
-  <view class="drawer-menu {{showDrawer ? 'drawer-open' : ''}}">
-    <view class="drawer-header">
-      <block wx:if="{{isLoggedIn}}">
-        <image class="avatar" src="{{userInfo.avatarUrl}}" />
-      </block>
-      <block wx:else>
-        <view class="avatar-placeholder" bindtap="handleLogin"></view>
-      </block>
-      <text class="nickname">{{isLoggedIn ? userInfo.nickName : 'Click to Login'}}</text>
-    </view>
-    <!-- Other drawer content will go here -->
-  </view>
+  <!-- Job Detail Drawer Component -->
+  <job-detail 
+    show="{{showJobDetail}}" 
+    job-id="{{selectedJobId}}" 
+    collection="{{selectedCollection}}" 
+    bind:close="closeJobDetail" 
+  />
 
   <!-- 遮罩层：点击非弹窗区域时关闭弹窗 -->
   <view wx:if="{{showFilter}}" class="filter-mask" bindtap="toggleFilter"></view>
@@ -94,4 +88,5 @@
       </view>
     </view>
   </scroll-view>
+
 </view>

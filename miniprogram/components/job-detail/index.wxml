@@ -1,0 +1,37 @@
+<!--miniprogram/components/job-detail/index.wxml-->
+<view wx:if="{{show}}" class="detail-mask" bindtap="onClose"></view>
+<view class="detail-drawer {{show ? 'detail-drawer-open' : ''}}">
+  <view class="detail-header">
+    <view class="close-button" bindtap="onClose">×</view>
+  </view>
+  <scroll-view class="detail-content" scroll-y="{{true}}">
+    <block wx:if="{{loading}}">
+      <view class="loading">加载中...</view>
+    </block>
+    <block wx:elif="{{job}}">
+      <view class="detail-body">
+        <text class="detail-title">{{job.title}}</text>
+        <view class="detail-meta" wx:if="{{job.team || job.salary}}">
+          <text wx:if="{{job.team && job.team !== '未知公司'}}" class="detail-meta-item">{{job.team}}</text>
+          <text wx:if="{{(job.team && job.team !== '未知公司') && job.salary}}" class="detail-meta-dot">·</text>
+          <text wx:if="{{job.salary}}" class="detail-meta-item">{{job.salary}}</text>
+        </view>
+        <view class="detail-tags" wx:if="{{job.displayTags && job.displayTags.length > 0}}">
+          <view class="detail-tag" wx:for="{{job.displayTags}}" wx:key="*this">
+            <text class="detail-tag-text">{{item}}</text>
+          </view>
+        </view>
+        <view class="detail-summary" wx:if="{{job.summary}}">
+          <text class="detail-summary-text">{{job.summary}}</text>
+        </view>
+        <view class="detail-link" wx:if="{{job.source_url}}">
+          <button class="link-button" bindtap="onCopyLink">复制链接</button>
+        </view>
+      </view>
+    </block>
+    <block wx:else>
+      <view class="error">加载失败</view>
+    </block>
+  </scroll-view>
+</view>
+
