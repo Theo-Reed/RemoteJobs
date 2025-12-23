@@ -303,3 +303,55 @@ page::-webkit-scrollbar {
   padding: 20rpx 0 10rpx;
 }
 
+/** Bottom Sheet Styles **/
+
+.favorites-sheet-mask {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 2499;
+}
+
+.favorites-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 83.33vh;
+  background: #f5f7fb;
+  border-top-left-radius: 24rpx;
+  border-top-right-radius: 24rpx;
+  transform: translateY(100%);
+  transition: transform 0.25s ease;
+  z-index: 2500;
+  display: flex;
+  flex-direction: column;
+}
+
+.favorites-sheet-open {
+  transform: translateY(0);
+}
+
+.favorites-sheet-handle {
+  width: 86rpx;
+  height: 10rpx;
+  border-radius: 999rpx;
+  background: rgba(17, 24, 39, 0.15);
+  margin: 16rpx auto 8rpx;
+}
+
+.favorites-sheet-list {
+  flex: 1;
+  height: 0;
+  padding: 0 32rpx 24rpx;
+  box-sizing: border-box;
+}
+
+.empty-favorites {
+  padding: 120rpx 0;
+  text-align: center;
+  color: #9ca3af;
+}

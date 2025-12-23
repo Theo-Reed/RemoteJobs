@@ -124,7 +124,7 @@ Component({
         wx.showToast({ title: '请先授权手机号', icon: 'none' })
         return
       }
-      wx.reLaunch({ url: '/pages/favorites/index' })
+      this.triggerEvent('openFavorites')
       this.onClose()
     },
   },

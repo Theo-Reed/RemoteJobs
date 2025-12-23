@@ -15,6 +15,23 @@ type JobItem = {
   displayTags?: string[]
 }
 
+type CollectedJobItem = {
+  _id: string
+  jobId: string
+  createdAt: string
+  sourceCollection?: string
+  source_name?: string
+  source_url?: string
+  salary?: string
+  summary?: string
+  description?: string
+  type?: string
+  team?: string
+  title?: string
+  tags?: string[]
+  displayTags?: string[]
+}
+
 // Map filter names to collection names
 const collectionMap: { [key: string]: string } = {
   '国内': 'domestic_remote_jobs',
@@ -47,6 +64,10 @@ Component({
     selectedCollection: '', // The collection name for the selected job
 
     isSearching: false, // Flag to differentiate between paginated loading and search
+
+    showFavoritesSheet: false,
+    favoritesLoading: false,
+    favoritesJobs: [] as CollectedJobItem[],
   },
   lifetimes: {
     attached() {
@@ -304,19 +325,54 @@ Component({
       this.setData({ showDrawer: !this.data.showDrawer })
     },
 
-    onJobTap(e: WechatMiniprogram.TouchEvent) {
-      const _id = e.currentTarget.dataset._id as string
-      const collectionName = collectionMap[this.data.currentFilter] || 'domestic_remote_jobs'
-
-      this.setData({
-        selectedJobId: _id,
-        selectedCollection: collectionName,
-        showJobDetail: true,
-      })
+    async openFavoritesSheet() {
+      this.setData({ showFavoritesSheet: true })
+      await this.loadFavoritesJobs()
     },
 
-    closeJobDetail() {
-      this.setData({ showJobDetail: false });
+    closeFavoritesSheet() {
+      this.setData({ showFavoritesSheet: false })
+    },
+
+    async loadFavoritesJobs() {
+      // product login check (in-memory user)
+      const app = getApp<IAppOption>() as any
+      const user = app?.globalData?.user
+      const isLoggedIn = !!(user && (user.isAuthed || user.phone))
+      if (!isLoggedIn) {
+        this.setData({ favoritesJobs: [] })
+        wx.showToast({ title: '请先授权手机号', icon: 'none' })
+        return
+      }
+
+      this.setData({ favoritesLoading: true })
+      try {
+        const db = wx.cloud.database()
+        const res = await db.collection('collected_jobs').orderBy('createdAt', 'desc').limit(100).get()
+
+        const mapped = this.mapJobs(res.data || []) as any as CollectedJobItem[]
+        this.setData({ favoritesJobs: mapped })
+      } catch (err) {
+        console.error('[index] loadFavoritesJobs failed', err)
+        wx.showToast({ title: '加载收藏失败', icon: 'none' })
+      } finally {
+        this.setData({ favoritesLoading: false })
+      }
+    },
+
+    onFavoriteJobTap(e: WechatMiniprogram.TouchEvent) {
+      const id = e.currentTarget.dataset._id as string
+      const collection = (e.currentTarget.dataset.collection as string) || ''
+      if (!id || !collection) {
+        wx.showToast({ title: '无法打开详情', icon: 'none' })
+        return
+      }
+
+      this.setData({
+        selectedJobId: id,
+        selectedCollection: collection,
+        showJobDetail: true,
+      })
     },
   },
 })
