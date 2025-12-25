@@ -17,7 +17,7 @@ const DEFAULT_DRAWER_FILTER: DrawerFilterValue = {
   experience: '全部',
 }
 
-Component({
+Page({
   data: {
     jobs: <JobItem[]>[],
     filteredJobs: <JobItem[]>[],
@@ -49,29 +49,34 @@ Component({
     displayCurrentFilter: '国内',
     displayFilterOptions: ['国内', '国外', 'web3'],
   },
-  lifetimes: {
-    attached() {
-      this.setData({ searchKeyword: '' })
+  onLoad() {
+    this.setData({ searchKeyword: '' })
 
-      // attach language-aware behavior (nav title + UI strings)
-      ;(this as any)._langDetach = attachLanguageAware(this, {
-        onLanguageRevive: () => {
-          this.syncLanguageFromApp()
-        },
-      })
+    // attach language-aware behavior (nav title + UI strings)
+    ;(this as any)._langDetach = attachLanguageAware(this, {
+      onLanguageRevive: () => {
+        this.syncLanguageFromApp()
+      },
+    })
 
-      this.getSystemAndUIInfo()
-      this.loadJobs(true)
-    },
-
-    detached() {
-      const fn = (this as any)._langDetach
-      if (typeof fn === 'function') fn()
-      ;(this as any)._langDetach = null
-    },
+    this.getSystemAndUIInfo()
+    this.loadJobs(true)
   },
-  methods: {
-    syncLanguageFromApp() {
+
+  onUnload() {
+    const fn = (this as any)._langDetach
+    if (typeof fn === 'function') fn()
+    ;(this as any)._langDetach = null
+  },
+
+  onShow() {
+    // Set navigation bar title when page becomes visible
+    const app = getApp<IAppOption>() as any
+    const lang = normalizeLanguage(app?.globalData?.language)
+    wx.setNavigationBarTitle({ title: t('app.navTitle', lang) })
+  },
+
+  syncLanguageFromApp() {
       const app = getApp<IAppOption>() as any
       const lang = normalizeLanguage(app?.globalData?.language)
 
@@ -357,5 +362,4 @@ Component({
         showJobDetail: true,
       })
     },
-  },
 })

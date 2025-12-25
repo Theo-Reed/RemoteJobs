@@ -21,6 +21,9 @@ App<IAppOption>({
       traceUser: true,
     })
 
+    // Apply default language immediately to set nav title ASAP (avoid first onShow flash)
+    this.applyLanguage()
+
     await this.refreshUser().catch((err: any) => {
       console.warn('[app] initUser failed', err)
     })

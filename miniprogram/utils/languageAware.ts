@@ -19,12 +19,7 @@ export function attachLanguageAware(ctx: any, options: LanguageAwareOptions = {}
 
   const revive = () => {
     const lang = getLang()
-    // Unified nav title per current language
-    try {
-      wx.setNavigationBarTitle({ title: t('app.navTitle', lang) })
-    } catch {
-      // ignore
-    }
+    // Nav title is managed centrally by app.applyLanguage()/app.setLanguage.
     if (options.onLanguageRevive) options.onLanguageRevive(lang)
   }
 
@@ -50,4 +45,3 @@ export function attachLanguageAware(ctx: any, options: LanguageAwareOptions = {}
     }
   }
 }
-
