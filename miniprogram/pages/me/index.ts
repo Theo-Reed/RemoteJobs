@@ -1,7 +1,8 @@
 // miniprogram/pages/me/index.ts
 
-import type { ResolvedFavoriteJob } from '../../utils/job'
+import type { ResolvedSavedJob } from '../../utils/job'
 import { mapJobs, typeCollectionMap } from '../../utils/job'
+import { normalizeLanguage, t, type AppLanguage } from '../../utils/i18n'
 
 Page({
   data: {
@@ -9,10 +10,10 @@ Page({
     isLoggedIn: false,
     phoneAuthBusy: false,
 
-    showFavoritesSheet: false,
-    favoritesSheetOpen: false,
-    favoritesLoading: false,
-    favoritesJobs: [] as ResolvedFavoriteJob[],
+    showSavedSheet: false,
+    savedSheetOpen: false,
+    savedLoading: false,
+    savedJobs: [] as ResolvedSavedJob[],
 
     showJobDetail: false,
     selectedJobId: '',
@@ -21,10 +22,12 @@ Page({
     showLanguageSheet: false,
     languageSheetOpen: false,
     currentLanguage: '中文',
+    ui: {} as Record<string, string>,
   },
 
   onShow() {
     this.syncUserFromApp()
+    this.syncLanguageFromApp()
   },
 
   syncUserFromApp() {
@@ -38,6 +41,33 @@ Page({
       : null
 
     this.setData({ isLoggedIn, userInfo })
+  },
+
+  syncLanguageFromApp() {
+    const app = getApp<IAppOption>() as any
+    const lang = normalizeLanguage(app?.globalData?.language)
+
+    const ui = {
+      meTitle: t('me.title', lang),
+      userNotLoggedIn: t('me.userNotLoggedIn', lang),
+      favoritesEntry: t('me.favoritesEntry', lang),
+      languageEntry: t('me.languageEntry', lang),
+      emptyFavorites: t('me.emptyFavorites', lang),
+      comingSoon: t('me.comingSoon', lang),
+      langChinese: t('me.langChinese', lang),
+      langEnglish: t('me.langEnglish', lang),
+    }
+
+    this.setData({
+      currentLanguage: lang === 'English' ? 'English' : '中文',
+      ui,
+    })
+
+    try {
+      wx.setNavigationBarTitle({ title: t('me.title', lang) })
+    } catch {
+      // ignore
+    }
   },
 
   async onGetRealtimePhoneNumber(e: any) {
@@ -117,45 +147,45 @@ Page({
     }
   },
 
-  onOpenFavorites() {
+  onOpenSaved() {
     if (!(this.data as any).isLoggedIn) {
       wx.showToast({ title: '请先授权手机号', icon: 'none' })
       return
     }
 
-    this.openFavoritesSheet()
+    this.openSavedSheet()
   },
 
-  openFavoritesSheet() {
+  openSavedSheet() {
     // Mount first, then open on next tick to trigger CSS transition.
-    this.setData({ showFavoritesSheet: true, favoritesSheetOpen: false })
+    this.setData({ showSavedSheet: true, savedSheetOpen: false })
 
     setTimeout(() => {
-      this.setData({ favoritesSheetOpen: true })
+      this.setData({ savedSheetOpen: true })
     }, 30)
 
-    this.loadFavoritesJobs()
+    this.loadSavedJobs()
   },
 
-  closeFavoritesSheet() {
-    this.setData({ favoritesSheetOpen: false })
+  closeSavedSheet() {
+    this.setData({ savedSheetOpen: false })
 
     setTimeout(() => {
-      this.setData({ showFavoritesSheet: false })
+      this.setData({ showSavedSheet: false })
     }, 260)
   },
 
-  async loadFavoritesJobs() {
+  async loadSavedJobs() {
     const app = getApp<IAppOption>() as any
     const user = app?.globalData?.user
     const openid = user?.openid
     const isLoggedIn = !!(user && (user.isAuthed || user.phone))
     if (!isLoggedIn || !openid) {
-      this.setData({ favoritesJobs: [] })
+      this.setData({ savedJobs: [] })
       return
     }
 
-    this.setData({ favoritesLoading: true })
+    this.setData({ savedLoading: true })
     try {
       const db = wx.cloud.database()
 
@@ -168,7 +198,7 @@ Page({
 
       const collected = (collectedRes.data || []) as any[]
       if (collected.length === 0) {
-        this.setData({ favoritesJobs: [] })
+        this.setData({ savedJobs: [] })
         return
       }
 
@@ -206,7 +236,7 @@ Page({
 
       await Promise.all(Array.from(groups.entries()).map(([type, ids]) => fetchGroup(type, ids)))
 
-      const merged: ResolvedFavoriteJob[] = []
+      const merged: ResolvedSavedJob[] = []
       for (const row of collected) {
         const type = row?.type
         const jobId = row?.jobId
@@ -225,12 +255,12 @@ Page({
 
       // normalize tags/displayTags
       const normalized = mapJobs(merged) as any
-      this.setData({ favoritesJobs: normalized })
+      this.setData({ savedJobs: normalized })
     } catch (err) {
-      console.error('[me] loadFavoritesJobs failed', err)
+      console.error('[me] loadSavedJobs failed', err)
       wx.showToast({ title: '加载收藏失败', icon: 'none' })
     } finally {
-      this.setData({ favoritesLoading: false })
+      this.setData({ savedLoading: false })
     }
   },
 
@@ -238,7 +268,7 @@ Page({
     this.setData({ showJobDetail: false })
   },
 
-  onFavoriteJobTap(e: any) {
+  onSavedJobTap(e: any) {
     const job = e?.detail?.job
     const jobId = (job?.jobId || job?._id || e?.currentTarget?.dataset?._id) as string
     const collection = (job?.sourceCollection || e?.currentTarget?.dataset?.collection || '') as string
@@ -270,12 +300,16 @@ Page({
     }, 260)
   },
 
-  onLanguageSelect(e: WechatMiniprogram.TouchEvent) {
+  async onLanguageSelect(e: WechatMiniprogram.TouchEvent) {
     const value = (e.currentTarget.dataset.value || '') as string
     if (!value) return
 
-    this.setData({ currentLanguage: value })
-    wx.showToast({ title: '敬请期待', icon: 'none' })
+    const lang: AppLanguage = value === 'English' ? 'English' : 'Chinese'
+
+    const app = getApp<IAppOption>() as any
+    await app.setLanguage(lang)
+
+    this.syncLanguageFromApp()
     this.closeLanguageSheet()
   },
 

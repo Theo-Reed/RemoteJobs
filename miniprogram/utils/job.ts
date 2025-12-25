@@ -15,7 +15,7 @@ export type JobItem = {
   displayTags?: string[]
 }
 
-export type ResolvedFavoriteJob = JobItem & {
+export type ResolvedSavedJob = JobItem & {
   jobId: string
   sourceCollection: string
 }
@@ -61,4 +61,3 @@ export function mapJobs<T extends Record<string, any>>(jobs: T[]): (T & { tags: 
     }
   })
 }
-

@@ -14,6 +14,10 @@
   - `index.js`：更新 users 里的 avatar/nickname/phone/isAuthed 等字段
   - `package.json`
 
+- `cloudfunctions/updateUserLanguage/`
+  - `index.js`：更新 users 里的 language 字段（Chinese/English）
+  - `package.json`
+
 - `cloudfunctions/getPhoneNumber/`
   - `index.js`：使用前端 getPhoneNumber 返回的 code 换取手机号
   - `package.json`
@@ -43,6 +47,12 @@ wx.cloud.callFunction({
     phone: '13800000000',
     isAuthed: true,
   }
+})
+
+// 更新语言偏好（i18n）
+wx.cloud.callFunction({
+  name: 'updateUserLanguage',
+  data: { language: 'English' } // or 'Chinese'
 })
 ```
 

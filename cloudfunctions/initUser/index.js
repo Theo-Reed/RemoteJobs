@@ -13,7 +13,21 @@ exports.main = async (event, context) => {
 
   try {
     const existing = await userRef.get()
-    return { openid: OPENID, user: existing.data }
+    const user = existing?.data || {}
+
+    // Backfill language if missing
+    if (!user.language) {
+      await userRef.update({
+        data: {
+          language: 'Chinese',
+          updatedAt: db.serverDate(),
+        },
+      })
+      const updated = await userRef.get()
+      return { openid: OPENID, user: updated.data }
+    }
+
+    return { openid: OPENID, user }
   } catch (err) {
     const now = db.serverDate()
     await userRef.set({
@@ -23,6 +37,7 @@ exports.main = async (event, context) => {
         phone: null,
         nickname: null,
         avatar: null,
+        language: 'Chinese',
         createdAt: now,
         updatedAt: now,
       },

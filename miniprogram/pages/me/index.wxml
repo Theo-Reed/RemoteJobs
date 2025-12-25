@@ -16,7 +16,7 @@
             bindgetrealtimephonenumber="onGetRealtimePhoneNumber"
             bindgetphonenumber="onGetPhoneNumber"
           >
-            <text class="nickname nickname-login">用户未登录</text>
+            <text class="nickname nickname-login">{{ui.userNotLoggedIn}}</text>
           </button>
         </block>
         <block wx:else>
@@ -27,45 +27,45 @@
   </view>
 
   <view class="me-list">
-    <view class="me-item" bindtap="onOpenFavorites">
-      <text class="me-item-text">我收藏的岗位</text>
+    <view class="me-item" bindtap="onOpenSaved">
+      <text class="me-item-text">{{ui.favoritesEntry}}</text>
     </view>
 
     <view class="me-item" bindtap="onLanguageTap">
-      <text class="me-item-text">语言</text>
+      <text class="me-item-text">{{ui.languageEntry}}</text>
     </view>
   </view>
 
-  <!-- Favorites bottom sheet (5/6 height, no header) -->
-  <block wx:if="{{showFavoritesSheet}}">
-    <view class="favorites-sheet-mask {{favoritesSheetOpen ? 'favorites-sheet-mask-open' : ''}}" bindtap="closeFavoritesSheet"></view>
-    <view class="favorites-sheet {{favoritesSheetOpen ? 'favorites-sheet-open' : ''}}">
+  <!-- Saved jobs bottom sheet (5/6 height, no header) -->
+  <block wx:if="{{showSavedSheet}}">
+    <view class="favorites-sheet-mask {{savedSheetOpen ? 'favorites-sheet-mask-open' : ''}}" bindtap="closeSavedSheet"></view>
+    <view class="favorites-sheet {{savedSheetOpen ? 'favorites-sheet-open' : ''}}">
 
       <view class="favorites-list-padding">
         <job-list
           class-name="favorites-job-list"
-          jobs="{{favoritesJobs}}"
-          loading="{{favoritesLoading}}"
+          jobs="{{savedJobs}}"
+          loading="{{savedLoading}}"
           scroll-y="{{true}}"
-          bind:itemtap="onFavoriteJobTap"
+          bind:itemtap="onSavedJobTap"
         />
       </view>
 
-      <view wx:if="{{!favoritesLoading && favoritesJobs.length === 0}}" class="empty-favorites">暂无收藏岗位</view>
+      <view wx:if="{{!savedLoading && savedJobs.length === 0}}" class="empty-favorites">{{ui.emptyFavorites}}</view>
     </view>
   </block>
 
-  <!-- Language bottom sheet (same animation as favorites) -->
+  <!-- Language bottom sheet (same animation as saved sheet) -->
   <block wx:if="{{showLanguageSheet}}">
     <view class="language-sheet-mask {{languageSheetOpen ? 'language-sheet-mask-open' : ''}}" bindtap="closeLanguageSheet"></view>
     <view class="language-sheet {{languageSheetOpen ? 'language-sheet-open' : ''}}">
 
       <view class="language-sheet-content">
-        <view class="language-item {{currentLanguage === '中文' ? 'language-item-active' : ''}}" data-value="中文" bindtap="onLanguageSelect">
-          <text class="language-item-text">中文</text>
+        <view class="language-item {{currentLanguage === '中文' ? 'language-item-active' : ''}}" data-value="Chinese" bindtap="onLanguageSelect">
+          <text class="language-item-text">{{ui.langChinese}}</text>
         </view>
         <view class="language-item {{currentLanguage === 'English' ? 'language-item-active' : ''}}" data-value="English" bindtap="onLanguageSelect">
-          <text class="language-item-text">English</text>
+          <text class="language-item-text">{{ui.langEnglish}}</text>
         </view>
       </view>
     </view>
