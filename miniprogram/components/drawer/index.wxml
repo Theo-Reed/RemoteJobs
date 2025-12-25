@@ -4,38 +4,40 @@
 <view class="drawer-menu {{show ? 'drawer-open' : ''}}" catchtap="stopPropagation">
   <scroll-view class="drawer-body" scroll-y="true" enhanced="true" show-scrollbar="{{false}}">
     <view class="drawer-section">
-      <view class="drawer-section-title">薪资</view>
+      <view class="drawer-section-title">{{ui.salaryTitle}}</view>
       <view class="drawer-grid">
         <view
           wx:for="{{salaryOptions}}"
           wx:key="*this"
+          wx:for-index="idx"
           class="drawer-chip {{tempValue.salary === item ? 'drawer-chip-active' : ''}}"
           data-value="{{item}}"
           bindtap="onPickSalary"
         >
-          <text class="drawer-chip-text">{{item}}</text>
+          <text class="drawer-chip-text">{{displaySalaryOptions[idx]}}</text>
         </view>
       </view>
     </view>
 
     <view class="drawer-section">
-      <view class="drawer-section-title">经验</view>
+      <view class="drawer-section-title">{{ui.experienceTitle}}</view>
       <view class="drawer-grid">
         <view
           wx:for="{{experienceOptions}}"
           wx:key="*this"
+          wx:for-index="idx"
           class="drawer-chip {{tempValue.experience === item ? 'drawer-chip-active' : ''}}"
           data-value="{{item}}"
           bindtap="onPickExperience"
         >
-          <text class="drawer-chip-text">{{item}}</text>
+          <text class="drawer-chip-text">{{displayExperienceOptions[idx]}}</text>
         </view>
       </view>
     </view>
   </scroll-view>
 
   <view class="drawer-footer">
-    <view class="drawer-btn drawer-btn-ghost" bindtap="onReset">清除</view>
-    <view class="drawer-btn drawer-btn-primary" bindtap="onConfirm">确定</view>
+    <view class="drawer-btn drawer-btn-ghost" bindtap="onReset">{{ui.clear}}</view>
+    <view class="drawer-btn drawer-btn-primary" bindtap="onConfirm">{{ui.confirm}}</view>
   </view>
 </view>

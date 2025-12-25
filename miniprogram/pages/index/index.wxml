@@ -1,18 +1,10 @@
 <!-- Remote jobs list page -->
 <view class="page">
-  <view class="page-header">
-    <!-- title removed -->
-    <view class="filter-toggle" bindtap="toggleFilter">
-      <text class="filter-label">{{currentFilter}}</text>
-      <view class="filter-triangle {{showFilter ? 'filter-triangle-up' : ''}}" />
-    </view>
-  </view>
-
   <view class="search-bar">
     <input
       class="search-input"
       type="text"
-      placeholder="搜索职位名称或来源.."
+      placeholder="{{ui.searchPlaceholder}}"
       placeholder-class="search-placeholder"
       confirm-type="search"
       value="{{searchKeyword}}"
@@ -21,12 +13,12 @@
 
     <view class="search-actions">
       <view class="search-pill" bindtap="toggleFilter">
-        <text class="search-pill-text">{{currentFilter}}</text>
+        <text class="search-pill-text">{{displayCurrentFilter}}</text>
         <view class="search-pill-triangle {{showFilter ? 'search-pill-triangle-up' : ''}}" />
       </view>
 
       <view class="search-pill" bindtap="toggleDrawer">
-        <text class="search-pill-text">筛选</text>
+        <text class="search-pill-text">{{ui.filterLabel}}</text>
         <view class="search-pill-triangle" />
       </view>
     </view>
@@ -52,12 +44,12 @@
   />
 
   <!-- 遮罩层：点击非弹窗区域时关闭弹窗 -->
-  <view wx:if="{{showFilter}}" class="filter-mask" bindtap="toggleFilter"></view>
+  <view wx:if="{{showFilter}}" class="filter-mask filter-mask-open" bindtap="closeFilter"></view>
 
   <view wx:if="{{showFilter}}" class="filter-dropdown" catchtap="stopPropagation">
-    <block wx:for="{{filterOptions}}" wx:key="*this">
+    <block wx:for="{{filterOptions}}" wx:key="*this" wx:for-index="idx">
       <view class="filter-option" data-value="{{item}}" bindtap="onSelectFilter">
-        <text>{{item}}</text>
+        <text>{{displayFilterOptions[idx]}}</text>
       </view>
     </block>
   </view>

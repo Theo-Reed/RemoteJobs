@@ -2,6 +2,9 @@
 
 import type { JobItem } from '../../utils/job'
 import { mapJobs, typeCollectionMap } from '../../utils/job'
+import { normalizeLanguage, t } from '../../utils/i18n'
+
+type FilterType = '国内' | '国外' | 'web3'
 
 type DrawerFilterValue = {
   salary: string
@@ -18,8 +21,8 @@ Component({
     jobs: <JobItem[]>[],
     filteredJobs: <JobItem[]>[],
     showFilter: false,
-    currentFilter: '国内',
-    filterOptions: ['国内', '国外', 'web3'],
+    currentFilter: '国内' as FilterType,
+    filterOptions: ['国内', '国外', 'web3'] as FilterType[],
     searchKeyword: '',
     pageSize: 15,
     loading: false,
@@ -36,16 +39,64 @@ Component({
     isSearching: false, // Flag to differentiate between paginated loading and search
 
     drawerFilter: DEFAULT_DRAWER_FILTER as DrawerFilterValue,
+
+    ui: {
+      searchPlaceholder: '搜索职位名称或来源..',
+      filterLabel: '筛选',
+    } as Record<string, string>,
+
+    displayCurrentFilter: '国内',
+    displayFilterOptions: ['国内', '国外', 'web3'],
   },
   lifetimes: {
     attached() {
       this.setData({ searchKeyword: '' })
 
+      // live language updates
+      const app = getApp<IAppOption>() as any
+      const listener = () => {
+        this.syncLanguageFromApp()
+      }
+      ;(this as any)._langListener = listener
+      if (app?.onLanguageChange) app.onLanguageChange(listener)
+
+      this.syncLanguageFromApp()
+
       this.getSystemAndUIInfo()
       this.loadJobs(true)
     },
+
+    detached() {
+      const app = getApp<IAppOption>() as any
+      const listener = (this as any)._langListener
+      if (listener && app?.offLanguageChange) app.offLanguageChange(listener)
+      ;(this as any)._langListener = null
+    },
   },
   methods: {
+    syncLanguageFromApp() {
+      const app = getApp<IAppOption>() as any
+      const lang = normalizeLanguage(app?.globalData?.language)
+
+      const labelByType: Record<FilterType, string> = {
+        '国内': t('jobs.regionDomestic', lang),
+        '国外': t('jobs.regionAbroad', lang),
+        web3: t('jobs.regionWeb3', lang),
+      }
+
+      const displayFilterOptions = (this.data.filterOptions as FilterType[]).map((k) => labelByType[k])
+      const displayCurrentFilter = labelByType[this.data.currentFilter as FilterType]
+
+      this.setData({
+        ui: {
+          searchPlaceholder: t('jobs.searchPlaceholder', lang),
+          filterLabel: t('jobs.filterLabel', lang),
+        },
+        displayFilterOptions,
+        displayCurrentFilter,
+      })
+    },
+
     async getSystemAndUIInfo() {
       try {
         const windowInfo = wx.getWindowInfo()
@@ -122,6 +173,11 @@ Component({
       }
     },
 
+    closeFilter() {
+      if (!this.data.showFilter) return
+      this.setData({ showFilter: false })
+    },
+
     toggleFilter() {
       this.setData({ showFilter: !this.data.showFilter })
     },
@@ -129,7 +185,7 @@ Component({
     stopPropagation() {},
 
     async onSelectFilter(e: WechatMiniprogram.TouchEvent) {
-      const value = e.currentTarget.dataset.value as string
+      const value = e.currentTarget.dataset.value as FilterType
       if (value === this.data.currentFilter) {
         this.setData({ showFilter: false })
         return
@@ -144,6 +200,9 @@ Component({
         searchKeyword: '',
         isSearching: false,
       })
+
+      // refresh labels after changing filter
+      this.syncLanguageFromApp()
 
       await this.loadJobs(true)
     },

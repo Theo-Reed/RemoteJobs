@@ -30,6 +30,19 @@ const dict = {
     title: { Chinese: '社区', English: 'Community' },
     desc: { Chinese: '敬请期待', English: 'Coming soon' },
   },
+  jobs: {
+    searchPlaceholder: { Chinese: '搜索职位名称或来源..', English: 'Search title or source..' },
+    filterLabel: { Chinese: '筛选', English: 'Filter' },
+    regionDomestic: { Chinese: '国内', English: 'China' },
+    regionAbroad: { Chinese: '国外', English: 'Intl' },
+    regionWeb3: { Chinese: 'web3', English: 'Web3' },
+  },
+  drawer: {
+    salary: { Chinese: '薪资', English: 'Salary' },
+    experience: { Chinese: '经验', English: 'Experience' },
+    clear: { Chinese: '清除', English: 'Clear' },
+    confirm: { Chinese: '确定', English: 'Apply' },
+  },
 } as const
 
 export type I18nKey =
@@ -51,6 +64,16 @@ export type I18nKey =
   | 'me.emptyFavorites'
   | 'community.title'
   | 'community.desc'
+  | 'jobs.searchPlaceholder'
+  | 'jobs.filterLabel'
+  | 'jobs.regionDomestic'
+  | 'jobs.regionAbroad'
+  | 'jobs.regionWeb3'
+  | 'drawer.salary'
+  | 'drawer.experience'
+  | 'drawer.clear'
+  | 'drawer.confirm'
+  | 'tab.jobs'
 
 function getByPath(obj: any, path: string) {
   return path.split('.').reduce((acc, k) => (acc ? acc[k] : undefined), obj)
@@ -63,6 +86,11 @@ export function t(key: I18nKey, language: AppLanguage): string {
 }
 
 export function normalizeLanguage(input: any): AppLanguage {
-  if (input === 'English' || input === '英文' || input === 'en' || input === 'EN') return 'English'
+  const v = typeof input === 'string' ? input.trim() : input
+  if (typeof v === 'string') {
+    const lower = v.toLowerCase()
+    if (v === 'English' || v === '英文' || v === 'en' || v === 'EN' || lower === 'english' || lower === 'en') return 'English'
+    if (lower === 'chinese' || lower === 'zh' || lower === 'zh-cn' || lower === 'zh-hans') return 'Chinese'
+  }
   return 'Chinese'
 }

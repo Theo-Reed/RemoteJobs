@@ -1,11 +1,15 @@
 // app.ts
 import { normalizeLanguage, type AppLanguage, t } from './utils/i18n'
 
+type LangListener = (lang: AppLanguage) => void
+
 App<IAppOption>({
   globalData: {
     user: null as any,
     language: 'Chinese' as AppLanguage,
-  },
+    _langListeners: new Set<LangListener>(),
+  } as any,
+
   async onLaunch() {
     if (!wx.cloud) {
       console.error('请使用 2.2.3 或以上的基础库以使用云能力')
@@ -21,7 +25,10 @@ App<IAppOption>({
       console.warn('[app] initUser failed', err)
     })
 
+    // Ensure any pages/components that attached early get the final language.
+    const lang = ((this as any).globalData.language || 'Chinese') as AppLanguage
     this.applyLanguage()
+    this.emitLanguageChange(lang)
   },
 
   applyLanguage() {
@@ -48,9 +55,30 @@ App<IAppOption>({
     }
   },
 
+  onLanguageChange(cb: LangListener) {
+    ;(this as any).globalData._langListeners.add(cb)
+  },
+
+  offLanguageChange(cb: LangListener) {
+    ;(this as any).globalData._langListeners.delete(cb)
+  },
+
+  emitLanguageChange(lang: AppLanguage) {
+    const set: Set<LangListener> = (this as any).globalData._langListeners
+    if (!set) return
+    set.forEach((fn) => {
+      try {
+        fn(lang)
+      } catch (e) {
+        console.warn('[app] language listener error', e)
+      }
+    })
+  },
+
   async setLanguage(language: AppLanguage) {
     ;(this as any).globalData.language = language
     this.applyLanguage()
+    this.emitLanguageChange(language)
 
     try {
       const res: any = await wx.cloud.callFunction({
@@ -78,6 +106,7 @@ App<IAppOption>({
     const merged = user ? { ...user, openid } : (openid ? { openid } : null)
     ;(this as any).globalData.user = merged
 
+    // Normalize database/user-provided language (handles 'english'/'chinese' etc.)
     const lang = normalizeLanguage(merged?.language)
     ;(this as any).globalData.language = lang
 

@@ -300,17 +300,47 @@ Page({
     }, 260)
   },
 
+  closeLanguageSheetImmediate() {
+    // close with animation and unmount shortly after; don't await anything
+    this.setData({ languageSheetOpen: false })
+    setTimeout(() => {
+      this.setData({ showLanguageSheet: false })
+    }, 260)
+  },
+
   async onLanguageSelect(e: WechatMiniprogram.TouchEvent) {
     const value = (e.currentTarget.dataset.value || '') as string
     if (!value) return
 
     const lang: AppLanguage = value === 'English' ? 'English' : 'Chinese'
 
-    const app = getApp<IAppOption>() as any
-    await app.setLanguage(lang)
+    // 1) Close sheet immediately (no waiting)
+    this.closeLanguageSheetImmediate()
 
-    this.syncLanguageFromApp()
-    this.closeLanguageSheet()
+    // 2) Show modal loading (blocks all touches)
+    wx.showLoading({ title: '', mask: true })
+
+    const minDuration = new Promise<void>((resolve) => setTimeout(resolve, 1500))
+
+    // 3) Kick off language switch + persistence
+    const app = getApp<IAppOption>() as any
+    const action = (async () => {
+      await app.setLanguage(lang)
+      this.syncLanguageFromApp()
+    })()
+
+    try {
+      await Promise.all([minDuration, action])
+      wx.hideLoading()
+    } catch (err) {
+      // If something goes wrong, keep waiting for the action to settle (mask stays)
+      console.warn('[me] setLanguage failed, keep loading until settled', err)
+      try {
+        await action
+      } finally {
+        wx.hideLoading()
+      }
+    }
   },
 
   onLanguageTap() {

@@ -47,12 +47,19 @@ page::-webkit-scrollbar {
   align-items: center;
   gap: 6rpx;
   flex: 0 0 auto;
+  width: 84rpx; /* fixed width for both pills (fits '筛选' and 'Filter' + triangle) */
+  justify-content: center;
 }
 
 .search-pill-text {
   font-size: 22rpx;
   color: #1d4ed8;
   line-height: 1;
+  display: inline-block;
+  max-width: 110rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* single source of truth for the triangle shape + size + position (NO animation) */
