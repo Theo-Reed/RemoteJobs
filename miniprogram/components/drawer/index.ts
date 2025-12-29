@@ -6,7 +6,7 @@
 import { normalizeLanguage, t } from '../../utils/i18n'
 const swipeToClose = require('../../behaviors/swipe-to-close')
 
-type DrawerValue = { salary: string; experience: string; source?: string }
+type DrawerValue = { salary: string; experience: string; source_name?: string }
 
 // loosen key types to avoid mixed ASCII/non-ASCII literal warnings from tooling
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
@@ -45,7 +45,7 @@ Component({
     show: { type: Boolean, value: false },
     value: {
       type: Object,
-      value: { salary: '全部', experience: '全部', source: '全部' },
+      value: { salary: '全部', experience: '全部', source_name: '全部' },
     },
     region: {
       type: String,
@@ -54,7 +54,7 @@ Component({
   },
 
   data: {
-    tempValue: { salary: '全部', experience: '全部', source: '全部' } as DrawerValue,
+    tempValue: { salary: '全部', experience: '全部', source_name: '全部' } as DrawerValue,
 
     // internal keys (Chinese)
     salaryOptions: SALARY_KEYS,
@@ -81,12 +81,12 @@ Component({
         this.syncLanguageFromApp()
         this.updateSourceOptions()
 
-        const v = (this.properties && (this.properties.value as any)) || { salary: '全部', experience: '全部', source: '全部' }
+        const v = (this.properties && (this.properties.value as any)) || { salary: '全部', experience: '全部', source_name: '全部' }
         this.setData({
           tempValue: {
             salary: v.salary || '全部',
             experience: v.experience || '全部',
-            source: v.source || '全部',
+            source_name: v.source_name || '全部',
           },
         })
         
@@ -117,12 +117,12 @@ Component({
     },
     value(v) {
       if (this.properties && this.properties.show) {
-        const next = (v as any) || { salary: '全部', experience: '全部', source: '全部' }
+        const next = (v as any) || { salary: '全部', experience: '全部', source_name: '全部' }
         this.setData({
           tempValue: {
             salary: next.salary || '全部',
             experience: next.experience || '全部',
-            source: next.source || '全部',
+            source_name: next.source_name || '全部',
           },
         })
       }
@@ -210,11 +210,11 @@ Component({
 
     onPickSource(e: any) {
       const value = (e && e.currentTarget && e.currentTarget.dataset && e.currentTarget.dataset.value) || '全部'
-      this.setData({ tempValue: { ...this.data.tempValue, source: value } })
+      this.setData({ tempValue: { ...this.data.tempValue, source_name: value } })
     },
 
     onReset() {
-      const value = { salary: '全部', experience: '全部', source: '全部' }
+      const value = { salary: '全部', experience: '全部', source_name: '全部' }
       this.setData({ tempValue: value })
       this.triggerEvent('reset', { value })
     },

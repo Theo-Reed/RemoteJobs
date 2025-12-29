@@ -57,7 +57,7 @@
           wx:for="{{sourceOptions}}"
           wx:key="*this"
           wx:for-index="idx"
-          class="drawer-chip {{tempValue.source === item ? 'drawer-chip-active' : ''}}"
+          class="drawer-chip {{tempValue.source_name === item ? 'drawer-chip-active' : ''}}"
           data-value="{{item}}"
           bindtap="onPickSource"
         >

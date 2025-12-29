@@ -11,7 +11,7 @@ const typeCollectionMap = {
 }
 
 exports.main = async (event, context) => {
-  const { collectionName, pageSize = 15, skip = 0, collectionNames } = event || {}
+  const { collectionName, pageSize = 15, skip = 0, collectionNames, source_name } = event || {}
 
   const wxContext = cloud.getWXContext()
   const openid = wxContext.OPENID
@@ -19,13 +19,25 @@ exports.main = async (event, context) => {
   try {
     let jobs = []
 
+    // 构建 where 条件
+    const whereCondition = {}
+    if (source_name && source_name !== '全部') {
+      whereCondition.source_name = source_name
+    }
+
     if (Array.isArray(collectionNames) && collectionNames.length > 0) {
       const allJobs = []
       
       for (const collName of collectionNames) {
         try {
-          const res = await db
-            .collection(collName)
+          let query = db.collection(collName)
+          
+          // 应用筛选条件
+          if (Object.keys(whereCondition).length > 0) {
+            query = query.where(whereCondition)
+          }
+          
+          const res = await query
             .orderBy('createdAt', 'desc')
             .skip(0)
             .limit(pageSize)
@@ -49,8 +61,14 @@ exports.main = async (event, context) => {
       
       jobs = allJobs.slice(0, pageSize)
     } else if (collectionName) {
-      const res = await db
-        .collection(collectionName)
+      let query = db.collection(collectionName)
+      
+      // 应用筛选条件
+      if (Object.keys(whereCondition).length > 0) {
+        query = query.where(whereCondition)
+      }
+      
+      const res = await query
         .orderBy('createdAt', 'desc')
         .skip(skip)
         .limit(pageSize)
