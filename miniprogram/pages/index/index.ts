@@ -411,58 +411,94 @@ Page({
         clearTimeout(self._searchTimer)
       }
       self._searchTimer = setTimeout(() => {
-        if (keyword) {
-          this.performCollectionSearch(keyword)
+        const currentKeyword = (this.getCurrentTabState().searchKeyword || '').trim()
+        if (currentKeyword) {
+          this.performCollectionSearch(currentKeyword, true)
         } else {
           // When search is cleared, revert to the category view
           this.updateCurrentTabState({ isSearching: false })
+          // Reset hasMore to enable pagination after clearing search
+          this.setData({ hasMore: true, loading: true })
           if (this.data.currentTab === 0) {
-            this.loadJobsForTab(0, true)
+            this.loadJobsForTab(0, true).then(() => {
+              const tabs = this.data.jobsByTab as JobItem[][]
+              this.setData({
+                jobs: tabs[0] || [],
+                filteredJobs: tabs[0] || [],
+                loading: false,
+              })
+            }).catch(() => {
+              this.setData({ loading: false })
+            })
           } else if (this.data.currentTab === 1) {
-            this.loadJobsForTab(1, true)
+            this.loadJobsForTab(1, true).then(() => {
+              const tabs = this.data.jobsByTab as JobItem[][]
+              this.setData({
+                jobs: tabs[1] || [],
+                filteredJobs: tabs[1] || [],
+                loading: false,
+              })
+            }).catch(() => {
+              this.setData({ loading: false })
+            })
           } else if (this.data.currentTab === 2) {
             this.loadSavedJobsForTab()
           }
         }
-      }, 400)
+      }, 200)
     },
 
-    async performCollectionSearch(keyword: string) {
+    async performCollectionSearch(keyword: string, reset = false) {
+      if (!keyword || !keyword.trim()) {
+        return
+      }
+      
       this.setData({ loading: true })
-      this.updateCurrentTabState({ isSearching: true })
+      if (reset) {
+        this.updateCurrentTabState({ isSearching: true, scrollTop: 0 })
+      }
       try {
         const db = wx.cloud.database()
-        const _ = db.command
         const currentState = this.getCurrentTabState()
         const collectionName = typeCollectionMap[currentState.currentFilter] || 'domestic_remote_jobs'
 
+        // Escape special regex characters for safe search
+        const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        
         // Create a regex for case-insensitive search
-        const searchRegex = db.RegExp({ regexp: keyword, options: 'i' })
+        const searchRegex = db.RegExp({ regexp: escapedKeyword, options: 'i' })
 
-        // Since we can't fetch all data at once, we'll fetch a large batch (up to 100)
-        // for the search result. This is a limitation of client-side database queries.
-        const res = await db.collection(collectionName).where(_.or([
-          { title: searchRegex },
-          { source_name: searchRegex },
-        ])).orderBy('createdAt', 'desc').limit(100).get()
+        // Use pageSize for pagination, support loading more results
+        const existingJobs = reset ? [] : (this.data.jobsByTab[this.data.currentTab] || [])
+        const skip = existingJobs.length
+        const res = await db.collection(collectionName).where({
+          title: searchRegex,
+        }).orderBy('createdAt', 'desc').skip(skip).limit(this.data.pageSize).get()
 
         const mappedJobs = mapJobs(res.data || []) as JobItem[]
+        const mergedJobs = reset ? mappedJobs : [...existingJobs, ...mappedJobs]
 
         // Update jobs for current tab
         const tabs = this.data.jobsByTab as JobItem[][]
-        tabs[this.data.currentTab] = mappedJobs
-        this.updateCurrentTabState({ scrollTop: 0 })
+        tabs[this.data.currentTab] = mergedJobs
+        if (reset) {
+          this.updateCurrentTabState({ scrollTop: 0 })
+        }
         this.setData({
           jobsByTab: tabs,
-          jobs: mappedJobs,
-          filteredJobs: mappedJobs,
-          hasMore: false, // No pagination for search results
+          jobs: mergedJobs,
+          filteredJobs: mergedJobs,
+          hasMore: mappedJobs.length >= this.data.pageSize, // Enable pagination if we got full pageSize
         }, () => {
           // this.checkScrollability()
         })
       } catch (err) {
         console.error('[jobs] Collection search error', err)
         wx.showToast({ title: '搜索失败', icon: 'none' })
+        // Reset search state on error
+        if (reset) {
+          this.updateCurrentTabState({ isSearching: false })
+        }
       } finally {
         this.setData({ loading: false })
       }
@@ -513,7 +549,9 @@ Page({
           tabs[tabIndex] = limited
           const loaded = this.data.hasLoadedTab as boolean[]
           loaded[tabIndex] = true
-          this.setData({ jobsByTab: tabs, hasLoadedTab: loaded })
+          // For featured tab, set hasMore based on whether we got full pageSize
+          const hasMore = limited.length >= this.data.pageSize
+          this.setData({ jobsByTab: tabs, hasLoadedTab: loaded, hasMore })
         } else {
           // 公开 tab: use current filter collection
           const currentState = this.getCurrentTabState()
@@ -539,7 +577,9 @@ Page({
           tabs[tabIndex] = merged
           const loaded = this.data.hasLoadedTab as boolean[]
           loaded[tabIndex] = true
-          this.setData({ jobsByTab: tabs, hasLoadedTab: loaded })
+          // Set hasMore based on whether we got full pageSize
+          const hasMore = newJobs.length >= this.data.pageSize
+          this.setData({ jobsByTab: tabs, hasLoadedTab: loaded, hasMore })
         }
       } catch (err) {
         console.error('[jobs] loadJobsForTab error', err)
@@ -777,8 +817,7 @@ Page({
 
       const filtered = jobs.filter((job) => {
         const title = (job.title || '').toLowerCase()
-        const sourceName = (job.source_name || '').toLowerCase()
-        return title.indexOf(keyword) > -1 || sourceName.indexOf(keyword) > -1
+        return title.indexOf(keyword) > -1
       })
 
       this.setData({ filteredJobs: filtered }, () => {
@@ -825,13 +864,19 @@ Page({
 
     maybeLoadMore() {
       const currentState = this.getCurrentTabState()
-      if (currentState.isSearching) return
-
       const { loading, hasMore, lastLoadTime } = this.data
       const now = Date.now()
       if (loading || !hasMore || now - lastLoadTime < 500) return
 
       this.setData({ lastLoadTime: now })
+      
+      // If searching, load more search results
+      if (currentState.isSearching && currentState.searchKeyword) {
+        this.performCollectionSearch(currentState.searchKeyword, false)
+        return
+      }
+
+      // Otherwise, load more jobs for the current tab
       if (this.data.currentTab === 0) {
         this.loadJobsForTab(0, false)
       } else if (this.data.currentTab === 1) {
@@ -898,8 +943,7 @@ Page({
       if (keyword) {
         list = list.filter((job) => {
           const title = (job.title || '').toLowerCase()
-          const sourceName = (job.source_name || '').toLowerCase()
-          return title.indexOf(keyword) > -1 || sourceName.indexOf(keyword) > -1
+          return title.indexOf(keyword) > -1
         })
       }
 
