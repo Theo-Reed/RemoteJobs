@@ -3,7 +3,8 @@
     "pages/index/index",
     "pages/community/index",
     "pages/me/index",
-    "pages/logs/logs"
+    "pages/logs/logs",
+    "pages/article-list/index"
   ],
   "page": {
     "pages/community/index": {

@@ -1,35 +1,46 @@
 <view class="page">
   <view class="content">
+    <view wx:if="{{loading}}" class="loading">加载中...</view>
     <!-- Articles -->
-    <view
-      wx:for="{{articles}}"
-      wx:for-item="article"
-      wx:key="id"
-      class="article"
-    >
-      <view class="article-title-row">
-        <view class="article-title">{{article.title}}</view>
-        <view class="article-all" bindtap="onOpenArticleAll" data-id="{{article.id}}">全部></view>
-      </view>
-      <view class="article-list">
-        <view
-          wx:for="{{article.items}}"
-          wx:key="id"
-          class="article-card"
-          bindtap="onArticleTap"
-          data-article-id="{{article.id}}"
-          data-item-id="{{item.id}}"
-        >
-          <view wx:if="{{item.status}}" class="article-badge {{'article-badge-' + item.statusType}}">
-            <text class="article-badge-text">{{item.status}}</text>
-          </view>
-          <image class="article-image" src="{{item.image}}" mode="aspectFill" />
-          <view class="article-content">
-            <text class="article-title-text">{{item.title}}</text>
-            <text class="article-description">{{item.description}}</text>
+    <block wx:else>
+      <view
+        wx:for="{{articles}}"
+        wx:for-item="article"
+        wx:key="id"
+        class="article"
+      >
+        <view class="article-title-row">
+          <view class="article-title">{{article.title}}</view>
+          <view class="article-all" bindtap="onOpenArticleAll" data-id="{{article.id}}">全部></view>
+        </view>
+        <view class="article-list">
+          <view
+            wx:for="{{article.items}}"
+            wx:key="id"
+            class="article-card"
+            bindtap="onArticleTap"
+            data-article-id="{{article.id}}"
+            data-item-id="{{item.id}}"
+          >
+            <view wx:if="{{item.status}}" class="article-badge {{'article-badge-' + item.status}}">
+              <text class="article-badge-text">{{item.status === 'active' ? ui.statusActive : ui.statusEnded}}</text>
+            </view>
+            <image wx:if="{{item.image}}" class="article-image" src="{{item.image}}" mode="aspectFill" />
+            <view class="article-content">
+              <text class="article-title-text">{{item.title}}</text>
+              <text wx:if="{{item.description}}" class="article-description">{{item.description}}</text>
+            </view>
           </view>
         </view>
       </view>
-    </view>
+    </block>
   </view>
+  
+  <!-- Article Detail Drawer Component -->
+  <article-detail
+    id="articleDetail"
+    show="{{showArticleDetail}}"
+    article-id="{{selectedArticleId}}"
+    bind:close="closeArticleDetail"
+  />
 </view>

@@ -45,14 +45,14 @@ exports.main = async (event, context) => {
 
     const now = db.serverDate()
     const userData = {
-      openid: OPENID,
-      isAuthed: false,
-      phone: null,
-      nickname: null,
-      avatar: null,
-      language: 'Chinese',
-      createdAt: now,
-      updatedAt: now,
+        openid: OPENID,
+        isAuthed: false,
+        phone: null,
+        nickname: null,
+        avatar: null,
+        language: 'Chinese',
+        createdAt: now,
+        updatedAt: now,
     }
 
     // Add invite code if generated successfully

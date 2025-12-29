@@ -60,20 +60,20 @@ Page({
     displayFilterOptions: ['国内', '国外', 'web3'],
   },
   onLoad() {
-    this.setData({ searchKeyword: '' })
+      this.setData({ searchKeyword: '' })
 
-    // attach language-aware behavior (nav title + UI strings)
-    ;(this as any)._langDetach = attachLanguageAware(this, {
-      onLanguageRevive: () => {
-        this.syncLanguageFromApp()
+      // attach language-aware behavior (nav title + UI strings)
+      ;(this as any)._langDetach = attachLanguageAware(this, {
+        onLanguageRevive: () => {
+          this.syncLanguageFromApp()
         // Immediately set navigation bar title when language changes
         const app = getApp<IAppOption>() as any
         const lang = normalizeLanguage(app?.globalData?.language)
         wx.setNavigationBarTitle({ title: t('app.navTitle', lang) })
-      },
-    })
+        },
+      })
 
-    this.getSystemAndUIInfo()
+      this.getSystemAndUIInfo()
     // Load primary tab immediately, then preload others in background
     this.loadJobs(true).then(() => {
       // store primary tab data into cache
@@ -93,10 +93,10 @@ Page({
   },
 
   onUnload() {
-    const fn = (this as any)._langDetach
-    if (typeof fn === 'function') fn()
-    ;(this as any)._langDetach = null
-  },
+      const fn = (this as any)._langDetach
+      if (typeof fn === 'function') fn()
+      ;(this as any)._langDetach = null
+    },
 
   onShow() {
     // Set navigation bar title when page becomes visible
@@ -124,6 +124,42 @@ Page({
     this.maybeLoadMore()
   },
 
+  onSwiperChange(e: any) {
+    // Handle swiper change (swipe gesture)
+    const idx = e.detail.current || 0
+    if (idx === this.data.currentTab) return // No change
+    
+    // switch tab visually — load from cache if available
+    const tabs = (this.data as any).jobsByTab as JobItem[][]
+    const loaded = (this.data as any).hasLoadedTab as boolean[]
+    this.setData({ currentTab: idx })
+    
+    if (idx === 1) {
+      // 精选 tab - check subscription and load jobs (even if locked, show preview)
+      this.checkFeaturedSubscription()
+      if (!loaded[idx]) {
+        // Load jobs even if locked (for preview)
+        this.loadJobsForTab(idx, true).catch(() => {})
+      } else {
+        this.setData({ jobs: tabs[idx], filteredJobs: tabs[idx] })
+      }
+    } else if (idx === 2) {
+      // 收藏 tab - load saved jobs
+      if (!loaded[idx]) {
+        this.loadSavedJobsForTab()
+      } else {
+        this.setData({ jobs: tabs[idx], filteredJobs: tabs[idx] })
+      }
+    } else {
+      // 公开 tab
+      if (loaded[idx]) {
+        this.setData({ jobs: tabs[idx], filteredJobs: tabs[idx] })
+      } else {
+        this.loadJobsForTab(idx, true).catch(() => {})
+      }
+    }
+  },
+
   onTabTap(e: any) {
     const idx = Number(e.currentTarget.dataset.idx || 0)
     // switch tab visually — load from cache if available
@@ -138,26 +174,26 @@ Page({
         // Load jobs even if locked (for preview)
         this.loadJobsForTab(idx, true).catch(() => {})
       } else {
-        this.setData({ jobs: tabs[idx], filteredJobs: tabs[idx], scrollTop: 0 })
+        this.setData({ jobs: tabs[idx], filteredJobs: tabs[idx] })
       }
     } else if (idx === 2) {
       // 收藏 tab - load saved jobs
       if (!loaded[idx]) {
         this.loadSavedJobsForTab()
       } else {
-        this.setData({ jobs: tabs[idx], filteredJobs: tabs[idx], scrollTop: 0 })
+        this.setData({ jobs: tabs[idx], filteredJobs: tabs[idx] })
       }
     } else {
       // 公开 tab
       if (loaded[idx]) {
-        this.setData({ jobs: tabs[idx], filteredJobs: tabs[idx], scrollTop: 0 })
+        this.setData({ jobs: tabs[idx], filteredJobs: tabs[idx] })
       } else {
         this.loadJobsForTab(idx, true).catch(() => {})
       }
     }
   },
 
-  syncLanguageFromApp() {
+    syncLanguageFromApp() {
       const app = getApp<IAppOption>() as any
       const lang = normalizeLanguage(app?.globalData?.language)
 
@@ -174,6 +210,7 @@ Page({
         ui: {
           searchPlaceholder: t('jobs.searchPlaceholder', lang),
           filterLabel: t('jobs.filterLabel', lang),
+          emptyFavorites: t('me.emptyFavorites', lang),
         },
         displayFilterOptions,
         displayCurrentFilter,
@@ -380,9 +417,9 @@ Page({
         const collected = (collectedRes.data || []) as any[]
         if (collected.length === 0) {
           const tabs = this.data.jobsByTab as JobItem[][]
-          tabs[1] = []
+          tabs[2] = []
           const loaded = this.data.hasLoadedTab as boolean[]
-          loaded[1] = true
+          loaded[2] = true
           this.setData({ jobsByTab: tabs, hasLoadedTab: loaded, jobs: [], filteredJobs: [] })
           return
         }
@@ -440,9 +477,9 @@ Page({
 
         const normalized = mapJobs(merged) as JobItem[]
         const tabs = this.data.jobsByTab as JobItem[][]
-        tabs[1] = normalized
+        tabs[2] = normalized
         const loaded = this.data.hasLoadedTab as boolean[]
-        loaded[1] = true
+        loaded[2] = true
         this.setData({ jobsByTab: tabs, hasLoadedTab: loaded, jobs: normalized, filteredJobs: normalized })
       } catch (err) {
         console.error('[index] loadSavedJobsForTab failed', err)
@@ -649,9 +686,9 @@ Page({
       
       // For saved jobs (收藏 tab), use sourceCollection if available
       let collectionName = ''
-      if (this.data.currentTab === 1 && job?.sourceCollection) {
+      if (this.data.currentTab === 2 && job?.sourceCollection) {
         collectionName = job.sourceCollection
-      } else if (this.data.currentTab === 2) {
+      } else if (this.data.currentTab === 1) {
         // For 精选 tab, try to determine collection from job type or use all collections
         // For now, use the first available collection or fallback
         collectionName = job?.sourceCollection || typeCollectionMap[this.data.currentFilter] || 'domestic_remote_jobs'
@@ -666,5 +703,5 @@ Page({
         selectedCollection: collectionName,
         showJobDetail: true,
       })
-    },
+  },
 })

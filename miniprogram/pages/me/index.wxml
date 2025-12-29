@@ -21,7 +21,7 @@
         </block>
         <block wx:else>
           <view class="nickname-container">
-            <text class="nickname">{{userInfo ? userInfo.nickName : '已登录'}}</text>
+          <text class="nickname">{{userInfo ? userInfo.nickName : '已登录'}}</text>
             <view class="verification-badge {{isVerified ? 'verified' : 'unverified'}}">
               <text class="verification-text">{{isVerified ? '已认证' : '未认证'}}</text>
             </view>

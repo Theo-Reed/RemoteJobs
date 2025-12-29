@@ -1,6 +1,12 @@
 <!--miniprogram/components/job-detail/index.wxml-->
 <view wx:if="{{show}}" class="detail-mask" bindtap="onClose"></view>
-<view class="detail-drawer {{show ? 'detail-drawer-open' : ''}}">
+<view 
+  class="detail-drawer {{show ? 'detail-drawer-open' : ''}} {{isSwiping ? 'detail-drawer-swiping' : ''}}"
+  style="transform: translate3d({{drawerTranslateX}}px, 0, 0);"
+  bindtouchstart="onTouchStart"
+  catchtouchmove="onTouchMove"
+  bindtouchend="onTouchEnd"
+>
   <block wx:if="{{job}}">
     <view class="detail-header">
       <view class="back-hit" bindtap="onClose">
@@ -13,6 +19,7 @@
   scroll-y="{{true}}"
   enhanced="true" 
   show-scrollbar="{{false}}"
+  bindscroll="onScrollViewScroll"
   >
     <block wx:if="{{loading}}">
       <view class="loading">加载中...</view>

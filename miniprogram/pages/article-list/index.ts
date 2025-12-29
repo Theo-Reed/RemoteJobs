@@ -1,38 +1,85 @@
-// Article list page - shows list of items for a given article
+// Article list page - shows list of articles for a given type
 import { normalizeLanguage, t } from '../../utils/i18n'
+import type { Article } from '../../utils/article'
+
+// Map article id to database type
+const articleIdToType: Record<string, string> = {
+  'online': 'online_event',
+  'offline': 'offline_event',
+  'success': 'success_forest',
+  'skills': 'skill_swap',
+}
+
+// Map article id to i18n key
+const articleIdToI18nKey: Record<string, string> = {
+  'online': 'community.onlineActivitiesTitle',
+  'offline': 'community.offlineActivitiesTitle',
+  'skills': 'community.skillExchangeTitle',
+  'success': 'community.successStoriesTitle',
+}
 
 Page({
   data: {
     articleId: '',
-    article: null as any,
+    articles: [] as any[],
+    title: '',
+    loading: true,
+    showArticleDetail: false,
+    selectedArticleId: '',
   },
 
-  onLoad(options: any) {
+  async onLoad(options: any) {
     const id = options.id || ''
     this.setData({ articleId: id })
 
     const app: any = getApp()
-    const articles = app && app.globalData ? app.globalData.articles : null
-    if (!articles) {
-      wx.showToast({ title: '无法加载内容', icon: 'none' })
+    const lang = normalizeLanguage(app?.globalData?.language)
+    const i18nKey = articleIdToI18nKey[id]
+    const title = i18nKey ? t(i18nKey as any, lang) : id
+    this.setData({ title })
+    wx.setNavigationBarTitle({ title })
+
+    const type = articleIdToType[id]
+    if (!type) {
+      wx.showToast({ title: '类型不存在', icon: 'none' })
       return
     }
 
-    const article = (articles || []).find((a: any) => a.id === id)
-    if (!article) {
-      wx.showToast({ title: '内容不存在', icon: 'none' })
-      return
+    try {
+      const db = wx.cloud.database()
+      const res = await db.collection('articles').where({ type }).get()
+      
+      this.setData({
+        articles: (res.data || []).map((item: any) => ({
+          id: item._id,
+          image: item.image,
+          title: item.title,
+          description: item.description,
+          status: item.status === 'active' || item.status === 'ended' ? item.status : undefined,
+        })),
+        loading: false,
+      })
+    } catch (err) {
+      console.error('[article-list] loadArticles failed', err)
+      wx.showToast({ title: '加载失败', icon: 'none' })
+      this.setData({ loading: false })
     }
-
-    this.setData({ article })
-    wx.setNavigationBarTitle({ title: article.title || 'Article' })
   },
 
   onItemTap(e: any) {
-    const articleId = this.data.articleId
-    const itemId = e?.currentTarget?.dataset?.id
-    if (!articleId || !itemId) return
-    wx.navigateTo({ url: `/pages/article-detail/index?id=${articleId}&item=${itemId}` })
+    const articleId = e?.currentTarget?.dataset?.id
+    if (!articleId) return
+    this.setData({
+      showArticleDetail: true,
+      selectedArticleId: articleId,
+    })
+  },
+
+  closeArticleDetail() {
+    this.setData({
+      showArticleDetail: false,
+      selectedArticleId: '',
+    })
   },
 })
 

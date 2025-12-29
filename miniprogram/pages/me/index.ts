@@ -58,8 +58,8 @@ Page({
   onShow() {
     // Use setTimeout to defer heavy operations and avoid blocking UI
     setTimeout(() => {
-      this.syncUserFromApp()
-      this.syncLanguageFromApp()
+    this.syncUserFromApp()
+    this.syncLanguageFromApp()
     }, 0)
   },
 

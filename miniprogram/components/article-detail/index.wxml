@@ -1,0 +1,39 @@
+<!--miniprogram/components/article-detail/index.wxml-->
+<view wx:if="{{show}}" class="detail-mask" bindtap="onClose"></view>
+<view 
+  class="detail-drawer {{show ? 'detail-drawer-open' : ''}} {{isSwiping ? 'detail-drawer-swiping' : ''}}"
+  style="transform: translate3d({{drawerTranslateX}}px, 0, 0);"
+  bindtouchstart="onTouchStart"
+  catchtouchmove="onTouchMove"
+  bindtouchend="onTouchEnd"
+>
+  <block wx:if="{{article}}">
+    <view class="detail-header">
+      <view class="back-hit" bindtap="onClose">
+        <view class="back-button"></view>
+      </view>
+    </view>
+  </block>
+  <scroll-view     
+    class="detail-content" 
+    scroll-y="{{!isSwiping}}"
+    enhanced="{{true}}" 
+    show-scrollbar="{{false}}"
+    bindscroll="onScrollViewScroll"
+  >
+    <block wx:if="{{loading}}">
+      <view class="loading">加载中...</view>
+    </block>
+    <block wx:elif="{{article}}">
+      <view class="detail-body">
+        <view class="article-detail-content">
+          <rich-text nodes="{{htmlNodes}}" />
+        </view>
+      </view>
+    </block>
+    <block wx:else>
+      <view class="error">加载失败</view>
+    </block>
+  </scroll-view>
+</view>
+

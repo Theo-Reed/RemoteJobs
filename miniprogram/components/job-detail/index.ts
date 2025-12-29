@@ -1,4 +1,6 @@
 // miniprogram/components/job-detail/index.ts
+const swipeToClose = require('../../behaviors/swipe-to-close')
+
 const COLLECT_COLLECTION = 'collected_jobs'
 const COLLECT_DEBOUNCE_DELAY = 300
 
@@ -37,6 +39,8 @@ type JobDetailItem = {
 }
 
 Component({
+  behaviors: [swipeToClose],
+
   properties: {
     show: {
       type: Boolean,

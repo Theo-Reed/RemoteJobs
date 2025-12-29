@@ -36,8 +36,8 @@ const dict = {
     inviteCodeApplied: { Chinese: '邀请码已应用', English: 'Invite code applied successfully' },
     // Language selector labels (also used in AI Translate popup)
     langDefault: { Chinese: '默认', English: 'Default' },
-    langAIChinese: { Chinese: 'AI 全中文', English: 'AI Chinese' },
-    langAIEnglish: { Chinese: 'AI 全英文', English: 'AI English' },
+    langAIChinese: { Chinese: 'AI 岗位全中文', English: 'AI Chinese' },
+    langAIEnglish: { Chinese: 'AI 岗位全英文', English: 'AI English' },
   },
   community: {
     title: { Chinese: '社区', English: 'Community' },

@@ -87,6 +87,7 @@
   height: 120rpx;
   border-radius: 12rpx;
   flex-shrink: 0;
+  pointer-events: none; /* Allow clicks to pass through */
 }
 
 .article-badge {
@@ -99,6 +100,7 @@
   font-weight: 600;
   line-height: 1;
   z-index: 10;
+  pointer-events: none; /* Allow clicks to pass through */
 }
 
 .article-badge-text {
@@ -128,6 +130,7 @@
   justify-content: flex-start;
   height: 120rpx; /* Same as image height */
   overflow: hidden;
+  pointer-events: none; /* Allow clicks to pass through */
 }
 
 .article-title-text {
