@@ -109,43 +109,31 @@ Page({
   },
 
   onLoad: function () {
-    // Initialize activities status text based on current language
-    const app: any = getApp()
-    const lang = normalizeLanguage(app && app.globalData ? app.globalData.language : null)
-
-    const updatedActivities = this.data.activities.map(activity => ({
-      ...activity,
-      status: activity.statusType === 'active'
-        ? t('community.statusActive', lang)
-        : t('community.statusEnded', lang)
-    }))
-
-    this.setData({
-      activities: updatedActivities,
-      ui: {
-        ...this.data.ui,
-        statusActive: t('community.statusActive', lang),
-        statusEnded: t('community.statusEnded', lang),
-      }
-    })
-
-    // subscribe once for this page instance
+    // Store original articles data for language updates
     const self: any = this
+    if (!self._originalArticles) {
+      self._originalArticles = JSON.parse(JSON.stringify(this.data.articles))
+    }
+    
+    // subscribe once for this page instance (this will call onLanguageRevive immediately)
     self._langDetach = attachLanguageAware(this, {
       onLanguageRevive: (lang) => {
         // Update articles with translated titles and status
-        const updatedArticles = this.data.articles.map(article => ({
+        // Use original articles data structure to avoid translation accumulation
+        const originalArticles = self._originalArticles || this.data.articles
+        
+        const updatedArticles = originalArticles.map((article: any) => ({
           ...article,
           title: article.id === 'online' ? t('community.onlineActivitiesTitle', lang) :
                  article.id === 'offline' ? t('community.offlineActivitiesTitle', lang) :
                  article.id === 'skills' ? t('community.skillExchangeTitle', lang) :
                  t('community.successStoriesTitle', lang),
-          items: article.items.map(item => ({
+          items: article.items.map((item: any) => ({
             ...item,
             status: item.statusType === 'active' ? t('community.statusActive', lang) :
                     item.statusType === 'ended' ? t('community.statusEnded', lang) :
                     item.statusType === 'upcoming' ? t('community.statusUpcoming', lang) :
-                    t('community.statusOngoing', lang)
+                    item.statusType ? t('community.statusOngoing', lang) : item.status
           }))
         }))
 
@@ -153,20 +141,23 @@ Page({
           ui: {
             title: t('community.title', lang),
             desc: t('community.desc', lang),
+            statusActive: t('community.statusActive', lang),
+            statusEnded: t('community.statusEnded', lang),
           },
           articles: updatedArticles,
         })
         // Immediately set navigation bar title when language changes
         wx.setNavigationBarTitle({ title: t('app.navTitle', lang) })
+        
+        // also publish articles to global for detail page
+        try {
+          const app: any = getApp()
+          if (app && app.globalData) app.globalData.articles = updatedArticles
+        } catch {
+          // ignore
+        }
       },
     })
-    // also publish articles to global for detail page
-    try {
-      const app: any = getApp()
-      if (app && app.globalData) app.globalData.articles = this.data.articles
-    } catch {
-      // ignore
-    }
   },
 
   onUnload: function () {
@@ -181,37 +172,46 @@ Page({
     const lang = normalizeLanguage(app && app.globalData ? app.globalData.language : null)
 
     wx.setNavigationBarTitle({ title: t('app.navTitle', lang) })
+    
+    // Only update if articles haven't been initialized yet (first load)
+    // Otherwise, language changes are handled by attachLanguageAware
+    if (!this.data.articles || this.data.articles.length === 0) {
+      const self: any = this
+      const originalArticles = self._originalArticles || self.data.articles
+      if (originalArticles && originalArticles.length > 0) {
+        const updatedArticles = originalArticles.map((article: any) => ({
+          ...article,
+          title: article.id === 'online' ? t('community.onlineActivitiesTitle', lang) :
+                 article.id === 'offline' ? t('community.offlineActivitiesTitle', lang) :
+                 article.id === 'skills' ? t('community.skillExchangeTitle', lang) :
+                 t('community.successStoriesTitle', lang),
+          items: article.items.map((item: any) => ({
+            ...item,
+            status: item.statusType === 'active' ? t('community.statusActive', lang) :
+                    item.statusType === 'ended' ? t('community.statusEnded', lang) :
+                    item.statusType === 'upcoming' ? t('community.statusUpcoming', lang) :
+                    item.statusType ? t('community.statusOngoing', lang) : item.status
+          }))
+        }))
 
-    // Update articles with translated titles and status
-    const updatedArticles = this.data.articles.map(article => ({
-      ...article,
-      title: article.id === 'online' ? t('community.onlineActivitiesTitle', lang) :
-             article.id === 'offline' ? t('community.offlineActivitiesTitle', lang) :
-             article.id === 'skills' ? t('community.skillExchangeTitle', lang) :
-             t('community.successStoriesTitle', lang),
-      items: article.items.map(item => ({
-        ...item,
-        status: item.statusType === 'active' ? t('community.statusActive', lang) :
-                item.statusType === 'ended' ? t('community.statusEnded', lang) :
-                item.statusType === 'upcoming' ? t('community.statusUpcoming', lang) :
-                t('community.statusOngoing', lang)
-      }))
-    }))
-
-    this.setData({
-      ui: {
-        title: t('community.title', lang),
-        desc: t('community.desc', lang),
-      },
-      articles: updatedArticles,
-    })
-      // expose articles to global for Article Detail page to pick up
-      try {
-        const app: any = getApp()
-        if (app && app.globalData) app.globalData.articles = updatedArticles
-      } catch {
-        // ignore
+        this.setData({
+          ui: {
+            title: t('community.title', lang),
+            desc: t('community.desc', lang),
+            statusActive: t('community.statusActive', lang),
+            statusEnded: t('community.statusEnded', lang),
+          },
+          articles: updatedArticles,
+        })
+        
+        // expose articles to global for Article Detail page to pick up
+        try {
+          if (app && app.globalData) app.globalData.articles = updatedArticles
+        } catch {
+          // ignore
+        }
       }
+    }
   },
  
   // Open article list page (shows list of items for this article)

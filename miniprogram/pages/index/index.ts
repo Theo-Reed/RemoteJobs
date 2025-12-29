@@ -1,9 +1,10 @@
 // index.ts - remote jobs list
 
-import type { JobItem } from '../../utils/job'
+import type { JobItem, ResolvedSavedJob } from '../../utils/job'
 import { mapJobs, typeCollectionMap } from '../../utils/job'
 import { normalizeLanguage, t } from '../../utils/i18n'
 import { attachLanguageAware } from '../../utils/languageAware'
+import { toDateMs } from '../../utils/time'
 
 type FilterType = '国内' | '国外' | 'web3'
 
@@ -23,10 +24,13 @@ Page({
     filteredJobs: <JobItem[]>[],
     // Tab state
     currentTab: 0,
-    tabLabels: ['公开', '收藏', '最新'],
+    tabLabels: ['公开', '精选', '收藏'],
     // Preloaded data per tab (index -> JobItem[])
     jobsByTab: [<JobItem[]>[], <JobItem[]>[], <JobItem[]>[]] as JobItem[][],
     hasLoadedTab: [false, false, false] as boolean[],
+    // Subscription status for 精选 tab
+    isFeaturedUnlocked: false,
+    featuredScrollEnabled: true,
     showFilter: false,
     currentFilter: '国内' as FilterType,
     filterOptions: ['国内', '国外', 'web3'] as FilterType[],
@@ -99,6 +103,8 @@ Page({
     const app = getApp<IAppOption>() as any
     const lang = normalizeLanguage(app?.globalData?.language)
     wx.setNavigationBarTitle({ title: t('app.navTitle', lang) })
+    // Check subscription status for 精选 tab
+    this.checkFeaturedSubscription()
   },
 
   onPullDownRefresh() {
@@ -124,11 +130,30 @@ Page({
     const tabs = (this.data as any).jobsByTab as JobItem[][]
     const loaded = (this.data as any).hasLoadedTab as boolean[]
     this.setData({ currentTab: idx })
-    if (loaded[idx]) {
-      this.setData({ jobs: tabs[idx], filteredJobs: tabs[idx], scrollTop: 0 })
+    
+    if (idx === 1) {
+      // 精选 tab - check subscription and load jobs (even if locked, show preview)
+      this.checkFeaturedSubscription()
+      if (!loaded[idx]) {
+        // Load jobs even if locked (for preview)
+        this.loadJobsForTab(idx, true).catch(() => {})
+      } else {
+        this.setData({ jobs: tabs[idx], filteredJobs: tabs[idx], scrollTop: 0 })
+      }
+    } else if (idx === 2) {
+      // 收藏 tab - load saved jobs
+      if (!loaded[idx]) {
+        this.loadSavedJobsForTab()
+      } else {
+        this.setData({ jobs: tabs[idx], filteredJobs: tabs[idx], scrollTop: 0 })
+      }
     } else {
-      // kick off background load for this tab (do not clear UI)
-      this.loadJobsForTab(idx, true).catch(() => {})
+      // 公开 tab
+      if (loaded[idx]) {
+        this.setData({ jobs: tabs[idx], filteredJobs: tabs[idx], scrollTop: 0 })
+      } else {
+        this.loadJobsForTab(idx, true).catch(() => {})
+      }
     }
   },
 
@@ -231,37 +256,216 @@ Page({
       }
     },
 
-    // Load jobs for a specific tab index (for preloading). For now tabs use the same collection.
+    // Load jobs for a specific tab index (for preloading).
     async loadJobsForTab(tabIndex: number, reset = false) {
       try {
         const db = wx.cloud.database()
-        const collectionName = typeCollectionMap[this.data.currentFilter] || 'domestic_remote_jobs'
-        const skip = reset ? 0 : (this.data.jobsByTab[tabIndex] || []).length
-        const res = await db
-          .collection(collectionName)
-          .orderBy('createdAt', 'desc')
-          .skip(skip)
-          .limit(this.data.pageSize)
-          .get()
+        
+        if (tabIndex === 1) {
+          // 精选 tab: load from all collections
+          const collections = Object.values(typeCollectionMap)
+          const allJobs: JobItem[] = []
+          
+          for (const collectionName of collections) {
+            try {
+              const skip = reset ? 0 : 0 // For featured, always start fresh or implement pagination later
+              const res = await db
+                .collection(collectionName)
+                .orderBy('createdAt', 'desc')
+                .skip(skip)
+                .limit(this.data.pageSize)
+                .get()
+              
+              const mapped = mapJobs(res.data || []) as JobItem[]
+              // Add sourceCollection to each job for reference
+              mapped.forEach(job => {
+                (job as any).sourceCollection = collectionName
+              })
+              allJobs.push(...mapped)
+            } catch (err) {
+              console.error(`[jobs] loadJobsForTab error for ${collectionName}`, err)
+            }
+          }
+          
+          // Sort by createdAt descending
+          allJobs.sort((a, b) => {
+            const aTime = new Date(a.createdAt).getTime()
+            const bTime = new Date(b.createdAt).getTime()
+            return bTime - aTime
+          })
+          
+          // Limit to pageSize
+          const limited = allJobs.slice(0, this.data.pageSize)
+          
+          const tabs = this.data.jobsByTab as JobItem[][]
+          tabs[tabIndex] = limited
+          const loaded = this.data.hasLoadedTab as boolean[]
+          loaded[tabIndex] = true
+          this.setData({ jobsByTab: tabs, hasLoadedTab: loaded })
+        } else {
+          // 公开 tab: use current filter collection
+          const collectionName = typeCollectionMap[this.data.currentFilter] || 'domestic_remote_jobs'
+          const skip = reset ? 0 : (this.data.jobsByTab[tabIndex] || []).length
+          const res = await db
+            .collection(collectionName)
+            .orderBy('createdAt', 'desc')
+            .skip(skip)
+            .limit(this.data.pageSize)
+            .get()
 
-        const newJobs = mapJobs(res.data || []) as JobItem[]
-        const existing = (this.data.jobsByTab[tabIndex] || []) as JobItem[]
-        const merged = reset ? newJobs : [...existing, ...newJobs]
+          const newJobs = mapJobs(res.data || []) as JobItem[]
+          const existing = (this.data.jobsByTab[tabIndex] || []) as JobItem[]
+          const merged = reset ? newJobs : [...existing, ...newJobs]
 
-        const tabs = this.data.jobsByTab as JobItem[][]
-        tabs[tabIndex] = merged
-        const loaded = this.data.hasLoadedTab as boolean[]
-        loaded[tabIndex] = true
-        this.setData({ jobsByTab: tabs, hasLoadedTab: loaded })
+          const tabs = this.data.jobsByTab as JobItem[][]
+          tabs[tabIndex] = merged
+          const loaded = this.data.hasLoadedTab as boolean[]
+          loaded[tabIndex] = true
+          this.setData({ jobsByTab: tabs, hasLoadedTab: loaded })
+        }
       } catch (err) {
         console.error('[jobs] loadJobsForTab error', err)
       }
     },
 
     preloadTabs() {
-      // preload tabs 1 and 2 in background
+      // preload tab 1 (精选) - load even if locked (for preview)
       this.loadJobsForTab(1, true).catch(() => {})
-      this.loadJobsForTab(2, true).catch(() => {})
+      // preload tab 2 (收藏) in background
+      this.loadSavedJobsForTab().catch(() => {})
+    },
+
+    checkFeaturedSubscription() {
+      const app = getApp<IAppOption>() as any
+      const user = app?.globalData?.user
+      const expired = user?.expiredDate
+      if (!expired) {
+        this.setData({ isFeaturedUnlocked: false, featuredScrollEnabled: false })
+        return
+      }
+      const ms = toDateMs(expired)
+      if (!ms) {
+        this.setData({ isFeaturedUnlocked: false, featuredScrollEnabled: false })
+        return
+      }
+      const isUnlocked = ms > Date.now()
+      this.setData({ isFeaturedUnlocked: isUnlocked, featuredScrollEnabled: isUnlocked })
+    },
+
+    async loadSavedJobsForTab() {
+      const app = getApp<IAppOption>() as any
+      const user = app?.globalData?.user
+      const openid = user?.openid
+      const isLoggedIn = !!(user && (user.isAuthed || user.phone))
+      if (!isLoggedIn || !openid) {
+        const tabs = this.data.jobsByTab as JobItem[][]
+        tabs[2] = []
+        const loaded = this.data.hasLoadedTab as boolean[]
+        loaded[2] = true
+        this.setData({ jobsByTab: tabs, hasLoadedTab: loaded, jobs: [], filteredJobs: [] })
+        return
+      }
+
+      this.setData({ loading: true })
+      try {
+        const db = wx.cloud.database()
+
+        const collectedRes = await db
+          .collection('collected_jobs')
+          .where({ openid })
+          .orderBy('createdAt', 'desc')
+          .limit(100)
+          .get()
+
+        const collected = (collectedRes.data || []) as any[]
+        if (collected.length === 0) {
+          const tabs = this.data.jobsByTab as JobItem[][]
+          tabs[1] = []
+          const loaded = this.data.hasLoadedTab as boolean[]
+          loaded[1] = true
+          this.setData({ jobsByTab: tabs, hasLoadedTab: loaded, jobs: [], filteredJobs: [] })
+          return
+        }
+
+        const groups = new Map<string, string[]>()
+        for (const row of collected) {
+          const t = row?.type
+          const id = row?.jobId
+          if (!t || !id) continue
+          const list = groups.get(t) || []
+          list.push(id)
+          groups.set(t, list)
+        }
+
+        const jobByKey = new Map<string, any>()
+        const fetchGroup = async (type: string, ids: string[]) => {
+          const collectionName = typeCollectionMap[type]
+          if (!collectionName) return
+
+          const results = await Promise.all(
+            ids.map(async (id) => {
+              try {
+                const res = await db.collection(collectionName).doc(id).get()
+                return { id, collectionName, data: res.data }
+              } catch {
+                return null
+              }
+            })
+          )
+
+          for (const r of results) {
+            if (!r?.data) continue
+            jobByKey.set(`${type}:${r.id}`, { ...r.data, _id: r.id, sourceCollection: r.collectionName })
+          }
+        }
+
+        await Promise.all(Array.from(groups.entries()).map(([type, ids]) => fetchGroup(type, ids)))
+
+        const merged: ResolvedSavedJob[] = []
+        for (const row of collected) {
+          const type = row?.type
+          const jobId = row?.jobId
+          if (!type || !jobId) continue
+
+          const key = `${type}:${jobId}`
+          const job = jobByKey.get(key)
+          if (!job) continue
+
+          merged.push({
+            ...(job as any),
+            jobId,
+            sourceCollection: job.sourceCollection,
+          })
+        }
+
+        const normalized = mapJobs(merged) as JobItem[]
+        const tabs = this.data.jobsByTab as JobItem[][]
+        tabs[1] = normalized
+        const loaded = this.data.hasLoadedTab as boolean[]
+        loaded[1] = true
+        this.setData({ jobsByTab: tabs, hasLoadedTab: loaded, jobs: normalized, filteredJobs: normalized })
+      } catch (err) {
+        console.error('[index] loadSavedJobsForTab failed', err)
+        wx.showToast({ title: '加载收藏失败', icon: 'none' })
+      } finally {
+        this.setData({ loading: false })
+      }
+    },
+
+    onFeaturedSubscribeTap() {
+      // Trigger payment popup (same as in me/index.ts)
+      wx.showModal({
+        title: '精选岗位 🔒',
+        content: '该功能需要付费解锁。',
+        confirmText: '去付费',
+        cancelText: '取消',
+        success: (res) => {
+          if (res.confirm) {
+            // TODO: replace with real payment flow.
+            wx.showToast({ title: '暂未接入付费流程', icon: 'none' })
+          }
+        },
+      })
     },
 
     closeFilter() {
@@ -368,7 +572,7 @@ Page({
       this.loadJobs(false)
     },
 
-    onScroll(e: any) {
+    onScroll() {
       // no-op (no-more hint removed)
     },
 
@@ -440,8 +644,20 @@ Page({
     },
 
     onJobTap(e: any) {
-      const _id = (e?.detail?._id || e?.currentTarget?.dataset?._id) as string
-      const collectionName = typeCollectionMap[this.data.currentFilter] || 'domestic_remote_jobs'
+      const job = e?.detail?.job || e?.detail
+      const _id = (job?._id || job?.jobId || e?.currentTarget?.dataset?._id) as string
+      
+      // For saved jobs (收藏 tab), use sourceCollection if available
+      let collectionName = ''
+      if (this.data.currentTab === 1 && job?.sourceCollection) {
+        collectionName = job.sourceCollection
+      } else if (this.data.currentTab === 2) {
+        // For 精选 tab, try to determine collection from job type or use all collections
+        // For now, use the first available collection or fallback
+        collectionName = job?.sourceCollection || typeCollectionMap[this.data.currentFilter] || 'domestic_remote_jobs'
+      } else {
+        collectionName = typeCollectionMap[this.data.currentFilter] || 'domestic_remote_jobs'
+      }
 
       if (!_id) return
 

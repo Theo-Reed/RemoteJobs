@@ -340,3 +340,33 @@ job-list {
 job-list {
   /* no custom properties */
 }
+
+/* Featured tab subscription overlay */
+.featured-tab-wrapper {
+  position: relative;
+}
+
+.featured-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 200rpx;
+  background: linear-gradient(to top, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.7), transparent);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 40rpx;
+  z-index: 100;
+  pointer-events: auto;
+}
+
+.featured-overlay-text {
+  font-size: 28rpx;
+  color: #1d4ed8;
+  font-weight: 600;
+  padding: 16rpx 32rpx;
+  background: #ffffff;
+  border-radius: 24rpx;
+  box-shadow: 0 4rpx 12rpx rgba(29, 78, 216, 0.2);
+}

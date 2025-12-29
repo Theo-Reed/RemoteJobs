@@ -1,10 +1,10 @@
 <!-- Remote jobs list page -->
 <view class="page">
-  <!-- Internal tabs for job list (公开 / 收藏 / 最新) -->
+  <!-- Internal tabs for job list (公开 / 收藏 / 精选) -->
   <view class="jobs-tabs">
     <view class="tab {{currentTab === 0 ? 'tab-active' : ''}}" data-idx="0" bindtap="onTabTap">公开</view>
     <view class="tab {{currentTab === 1 ? 'tab-active' : ''}}" data-idx="1" bindtap="onTabTap">收藏</view>
-    <view class="tab {{currentTab === 2 ? 'tab-active' : ''}}" data-idx="2" bindtap="onTabTap">最新</view>
+    <view class="tab {{currentTab === 2 ? 'tab-active' : ''}}" data-idx="2" bindtap="onTabTap">精选</view>
   </view>
 
   <view class="search-bar">
@@ -33,10 +33,11 @@
  
   <!-- Swiper for animated tab switch; touch disabled so only click switches -->
   <swiper current="{{currentTab}}" class="jobs-swiper" indicator-dots="{{false}}" autoplay="{{false}}" circular="{{false}}" duration="300" disable-touch="{{true}}">
+    <!-- 公开 tab -->
     <swiper-item>
       <view class="job-list-wrapper">
         <job-list
-          jobs="{{filteredJobs}}"
+          jobs="{{jobsByTab[0] || []}}"
           loading="{{loading}}"
           scroll-y="{{true}}"
           scroll-top="{{scrollTop}}"
@@ -59,10 +60,11 @@
         />
       </view>
     </swiper-item>
+    <!-- 收藏 tab -->
     <swiper-item>
       <view class="job-list-wrapper">
         <job-list
-          jobs="{{filteredJobs}}"
+          jobs="{{jobsByTab[1] || []}}"
           loading="{{loading}}"
           scroll-y="{{true}}"
           scroll-top="{{scrollTop}}"
@@ -85,12 +87,13 @@
         />
       </view>
     </swiper-item>
+    <!-- 精选 tab -->
     <swiper-item>
-      <view class="job-list-wrapper">
+      <view class="job-list-wrapper featured-tab-wrapper">
         <job-list
-          jobs="{{filteredJobs}}"
+          jobs="{{jobsByTab[2] || []}}"
           loading="{{loading}}"
-          scroll-y="{{true}}"
+          scroll-y="{{featuredScrollEnabled}}"
           scroll-top="{{scrollTop}}"
           lower-threshold="{{lowerThreshold}}"
           scroll-with-animation="{{true}}"
@@ -109,6 +112,10 @@
           bind:touchstart="onTouchStart"
           bind:touchend="onTouchEnd"
         />
+        <!-- Subscription overlay for 精选 tab when expired -->
+        <view wx:if="{{currentTab === 2 && !isFeaturedUnlocked}}" class="featured-overlay" bindtap="onFeaturedSubscribeTap">
+          <view class="featured-overlay-text">订阅后查看精选岗位</view>
+        </view>
       </view>
     </swiper-item>
   </swiper>
