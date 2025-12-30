@@ -60,6 +60,9 @@ const dict = {
     regionDomestic: { Chinese: '国内 ', English: 'China' },
     regionAbroad: { Chinese: '国外 ', English: 'Intl' },
     regionWeb3: { Chinese: 'Web3', English: 'Web3' },
+    saveMenuLabel: { Chinese: '保存', English: 'Save' },
+    collectAllLabel: { Chinese: '一键收藏当前列表', English: 'Collect All Jobs' },
+    saveSearchLabel: { Chinese: '保存搜索条件', English: 'Save Search' },
   },
   drawer: {
     salary: { Chinese: '薪资', English: 'Salary' },
@@ -116,6 +119,9 @@ export type I18nKey =
   | 'jobs.regionDomestic'
   | 'jobs.regionAbroad'
   | 'jobs.regionWeb3'
+  | 'jobs.saveMenuLabel'
+  | 'jobs.collectAllLabel'
+  | 'jobs.saveSearchLabel'
   | 'drawer.salary'
   | 'drawer.experience'
   | 'drawer.clear'

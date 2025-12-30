@@ -8,18 +8,14 @@
   catchtouchmove="onTouchMove"
   bindtouchend="onTouchEnd"
 >
-  <block wx:if="{{article}}">
-    <view class="detail-header">
-      <view class="back-hit" bindtap="onClose">
-        <view class="back-button"></view>
-      </view>
-    </view>
-  </block>
+  <detail-header bind:close="onClose" />
   <scroll-view     
     class="detail-content" 
     scroll-y="{{!isSwiping}}"
     enhanced="{{true}}" 
     show-scrollbar="{{false}}"
+    upper-threshold="0"
+    bounces="{{false}}"
     bindscroll="onScrollViewScroll"
   >
     <block wx:if="{{article}}">

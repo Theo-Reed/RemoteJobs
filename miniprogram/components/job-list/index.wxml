@@ -5,6 +5,8 @@
   scroll-top="{{scrollTop}}"
   scroll-with-animation="{{scrollWithAnimation}}"
   lower-threshold="{{lowerThreshold}}"
+  upper-threshold="0"
+  bounces="{{false}}"
   bindscrolltolower="onScrollLower"
   bindscroll="onScroll"
   bindtouchstart="onTouchStart"

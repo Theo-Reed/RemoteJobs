@@ -3,6 +3,7 @@ import { mapJobs } from '../../utils/job'
 import { normalizeLanguage, t } from '../../utils/i18n'
 import { attachLanguageAware } from '../../utils/languageAware'
 import { toDateMs } from '../../utils/time'
+import { matchSalary } from '../../utils/salary'
 
 type DrawerFilterValue = {
   salary: string
@@ -41,6 +42,7 @@ Page({
         searchKeyword: '',
         scrollTop: 0,
         showDrawer: false,
+        showSaveMenu: false,
         isSearching: false,
         drawerFilter: { ...DEFAULT_DRAWER_FILTER } as DrawerFilterValue,
       },
@@ -48,6 +50,7 @@ Page({
         searchKeyword: '',
         scrollTop: 0,
         showDrawer: false,
+        showSaveMenu: false,
         isSearching: false,
         drawerFilter: { ...DEFAULT_DRAWER_FILTER } as DrawerFilterValue,
       },
@@ -55,6 +58,7 @@ Page({
         searchKeyword: '',
         scrollTop: 0,
         showDrawer: false,
+        showSaveMenu: false,
         isSearching: false,
         drawerFilter: { ...DEFAULT_DRAWER_FILTER } as DrawerFilterValue,
       },
@@ -62,6 +66,7 @@ Page({
       searchKeyword: string
       scrollTop: number
       showDrawer: boolean
+      showSaveMenu: boolean
       isSearching: boolean
       drawerFilter: DrawerFilterValue
     }>,
@@ -69,6 +74,9 @@ Page({
     ui: {
       searchPlaceholder: '搜索职位名称或来源..',
       filterLabel: '筛选',
+      saveMenuLabel: '保存',
+      collectAllLabel: '一键收藏当前列表',
+      saveSearchLabel: '保存搜索条件',
     } as Record<string, string>,
   },
   getCurrentTabState() {
@@ -194,6 +202,9 @@ Page({
     if (currentState.showDrawer) {
       this.updateCurrentTabState({ showDrawer: false })
     }
+    if (currentState.showSaveMenu) {
+      this.updateCurrentTabState({ showSaveMenu: false })
+    }
     
     const tabs = (this.data as any).jobsByTab as JobItem[][]
     const loaded = (this.data as any).hasLoadedTab as boolean[]
@@ -239,28 +250,9 @@ Page({
           }
         })
       } else {
-        // 已加载过，检查数据是否为空（可能是预加载时因为未登录导致的）
+        // 已加载过，直接显示已有数据，不刷新
         const savedJobs = tabs[idx] || []
-        if (savedJobs.length === 0) {
-          // 数据为空，可能是预加载时未登录，重新加载一次
-          this.loadSavedJobsForTab().then(() => {
-            if (this.data.currentTab === idx) {
-              const updatedTabs = this.data.jobsByTab as JobItem[][]
-              this.setData({ 
-                jobs: updatedTabs[idx] || [], 
-                filteredJobs: updatedTabs[idx] || [],
-                loading: false,
-              })
-            }
-          }).catch(() => {
-            if (this.data.currentTab === idx) {
-              this.setData({ loading: false })
-            }
-          })
-        } else {
-          // 有数据，直接显示
           this.setData({ jobs: savedJobs, filteredJobs: savedJobs, loading: false })
-        }
       }
       } else {
       // tab 0 (公开)
@@ -294,6 +286,9 @@ Page({
     if (currentState.showDrawer) {
       this.updateCurrentTabState({ showDrawer: false })
     }
+    if (currentState.showSaveMenu) {
+      this.updateCurrentTabState({ showSaveMenu: false })
+    }
     
     const tabs = (this.data as any).jobsByTab as JobItem[][]
     const loaded = (this.data as any).hasLoadedTab as boolean[]
@@ -339,28 +334,9 @@ Page({
           }
         })
       } else {
-        // 已加载过，检查数据是否为空（可能是预加载时因为未登录导致的）
+        // 已加载过，直接显示已有数据，不刷新
         const savedJobs = tabs[idx] || []
-        if (savedJobs.length === 0) {
-          // 数据为空，可能是预加载时未登录，重新加载一次
-          this.loadSavedJobsForTab().then(() => {
-            if (this.data.currentTab === idx) {
-              const updatedTabs = this.data.jobsByTab as JobItem[][]
-              this.setData({ 
-                jobs: updatedTabs[idx] || [], 
-                filteredJobs: updatedTabs[idx] || [],
-                loading: false,
-              })
-            }
-          }).catch(() => {
-            if (this.data.currentTab === idx) {
-              this.setData({ loading: false })
-            }
-          })
-        } else {
-          // 有数据，直接显示
           this.setData({ jobs: savedJobs, filteredJobs: savedJobs, loading: false })
-        }
       }
       } else {
       // tab 0 (公开)
@@ -396,6 +372,9 @@ Page({
           searchPlaceholder: t('jobs.searchPlaceholder', lang),
           filterLabel: t('jobs.filterLabel', lang),
           emptyFavorites: t('me.emptyFavorites', lang),
+          saveMenuLabel: t('jobs.saveMenuLabel', lang),
+          collectAllLabel: t('jobs.collectAllLabel', lang),
+          saveSearchLabel: t('jobs.saveSearchLabel', lang),
         },
       })
     },
@@ -448,7 +427,8 @@ Page({
               this.setData({ loading: false })
             })
           } else if (this.data.currentTab === 2) {
-            this.loadSavedJobsForTab()
+            // 收藏tab清空搜索时，不刷新数据，只更新状态
+            this.setData({ loading: false })
           }
         }
       }, 200)
@@ -504,11 +484,22 @@ Page({
         
         const res = await query
           .orderBy('createdAt', 'desc')
-          .skip(skip)
-          .limit(this.data.pageSize)
           .get()
 
-        const mappedJobs = mapJobs(res.data || []) as JobItem[]
+        let allJobs = res.data || []
+        
+        // 应用薪资筛选（如果指定了薪资条件）
+        const salary = currentState.drawerFilter?.salary || '全部'
+        if (salary && salary !== '全部') {
+          allJobs = allJobs.filter((job: any) => {
+            const jobSalary = job.salary || ''
+            return matchSalary(jobSalary, salary)
+          })
+        }
+        
+        // 分页处理（在薪资筛选之后）
+        const paginatedJobs = allJobs.slice(skip, skip + this.data.pageSize)
+        const mappedJobs = mapJobs(paginatedJobs) as JobItem[]
         const mergedJobs = reset ? mappedJobs : [...existingJobs, ...mappedJobs]
 
         const tabs = this.data.jobsByTab as JobItem[][]
@@ -520,7 +511,7 @@ Page({
           jobsByTab: tabs,
           jobs: mergedJobs,
           filteredJobs: mergedJobs,
-          hasMore: mappedJobs.length >= this.data.pageSize,
+          hasMore: allJobs.length > skip + mappedJobs.length,
         })
       } catch (err) {
         wx.showToast({ title: '搜索失败', icon: 'none' })
@@ -533,6 +524,12 @@ Page({
     },
 
     async loadJobsForTab(tabIndex: number, reset = false) {
+      // 如果当前正在显示这个 tab，设置 loading 状态
+      const isCurrentTab = this.data.currentTab === tabIndex
+      if (isCurrentTab) {
+        this.setData({ loading: true })
+      }
+      
       try {
         const currentState = this.getCurrentTabState()
         const skip = reset ? 0 : (this.data.jobsByTab[tabIndex] || []).length
@@ -562,6 +559,12 @@ Page({
           filterParams.source_name = source_names
         }
         
+        // 添加薪资筛选参数
+        const salary = currentState.drawerFilter?.salary || '全部'
+        if (salary && salary !== '全部') {
+          filterParams.salary = salary
+        }
+        
         const res = await wx.cloud.callFunction({
           name: 'getJobList',
           data: {
@@ -585,18 +588,22 @@ Page({
           
           // 如果当前正在显示这个 tab，立即更新显示
           const updateData: any = { jobsByTab: tabs, hasLoadedTab: loaded, hasMore }
-          if (this.data.currentTab === tabIndex) {
+          if (isCurrentTab) {
             updateData.jobs = merged
             updateData.filteredJobs = merged
+            updateData.loading = false
           }
           this.setData(updateData)
         } else {
-          if (this.data.currentTab === tabIndex) {
+          if (isCurrentTab) {
             this.setData({ loading: false })
           }
         }
       } catch (err) {
         // ignore
+        if (isCurrentTab) {
+          this.setData({ loading: false })
+        }
       }
     },
 
@@ -622,7 +629,7 @@ Page({
       this.setData({ isFeaturedUnlocked: isUnlocked, featuredScrollEnabled: isUnlocked })
     },
 
-    async loadSavedJobsForTab() {
+    async loadSavedJobsForTab(showLoading = true, reset = false) {
       const app = getApp<IAppOption>() as any
       const user = app?.globalData?.user
       const openid = user?.openid
@@ -632,39 +639,65 @@ Page({
         tabs[2] = []
         const loaded = this.data.hasLoadedTab as boolean[]
         loaded[2] = true
-        this.setData({ jobsByTab: tabs, hasLoadedTab: loaded, jobs: [], filteredJobs: [] })
+        this.setData({ jobsByTab: tabs, hasLoadedTab: loaded, jobs: [], filteredJobs: [], hasMore: false })
         return
       }
 
-      this.setData({ loading: true })
+      // 只有在当前tab是收藏tab且需要显示loading时才设置loading状态
+      if (showLoading && this.data.currentTab === 2) {
+        this.setData({ loading: true })
+      }
       try {
         const db = wx.cloud.database()
 
-        const collectedRes = await db
-          .collection('collected_jobs')
+        // 计算skip值（分页）
+        const existingJobs = reset ? [] : (this.data.jobsByTab[2] || [])
+        const skip = existingJobs.length
+
+        const savedRes = await db
+          .collection('saved_jobs')
           .where({ openid })
           .orderBy('createdAt', 'desc')
-          .limit(100)
+          .skip(skip)
+          .limit(this.data.pageSize)
           .get()
 
-        const collected = (collectedRes.data || []) as any[]
-        if (collected.length === 0) {
+        const savedRecords = (savedRes.data || []) as any[]
+        
+        // 判断是否还有更多数据
+        const hasMore = savedRecords.length >= this.data.pageSize
+
+        if (savedRecords.length === 0) {
           const tabs = this.data.jobsByTab as JobItem[][]
-          tabs[2] = []
+          if (reset) {
+            tabs[2] = []
+          }
           const loaded = this.data.hasLoadedTab as boolean[]
           loaded[2] = true
-          this.setData({ jobsByTab: tabs, hasLoadedTab: loaded, jobs: [], filteredJobs: [] })
+          const updateData: any = { jobsByTab: tabs, hasLoadedTab: loaded, hasMore: false }
+          if (this.data.currentTab === 2) {
+            updateData.jobs = tabs[2] || []
+            updateData.filteredJobs = tabs[2] || []
+          }
+          this.setData(updateData)
           return
         }
 
-        const jobIds = collected.map(row => row?.jobId).filter(Boolean) as string[]
+        const jobIds = savedRecords.map(row => row?.jobId).filter(Boolean) as string[]
         
         if (jobIds.length === 0) {
           const tabs = this.data.jobsByTab as JobItem[][]
-          tabs[2] = []
+          if (reset) {
+            tabs[2] = []
+          }
           const loaded = this.data.hasLoadedTab as boolean[]
           loaded[2] = true
-          this.setData({ jobsByTab: tabs, hasLoadedTab: loaded, jobs: [], filteredJobs: [] })
+          const updateData: any = { jobsByTab: tabs, hasLoadedTab: loaded, hasMore: false }
+          if (this.data.currentTab === 2) {
+            updateData.jobs = tabs[2] || []
+            updateData.filteredJobs = tabs[2] || []
+          }
+          this.setData(updateData)
           return
         }
 
@@ -687,8 +720,8 @@ Page({
         }
 
         const merged: ResolvedSavedJob[] = []
-        for (const row of collected) {
-          const _id = row?.jobId // 从 collected_jobs 集合读取的 jobId 字段（实际是岗位的 _id）
+        for (const row of savedRecords) {
+          const _id = row?.jobId // 从 saved_jobs 集合读取的 jobId 字段（实际是岗位的 _id）
           if (!_id) continue
 
           const job = jobByKey.get(_id)
@@ -703,21 +736,26 @@ Page({
 
         const normalized = mapJobs(merged) as JobItem[]
         const tabs = this.data.jobsByTab as JobItem[][]
-        tabs[2] = normalized
+        tabs[2] = reset ? normalized : [...existingJobs, ...normalized]
         const loaded = this.data.hasLoadedTab as boolean[]
         loaded[2] = true
         
-        const updateData: any = { jobsByTab: tabs, hasLoadedTab: loaded }
+        const updateData: any = { jobsByTab: tabs, hasLoadedTab: loaded, hasMore }
         // 如果当前在收藏 tab，立即更新显示
         if (this.data.currentTab === 2) {
-          updateData.jobs = normalized
-          updateData.filteredJobs = normalized
+          updateData.jobs = tabs[2]
+          updateData.filteredJobs = tabs[2]
         }
         this.setData(updateData)
       } catch (err) {
-        wx.showToast({ title: '加载收藏失败', icon: 'none' })
+        if (showLoading && this.data.currentTab === 2) {
+          wx.showToast({ title: '加载收藏失败', icon: 'none' })
+        }
       } finally {
-        this.setData({ loading: false })
+        // 只有在设置了loading状态时才清除
+        if (showLoading && this.data.currentTab === 2) {
+          this.setData({ loading: false })
+        }
       }
     },
 
@@ -747,6 +785,7 @@ Page({
       this.setData({ lastLoadTime: now })
       
       if (currentState.isSearching && currentState.searchKeyword) {
+        this.setData({ loading: true })
         this.performCollectionSearch(currentState.searchKeyword, false)
         return
       }
@@ -755,6 +794,9 @@ Page({
         this.loadJobsForTab(0, false)
       } else if (this.data.currentTab === 1) {
         this.loadJobsForTab(1, false)
+      } else if (this.data.currentTab === 2) {
+        // 收藏tab的分页加载
+        this.loadSavedJobsForTab(true, false)
       }
     },
 
@@ -771,7 +813,213 @@ Page({
 
     toggleDrawer() {
       const currentState = this.getCurrentTabState()
+      // 关闭保存菜单（如果打开）
+      if (currentState.showSaveMenu) {
+        this.updateCurrentTabState({ showSaveMenu: false })
+      }
       this.updateCurrentTabState({ showDrawer: !currentState.showDrawer })
+    },
+
+    toggleSaveMenu() {
+      const currentState = this.getCurrentTabState()
+      // 关闭筛选抽屉（如果打开）
+      if (currentState.showDrawer) {
+        this.updateCurrentTabState({ showDrawer: false })
+      }
+      this.updateCurrentTabState({ showSaveMenu: !currentState.showSaveMenu })
+    },
+
+    async onSaveAllJobs() {
+      // 关闭菜单
+      this.updateCurrentTabState({ showSaveMenu: false })
+
+      // 检查登录状态
+      const app = getApp<IAppOption>() as any
+      const user = app?.globalData?.user
+      const openid = user?.openid
+      const isLoggedIn = !!(user && (user.isAuthed || user.phone))
+      if (!isLoggedIn || !openid) {
+        wx.showToast({ title: '请先登录/绑定手机号', icon: 'none' })
+        return
+      }
+
+      // 获取当前tab的职位列表
+      const currentJobs = this.data.jobsByTab[this.data.currentTab] || []
+      if (currentJobs.length === 0) {
+        wx.showToast({ title: '当前列表为空', icon: 'none' })
+        return
+      }
+
+      wx.showLoading({ title: '收藏中...', mask: true })
+      try {
+        const db = wx.cloud.database()
+        
+        // 获取当前用户已收藏的职位ID列表（分页查询以确保获取全部）
+        const savedIds = new Set<string>()
+        const pageSize = 100
+        let hasMore = true
+        let skip = 0
+        
+        while (hasMore) {
+          const savedRes = await db
+            .collection('saved_jobs')
+            .where({ openid })
+            .skip(skip)
+            .limit(pageSize)
+            .get()
+          
+          const batch = (savedRes.data || []).map((item: any) => item.jobId).filter(Boolean)
+          batch.forEach(id => savedIds.add(id))
+          
+          if (batch.length < pageSize) {
+            hasMore = false
+          } else {
+            skip += pageSize
+          }
+        }
+
+        // 批量添加未收藏的职位（同时去重当前列表中的重复职位）
+        const seenJobIds = new Set<string>()
+        const jobsToCheck = currentJobs.filter(job => {
+          if (!job._id) return false
+          if (seenJobIds.has(job._id)) return false // 列表内重复的跳过
+          seenJobIds.add(job._id)
+          return true
+        })
+
+        // 再次批量查询这些jobId是否已经被收藏（确保数据库状态是最新的）
+        const jobIdsToCheck = jobsToCheck.map(job => job._id).filter(Boolean)
+        if (jobIdsToCheck.length > 0) {
+          const checkRes = await db
+            .collection('saved_jobs')
+            .where({
+              openid,
+              jobId: db.command.in(jobIdsToCheck),
+            })
+            .get()
+          
+          // 将新查询到的已收藏jobId合并到savedIds中
+          const existingJobIds = (checkRes.data || []).map((item: any) => item.jobId)
+          existingJobIds.forEach(id => savedIds.add(id))
+        }
+
+        const jobsToSave = jobsToCheck.filter(job => !savedIds.has(job._id))
+        
+        if (jobsToSave.length === 0) {
+          wx.hideLoading()
+          wx.showToast({ title: '所有职位均已收藏', icon: 'success' })
+          return
+        }
+
+        // 使用云函数批量插入，确保去重和性能
+        const jobIds = jobsToSave.map(job => job._id).filter(Boolean)
+        const jobData: Record<string, { type: string; createdAt: any }> = {}
+        jobsToSave.forEach(job => {
+          if (job._id) {
+            jobData[job._id] = {
+              type: job.type || '',
+              createdAt: job.createdAt || new Date(),
+            }
+          }
+        })
+
+        const res = await wx.cloud.callFunction({
+          name: 'batchSaveJobs',
+          data: {
+            jobIds,
+            jobData,
+          },
+        })
+
+        let successCount = 0
+        if (res.result && (res.result as any).success) {
+          const result = res.result as any
+          successCount = result.savedCount || 0
+          
+          // 如果成功收藏0个，说明所有职位均已收藏
+          if (successCount === 0) {
+            wx.hideLoading()
+            wx.showToast({ 
+              title: '所有职位均已收藏', 
+              icon: 'success',
+              duration: 2000,
+            })
+            return
+          }
+        } else {
+          wx.hideLoading()
+          wx.showToast({ title: '收藏失败', icon: 'none' })
+          return
+        }
+
+        wx.hideLoading()
+        wx.showToast({ 
+          title: `成功收藏 ${successCount} 个职位`, 
+          icon: 'success',
+          duration: 2000,
+        })
+
+        // 更新职位列表的isSaved状态（只更新成功插入的职位）
+        const savedJobIds = new Set(jobsToSave.slice(0, successCount).map(j => j._id))
+        const tabs = this.data.jobsByTab as JobItem[][]
+        tabs[this.data.currentTab] = tabs[this.data.currentTab].map(job => ({
+          ...job,
+          isSaved: savedIds.has(job._id) || savedJobIds.has(job._id),
+        }))
+        this.setData({ jobsByTab: tabs })
+
+        // 刷新收藏列表数据（无论当前在哪个tab，都要更新收藏tab的数据）
+        const loaded = this.data.hasLoadedTab as boolean[]
+        if (loaded[2]) {
+          // 如果收藏tab已加载过，后台刷新数据（不显示loading）
+          this.loadSavedJobsForTab(false).catch(() => {})
+        }
+      } catch (err) {
+        wx.hideLoading()
+        wx.showToast({ title: '收藏失败', icon: 'none' })
+      }
+    },
+
+    async onSaveSearchCondition() {
+      // 关闭菜单
+      this.updateCurrentTabState({ showSaveMenu: false })
+
+      // 检查登录状态
+      const app = getApp<IAppOption>() as any
+      const user = app?.globalData?.user
+      const openid = user?.openid
+      const isLoggedIn = !!(user && (user.isAuthed || user.phone))
+      if (!isLoggedIn || !openid) {
+        wx.showToast({ title: '请先登录/绑定手机号', icon: 'none' })
+        return
+      }
+
+      const currentState = this.getCurrentTabState()
+      const searchCondition = {
+        searchKeyword: currentState.searchKeyword || '',
+        drawerFilter: currentState.drawerFilter || { ...DEFAULT_DRAWER_FILTER },
+        tabIndex: this.data.currentTab,
+      }
+
+      // 使用云数据库保存搜索条件
+      try {
+        const db = wx.cloud.database()
+        const timestamp = Date.now()
+        
+        // 保存搜索条件
+        await db.collection('saved_search_conditions').add({
+          data: {
+            openid,
+            ...searchCondition,
+            createdAt: timestamp,
+            updatedAt: timestamp,
+          },
+        })
+
+        wx.showToast({ title: '搜索条件已保存', icon: 'success' })
+      } catch (err) {
+        wx.showToast({ title: '保存失败', icon: 'none' })
+      }
     },
 
 
@@ -783,7 +1031,7 @@ Page({
     },
 
     // 处理职位收藏状态变化事件
-    onJobCollectChange(e: any) {
+    onJobSaveChange(e: any) {
       const { _id, isSaved } = e.detail || {}
       if (!_id) return
 
@@ -817,7 +1065,8 @@ Page({
 
       const loaded = this.data.hasLoadedTab as boolean[]
       if (loaded[2]) {
-        this.loadSavedJobsForTab().catch(() => {})
+        // 后台刷新收藏列表数据（不显示loading）
+        this.loadSavedJobsForTab(false).catch(() => {})
       }
 
       this.setData({

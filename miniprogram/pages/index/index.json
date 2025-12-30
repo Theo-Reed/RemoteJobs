@@ -1,5 +1,5 @@
 {
-  "enablePullDownRefresh": true,
+  "enablePullDownRefresh": false,
   "onReachBottomDistance": 50,
   "navigationBarTitleText": "🌍 远程工作机会",
   "usingComponents": {

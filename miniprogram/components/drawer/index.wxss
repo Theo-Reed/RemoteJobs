@@ -43,10 +43,7 @@
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* 头部样式已提取到 app.wxss，drawer-main 需要 flex-shrink: 0 */
-.detail-header {
-  flex-shrink: 0;
-}
+/* 头部样式已提取到 detail-header 组件 */
 
 .drawer-main {
   flex: 1;
@@ -223,16 +220,6 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 18rpx 18rpx;
-}
-
-.drawer-source-all {
-  margin-bottom: 18rpx;
-  display: flex;
-  width: 100%;
-}
-
-.drawer-source-all .drawer-chip {
-  width: calc((100% - 18rpx) / 2);
 }
 
 .drawer-grid-source {

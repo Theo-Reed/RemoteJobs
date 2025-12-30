@@ -70,6 +70,8 @@ Component({
   data: {
     showNoMore: false,
     noMoreVisible: false,
+    _prevLoading: true,
+    _prevHasMore: true,
   },
 
   observers: {
@@ -89,8 +91,17 @@ Component({
         self._noMoreRemoveTimer = null
       }
 
-      // When loading stops and hasMore is false, show "no more" message
-      if (!loading && !hasMore && jobs && jobs.length > 0) {
+      const prevLoading = this.data._prevLoading
+      const prevHasMore = this.data._prevHasMore
+      
+      // Only show "no more" when:
+      // 1. Loading just finished (from true to false)
+      // 2. hasMore just became false (from true to false)
+      // 3. There are jobs to show
+      const shouldShow = !loading && !hasMore && jobs && jobs.length > 0 && 
+                        prevLoading && prevHasMore
+
+      if (shouldShow) {
         this.setData({ showNoMore: true }, () => {
           // Trigger fade-in animation
           self._noMoreTimer = setTimeout(() => {
@@ -107,8 +118,13 @@ Component({
         })
       } else {
         // Hide immediately when loading starts or hasMore becomes true
-        this.setData({ showNoMore: false, noMoreVisible: false })
+        if (loading || hasMore) {
+          this.setData({ showNoMore: false, noMoreVisible: false })
+        }
       }
+
+      // Update previous state
+      this.setData({ _prevLoading: loading, _prevHasMore: hasMore })
     },
   },
 

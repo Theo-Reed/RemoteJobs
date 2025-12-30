@@ -1,11 +1,12 @@
 const cloud = require('wx-server-sdk')
+const { matchSalary } = require('./salaryUtils')
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 
 const db = cloud.database()
 
 exports.main = async (event, context) => {
-  const { pageSize = 15, skip = 0, source_name, types } = event || {}
+  const { pageSize = 15, skip = 0, source_name, types, salary } = event || {}
 
   const wxContext = cloud.getWXContext()
   const openid = wxContext.OPENID
@@ -35,13 +36,25 @@ exports.main = async (event, context) => {
       query = query.where(whereCondition)
     }
     
+    // 注意：薪资筛选需要在获取数据后进行，因为需要解析薪资字符串
+    // 先获取所有符合其他条件的数据
     const res = await query
       .orderBy('createdAt', 'desc')
-      .skip(skip)
-      .limit(pageSize)
       .get()
     
     let jobs = res.data || []
+    
+    // 应用薪资筛选（如果指定了薪资条件）
+    if (salary && salary !== '全部') {
+      jobs = jobs.filter(job => {
+        const jobSalary = job.salary || ''
+        return matchSalary(jobSalary, salary)
+      })
+    }
+    
+    // 分页处理（在薪资筛选之后）
+    const total = jobs.length
+    jobs = jobs.slice(skip, skip + pageSize)
 
     if (jobs.length > 0 && openid) {
       try {
@@ -49,7 +62,7 @@ exports.main = async (event, context) => {
         
         if (jobIds.length > 0) {
           const collectedRes = await db
-            .collection('collected_jobs')
+            .collection('saved_jobs')
             .where({
               openid,
               jobId: db.command.in(jobIds),

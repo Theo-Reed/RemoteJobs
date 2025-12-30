@@ -1,8 +1,8 @@
 // miniprogram/components/job-detail/index.ts
 const swipeToClose = require('../../behaviors/swipe-to-close')
 
-const COLLECT_COLLECTION = 'collected_jobs'
-const COLLECT_DEBOUNCE_DELAY = 300
+const SAVED_COLLECTION = 'saved_jobs'
+const SAVE_DEBOUNCE_DELAY = 300
 
 function formatDescription(description?: string): string {
   if (!description) return ''
@@ -55,9 +55,9 @@ Component({
   data: {
     job: null as JobDetailItem | null,
     loading: false,
-    collected: false,
-    collectBusy: false,
-    collectDocId: '',
+    saved: false,
+    saveBusy: false,
+    saveDocId: '',
   },
 
   observers: {
@@ -67,8 +67,8 @@ Component({
         const newId = jobData._id
         
         if (currentId === newId && this.data.job) {
-          if (jobData.isSaved !== undefined && jobData.isSaved !== this.data.collected) {
-            this.setData({ collected: jobData.isSaved })
+          if (jobData.isSaved !== undefined && jobData.isSaved !== this.data.saved) {
+            this.setData({ saved: jobData.isSaved })
           }
           return
         }
@@ -103,9 +103,9 @@ Component({
         this.setData({
           job: null,
           loading: false,
-          collected: false,
-          collectBusy: false,
-          collectDocId: '',
+          saved: false,
+          saveBusy: false,
+          saveDocId: '',
           drawerTranslateX: screenWidth,
           animationData: null,
         })
@@ -145,15 +145,15 @@ Component({
           richDescription: formatDescription(jobData.description),
         } as JobDetailItem & { richDescription: string },
         loading: false,
-        collected: isSaved !== null ? isSaved : false,
+        saved: isSaved !== null ? isSaved : false,
       })
 
       if (isSaved === null) {
         try {
-          const isCollected = await this.checkCollectState(_id, true)
-          this.setData({ collected: isCollected })
+          const isSavedState = await this.checkSavedState(_id, true)
+          this.setData({ saved: isSavedState })
         } catch (err) {
-          this.setData({ collected: false })
+          this.setData({ saved: false })
         }
       }
     },
@@ -162,9 +162,9 @@ Component({
       (this as any).closeDrawer()
     },
 
-    async toggleCollect() {
+    async toggleSave() {
       const job = this.data.job
-      if (!job || this.data.collectBusy) return
+      if (!job || this.data.saveBusy) return
 
       // Product-level login check: phone authorized
       const app = getApp<IAppOption>() as any
@@ -175,33 +175,33 @@ Component({
         return
       }
 
-      this.setData({ collectBusy: true })
-      const targetCollected = !this.data.collected
+      this.setData({ saveBusy: true })
+      const targetSaved = !this.data.saved
 
       try {
-        if (targetCollected) {
-          await this.addCollectRecord(job)
+        if (targetSaved) {
+          await this.addSavedRecord(job)
         } else {
-          await this.removeCollectRecord(job._id)
+          await this.removeSavedRecord(job._id)
         }
 
-        this.setData({ collected: targetCollected })
+        this.setData({ saved: targetSaved })
         
-        this.triggerEvent('collectchange', {
+        this.triggerEvent('savechange', {
           _id: job._id,
-          isSaved: targetCollected,
+          isSaved: targetSaved,
         })
         
         wx.showToast({
-          title: targetCollected ? '收藏成功' : '已取消收藏',
+          title: targetSaved ? '收藏成功' : '已取消收藏',
           icon: 'none',
         })
       } catch (err) {
         wx.showToast({ title: '操作失败', icon: 'none' })
       } finally {
         setTimeout(() => {
-          this.setData({ collectBusy: false })
-        }, COLLECT_DEBOUNCE_DELAY)
+          this.setData({ saveBusy: false })
+        }, SAVE_DEBOUNCE_DELAY)
       }
     },
 
@@ -220,7 +220,7 @@ Component({
       })
     },
 
-    async addCollectRecord(job: JobDetailItem) {
+    async addSavedRecord(job: JobDetailItem) {
       const app = getApp<IAppOption>() as any
       const openid = app?.globalData?.user?.openid
       if (!openid) throw new Error('missing openid')
@@ -233,52 +233,52 @@ Component({
         createdAt: job.createdAt,
       }
 
-      const result = await db.collection(COLLECT_COLLECTION).add({ data: recordData })
-      this.setData({ collectDocId: String((result as any)._id || '') })
+      const result = await db.collection(SAVED_COLLECTION).add({ data: recordData })
+      this.setData({ saveDocId: String((result as any)._id || '') })
     },
 
-    async removeCollectRecord(_id: string) {
+    async removeSavedRecord(_id: string) {
       const app = getApp<IAppOption>() as any
       const openid = app?.globalData?.user?.openid
       if (!openid) return
 
       const db = wx.cloud.database()
-      let docId = this.data.collectDocId
+      let docId = this.data.saveDocId
       if (!docId) {
-        const lookup = await db.collection(COLLECT_COLLECTION).where({ openid, jobId: _id }).limit(1).get()
+        const lookup = await db.collection(SAVED_COLLECTION).where({ openid, jobId: _id }).limit(1).get()
         docId = String((lookup.data?.[0] as any)?._id || '')
       }
       if (!docId) return
-      await db.collection(COLLECT_COLLECTION).doc(docId).remove()
-      this.setData({ collectDocId: '' })
+      await db.collection(SAVED_COLLECTION).doc(docId).remove()
+      this.setData({ saveDocId: '' })
     },
 
-    async checkCollectState(_id: string, silent = false) {
+    async checkSavedState(_id: string, silent = false) {
       if (!_id) return false
 
       const app = getApp<IAppOption>() as any
       const openid = app?.globalData?.user?.openid
       if (!openid) {
-        if (!silent) this.setData({ collected: false, collectDocId: '' })
+        if (!silent) this.setData({ saved: false, saveDocId: '' })
         return false
       }
 
       const db = wx.cloud.database()
       try {
-        const res = await db.collection(COLLECT_COLLECTION).where({ openid, jobId: _id }).limit(1).get()
+        const res = await db.collection(SAVED_COLLECTION).where({ openid, jobId: _id }).limit(1).get()
         const doc = res.data?.[0] as any
         const exists = !!doc
         const updates: Partial<typeof this.data> = {
-          collectDocId: String(doc?._id || ''),
+          saveDocId: String(doc?._id || ''),
         }
-        if (!silent) updates.collected = exists
+        if (!silent) updates.saved = exists
         this.setData(updates)
         return exists
       } catch (err) {
         if (!silent) {
-          this.setData({ collected: false, collectDocId: '' })
+          this.setData({ saved: false, saveDocId: '' })
         } else {
-          this.setData({ collectDocId: '' })
+          this.setData({ saveDocId: '' })
         }
         return false
       }

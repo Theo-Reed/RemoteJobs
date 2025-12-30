@@ -233,21 +233,21 @@ Page({
     try {
       const db = wx.cloud.database()
 
-      const collectedRes = await db
-        .collection('collected_jobs')
+      const savedRes = await db
+        .collection('saved_jobs')
         .where({ openid })
         .orderBy('createdAt', 'desc')
         .limit(100)
         .get()
 
-      const collected = (collectedRes.data || []) as any[]
-      if (collected.length === 0) {
+      const savedRecords = (savedRes.data || []) as any[]
+      if (savedRecords.length === 0) {
         this.setData({ savedJobs: [] })
         return
       }
 
       // 获取所有收藏的 jobId
-      const jobIds = collected.map(row => row?.jobId).filter(Boolean) as string[]
+      const jobIds = savedRecords.map(row => row?.jobId).filter(Boolean) as string[]
       
       if (jobIds.length === 0) {
         this.setData({ savedJobs: [] })
@@ -272,10 +272,10 @@ Page({
         jobByKey.set(r.id, { ...r.data, _id: r.id })
       }
 
-      // 按照 collected 的顺序合并数据
+      // 按照 savedRecords 的顺序合并数据
       const merged: ResolvedSavedJob[] = []
-      for (const row of collected) {
-        const _id = row?.jobId // 从 collected_jobs 集合读取的 jobId 字段（实际是岗位的 _id）
+      for (const row of savedRecords) {
+        const _id = row?.jobId // 从 saved_jobs 集合读取的 jobId 字段（实际是岗位的 _id）
         if (!_id) continue
 
         const job = jobByKey.get(_id)

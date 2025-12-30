@@ -11,7 +11,7 @@ type SalaryKey = string
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 type ExpKey = string
 
-const SALARY_KEYS: SalaryKey[] = ['全部', '3K以下', '3-5K', '5-10K', '10-20K', '20-50K', '50K以上']
+const SALARY_KEYS: SalaryKey[] = ['全部', '10k以下', '10-20K', '20-50K', '50K以上', '项目制/兼职']
 const EXP_KEYS: ExpKey[] = ['全部', '在校生', '应届生', '1年以内', '1-3年', '3-5年', '5-10年', '10年以上']
 const REGION_KEYS: string[] = ['全部', '国内', '国外', 'web3']
 
@@ -20,12 +20,11 @@ const ALL_SOURCE_OPTIONS: string[] = ['全部', 'BOSS直聘', '智联招聘', '�
 
 const EN_SALARY: Record<string, string> = {
   '全部': 'All',
-  '3K以下': '< 3K',
-  '3-5K': '3–5K',
-  '5-10K': '5–10K',
+  '10k以下': '< 10K',
   '10-20K': '10–20K',
   '20-50K': '20–50K',
   '50K以上': '50K+',
+  '项目制/兼职': 'Project/Part-time',
 }
 
 const EN_EXP: Record<string, string> = {

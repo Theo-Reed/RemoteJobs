@@ -8,26 +8,22 @@
   catchtouchmove="onTouchMove"
   bindtouchend="onTouchEnd"
 >
-  <block wx:if="{{job}}">
-    <view class="detail-header">
-      <view class="back-hit" bindtap="onClose">
-        <view class="back-button"></view>
-      </view>
-    </view>
-  </block>
+  <detail-header bind:close="onClose" />
   <scroll-view     
   class="detail-content" 
   scroll-y="{{!isSwiping}}"
   enhanced="true" 
   show-scrollbar="{{false}}"
+  upper-threshold="0"
+  bounces="{{false}}"
   bindscroll="onScrollViewScroll"
   >
     <block wx:if="{{job}}">
       <view class="detail-body">
         <view class="detail-title-row">
           <text class="detail-title">{{job.title}}</text>
-          <view class="collect-button" bindtap="toggleCollect">
-            <text class="collect-icon {{collected ? 'collect-icon-active' : ''}}">{{collected ? '★' : '☆'}}</text>
+          <view class="collect-button" bindtap="toggleSave">
+            <text class="collect-icon {{saved ? 'collect-icon-active' : ''}}">{{saved ? '★' : '☆'}}</text>
           </view>
         </view>
         <view class="detail-meta" wx:if="{{job.team || job.salary}}">

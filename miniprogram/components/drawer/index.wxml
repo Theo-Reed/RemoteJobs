@@ -12,11 +12,7 @@
   catchtap="stopPropagation"
 >
   <!-- 头部 -->
-  <view class="detail-header">
-    <view class="back-hit" bindtap="onClose">
-      <view class="back-button"></view>
-    </view>
-  </view>
+  <detail-header bind:close="onClose" />
 
   <view class="drawer-main">
     <!-- 左侧导航tab -->
@@ -43,6 +39,8 @@
       show-scrollbar="{{false}}"
       scroll-into-view="{{scrollIntoView}}"
       scroll-with-animation="{{true}}"
+      upper-threshold="0"
+      bounces="{{false}}"
       bindscroll="onScrollViewScroll"
     >
       <view class="drawer-section drawer-section-salary" id="section-salary">
@@ -95,22 +93,10 @@
 
       <view class="drawer-section drawer-section-source" id="section-source" wx:if="{{sourceOptions && sourceOptions.length > 0}}">
         <view class="drawer-section-title">{{ui.sourceTitle}}</view>
-        <!-- 全部按钮单独一行 -->
-        <view class="drawer-source-all">
-          <view
-            class="drawer-chip {{sourceSelected['全部'] ? 'drawer-chip-active' : ''}}"
-            data-value="全部"
-            bindtap="onPickSource"
-          >
-            <text class="drawer-chip-text">全部</text>
-          </view>
-        </view>
-        <!-- 其他选项在grid中 -->
         <view class="drawer-grid drawer-grid-source">
           <view
             wx:for="{{sourceOptions}}"
             wx:key="*this"
-            wx:if="{{item !== '全部'}}"
             class="drawer-chip {{sourceSelected[item] ? 'drawer-chip-active' : ''}}"
             data-value="{{item}}"
             bindtap="onPickSource"
