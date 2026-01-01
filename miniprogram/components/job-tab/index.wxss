@@ -1,0 +1,233 @@
+/* miniprogram/components/job-tab/index.wxss */
+
+.tab-content-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.search-bar {
+  margin-bottom: 20rpx;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  position: relative;
+  z-index: 1;
+}
+
+.search-input {
+  flex: 1;
+  width: auto;
+  height: 64rpx;
+  line-height: 64rpx;
+  border-radius: 18rpx;
+  padding: 0 18rpx;
+  background-color: #EDEDED;
+}
+
+.search-placeholder {
+  color: #9ca3af;
+  font-size: 24rpx;
+  line-height: 64rpx;
+}
+
+.search-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8rpx;
+  flex: 0 0 auto;
+}
+
+/* Search pills (筛选, 功能 buttons) */
+.search-pill {
+  height: 45rpx;
+  padding: 0 12rpx;
+  border-radius: 18rpx;
+  background-color: #e5f0ff;
+  display: inline-flex;
+  align-items: center;
+  gap: 6rpx;
+  flex: 0 0 auto;
+  width: 84rpx;
+  justify-content: center;
+}
+
+.search-pill-text {
+  font-size: 22rpx;
+  color: #1d4ed8;
+  line-height: 1;
+  display: inline-block;
+  max-width: 110rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.search-pill-triangle {
+  width: 0;
+  height: 0;
+  border-left: 8rpx solid transparent;
+  border-right: 8rpx solid transparent;
+  border-top: 8rpx solid #1d4ed8;
+  margin-top: 12rpx;
+  margin-left: 8rpx;
+  transition: none;
+  transform: rotate(var(--pill-rot, -45deg));
+}
+
+.search-pill-triangle-up {
+  --pill-rot: 0deg;
+}
+
+/* Save Menu Dropdown */
+.save-menu-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+  background-color: transparent;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+
+.save-menu-mask-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.save-menu-dropdown {
+  position: absolute;
+  top: 84rpx;
+  right: 124rpx;
+  width: auto;
+  min-width: 200rpx;
+  z-index: 1000;
+  background-color: #ffffff;
+  border-radius: 12rpx;
+  padding: 6rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1), 0 2rpx 8rpx rgba(0, 0, 0, 0.08);
+  border: 1rpx solid rgba(29, 78, 216, 0.1);
+}
+
+.save-menu-option {
+  background-color: transparent;
+  padding: 18rpx 24rpx;
+  font-size: 26rpx;
+  color: #1d4ed8;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.save-menu-option::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 24rpx;
+  right: 24rpx;
+  height: 1rpx;
+  background-color: rgba(29, 78, 216, 0.1);
+}
+
+.save-menu-option:active {
+  background-color: #e5f0ff;
+  color: #1d4ed8;
+}
+
+.save-menu-option:last-child::after {
+  display: none;
+}
+
+.save-menu-option-text {
+  display: block;
+}
+
+.job-list-wrapper {
+  flex: 1;
+  min-height: 0;
+  overflow: visible;
+  box-sizing: border-box;
+}
+
+/* Featured tab subscription overlay */
+.featured-tab-wrapper {
+  position: relative;
+}
+
+/* Disable pointer events for search-bar and job-list when locked */
+.featured-locked .search-bar,
+.featured-locked .job-list-wrapper {
+  pointer-events: none;
+}
+
+/* Overlay covers search-bar + job-list area */
+.featured-overlay {
+  position: absolute;
+  top: 0;
+  left: 0%;
+  right: 0%;
+  bottom: 0;
+  background: 
+      linear-gradient(to right, 
+      rgba(245, 247, 251, 0) 0%,
+      rgba(245, 247, 251, 0) 10%,
+      rgba(245, 247, 251, 0) 30%,
+      rgba(245, 247, 251, 0.1) 50%,
+      rgba(245, 247, 251, 0) 70%,
+      rgba(245, 247, 251, 0) 90%,
+      rgba(245, 247, 251, 0) 100%
+    ),
+    linear-gradient(to bottom, 
+      rgba(245, 247, 251, 0) 0%,
+      rgba(245, 247, 251, 0.5) 5%,
+      rgba(245, 247, 251, 0.6) 30%,
+      rgba(245, 247, 251, 0.73) 50%,
+      rgba(245, 247, 251, 0.6) 70%,
+      rgba(245, 247, 251, 0.5) 95%,
+      rgba(245, 247, 251, 0) 100%
+    );
+  mask-image: linear-gradient(to right, 
+    transparent 0%,
+    transparent 5%,
+    rgba(0, 0, 0, 1) 10%,
+    rgba(0, 0, 0, 1) 90%,
+    transparent 95%,
+    transparent 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.featured-overlay-text {
+  font-size: 28rpx;
+  color: #1d4ed8;
+  font-weight: 600;
+  padding: 16rpx 32rpx;
+  background: #ffffff;
+  border-radius: 24rpx;
+  box-shadow: 0 4rpx 12rpx rgba(29, 78, 216, 0.2);
+  pointer-events: auto;
+}
+
+/* Empty state for favorites tab */
+.empty-favorites {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  z-index: 10;
+}
+
+.empty-favorites-text {
+  font-size: 28rpx;
+  color: #9ca3af;
+}
+

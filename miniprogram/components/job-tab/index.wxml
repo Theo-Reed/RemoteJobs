@@ -4,7 +4,7 @@
     <input
       class="search-input"
       type="text"
-      placeholder="{{searchPlaceholder}}"
+      placeholder="{{ui.searchPlaceholder}}"
       placeholder-class="search-placeholder"
       confirm-type="search"
       value="{{searchKeyword}}"
@@ -13,11 +13,11 @@
 
     <view class="search-actions">
       <view class="search-pill" bindtap="toggleSaveMenu">
-        <text class="search-pill-text">{{saveMenuLabel}}</text>
+        <text class="search-pill-text">{{ui.saveMenuLabel}}</text>
         <view class="search-pill-triangle {{showSaveMenu ? 'search-pill-triangle-up' : ''}}" />
       </view>
       <view class="search-pill" bindtap="toggleDrawer">
-        <text class="search-pill-text">{{filterLabel}}</text>
+        <text class="search-pill-text">{{ui.filterLabel}}</text>
         <view class="search-pill-triangle" />
       </view>
     </view>
@@ -27,13 +27,13 @@
   <view wx:if="{{showSaveMenu}}" class="save-menu-mask save-menu-mask-open" bindtap="toggleSaveMenu"></view>
   <view wx:if="{{showSaveMenu}}" class="save-menu-dropdown">
     <view class="save-menu-option" bindtap="onSaveAllJobs">
-      <text class="save-menu-option-text">{{collectAllLabel}}</text>
+      <text class="save-menu-option-text">{{ui.collectAllLabel}}</text>
     </view>
     <view class="save-menu-option" bindtap="onSaveSearchCondition">
-      <text class="save-menu-option-text">{{saveSearchLabel}}</text>
+      <text class="save-menu-option-text">{{ui.saveSearchLabel}}</text>
     </view>
     <view class="save-menu-option" bindtap="onRestoreSearchCondition">
-      <text class="save-menu-option-text">{{restoreSearchLabel}}</text>
+      <text class="save-menu-option-text">{{ui.restoreSearchLabel}}</text>
     </view>
   </view>
 
@@ -59,13 +59,13 @@
     
     <!-- Empty state for favorites tab -->
     <view wx:if="{{tabType === 2 && !loading && jobs.length === 0}}" class="empty-favorites">
-      <text class="empty-favorites-text">{{emptyFavorites}}</text>
+      <text class="empty-favorites-text">{{ui.emptyFavorites}}</text>
     </view>
   </view>
   
   <!-- Subscription overlay for 精选 tab when expired -->
   <view wx:if="{{tabType === 1 && !isFeaturedUnlocked}}" class="featured-overlay">
-    <view class="featured-overlay-text" bindtap="onFeaturedSubscribeTap">{{featuredSubscribeText}}</view>
+    <view class="featured-overlay-text" bindtap="onFeaturedSubscribeTap">{{ui.featuredSubscribeText}}</view>
   </view>
 </view>
 

@@ -12,242 +12,49 @@
   <swiper current="{{currentTab}}" class="jobs-swiper" indicator-dots="{{false}}" autoplay="{{false}}" circular="{{false}}" duration="300" easing-function="easeOutCubic" disable-touch="{{false}}" bindchange="onSwiperChange">
     <!-- 公开 tab -->
     <swiper-item>
-      <view class="tab-content-wrapper">
-        <view class="search-bar">
-          <input
-            class="search-input"
-            type="text"
-            placeholder="{{ui.searchPlaceholder}}"
-            placeholder-class="search-placeholder"
-            confirm-type="search"
-            value="{{tabState[0].searchKeyword}}"
-            bindinput="onSearchInput"
-          />
-
-          <view class="search-actions">
-            <view class="search-pill" bindtap="toggleSaveMenu">
-              <text class="search-pill-text">{{ui.saveMenuLabel}}</text>
-              <view class="search-pill-triangle {{tabState[0].showSaveMenu ? 'search-pill-triangle-up' : ''}}" />
-            </view>
-            <view class="search-pill" bindtap="toggleDrawer">
-              <text class="search-pill-text">{{ui.filterLabel}}</text>
-              <view class="search-pill-triangle" />
-            </view>
-          </view>
-        </view>
-
-        <!-- Save Menu Dropdown -->
-        <view wx:if="{{tabState[0].showSaveMenu}}" class="save-menu-mask save-menu-mask-open" bindtap="toggleSaveMenu"></view>
-        <view wx:if="{{tabState[0].showSaveMenu}}" class="save-menu-dropdown">
-          <view class="save-menu-option" bindtap="onSaveAllJobs">
-            <text class="save-menu-option-text">{{ui.collectAllLabel}}</text>
-          </view>
-          <view class="save-menu-option" bindtap="onSaveSearchCondition">
-            <text class="save-menu-option-text">{{ui.saveSearchLabel}}</text>
-          </view>
-          <view class="save-menu-option" bindtap="onRestoreSearchCondition">
-            <text class="save-menu-option-text">{{ui.restoreSearchLabel}}</text>
-          </view>
-        </view>
-
-        <view class="job-list-wrapper">
-          <job-list
-            jobs="{{jobsByTab[0] || []}}"
-            loading="{{loading}}"
-            has-more="{{hasMore}}"
-            scroll-y="{{true}}"
-            scroll-top="{{tabState[0] ? tabState[0].scrollTop : 0}}"
-            lower-threshold="{{lowerThreshold}}"
-            scroll-with-animation="{{true}}"
-            enhanced="{{true}}"
-            show-scrollbar="{{false}}"
-            enable-back-to-top="{{false}}"
-            enable-passive="{{true}}"
-
-            enable-detail="{{true}}"
-            detail-selector="#jobDetail"
-            detail-collection-fallback="{{selectedCollection}}"
-
-            bind:itemtap="onJobTap"
-            bind:scrolltolower="onScrollLower"
-            bind:scroll="onScroll"
-            bind:touchstart="onTouchStart"
-            bind:touchend="onTouchEnd"
-          />
-        </view>
-      </view>
+      <job-tab
+        id="jobTab0"
+        tab-type="{{0}}"
+        active="{{currentTab === 0}}"
+        is-featured-unlocked="{{isFeaturedUnlocked}}"
+        featured-scroll-enabled="{{featuredScrollEnabled}}"
+        bind:itemtap="onJobTap"
+        bind:refreshsaved="onRefreshSaved"
+        bind:restoresearch="onRestoreSearch"
+        bind:featuresubscribe="onFeaturedSubscribeTap"
+      />
     </swiper-item>
+    
     <!-- 精选 tab -->
     <swiper-item>
-      <view class="tab-content-wrapper {{currentTab === 1 && !isFeaturedUnlocked ? 'featured-locked' : ''}}">
-        <view class="search-bar">
-          <input
-            class="search-input"
-            type="text"
-            placeholder="{{ui.searchPlaceholder}}"
-            placeholder-class="search-placeholder"
-            confirm-type="search"
-            value="{{tabState[1].searchKeyword}}"
-            bindinput="onSearchInput"
-          />
-
-          <view class="search-actions">
-            <view class="search-pill" bindtap="toggleSaveMenu">
-              <text class="search-pill-text">{{ui.saveMenuLabel}}</text>
-              <view class="search-pill-triangle {{tabState[1].showSaveMenu ? 'search-pill-triangle-up' : ''}}" />
-            </view>
-            <view class="search-pill" bindtap="toggleDrawer">
-              <text class="search-pill-text">{{ui.filterLabel}}</text>
-              <view class="search-pill-triangle" />
-            </view>
-          </view>
-        </view>
-
-        <!-- Save Menu Dropdown -->
-        <view wx:if="{{tabState[1].showSaveMenu}}" class="save-menu-mask save-menu-mask-open" bindtap="toggleSaveMenu"></view>
-        <view wx:if="{{tabState[1].showSaveMenu}}" class="save-menu-dropdown">
-          <view class="save-menu-option" bindtap="onSaveAllJobs">
-            <text class="save-menu-option-text">{{ui.collectAllLabel}}</text>
-          </view>
-          <view class="save-menu-option" bindtap="onSaveSearchCondition">
-            <text class="save-menu-option-text">{{ui.saveSearchLabel}}</text>
-          </view>
-          <view class="save-menu-option" bindtap="onRestoreSearchCondition">
-            <text class="save-menu-option-text">{{ui.restoreSearchLabel}}</text>
-          </view>
-        </view>
-
-        <view class="job-list-wrapper featured-tab-wrapper">
-          <job-list
-            jobs="{{jobsByTab[1] || []}}"
-            loading="{{loading}}"
-            has-more="{{hasMore}}"
-            scroll-y="{{featuredScrollEnabled}}"
-            scroll-top="{{tabState[1].scrollTop}}"
-            lower-threshold="{{lowerThreshold}}"
-            scroll-with-animation="{{true}}"
-            enhanced="{{true}}"
-            show-scrollbar="{{false}}"
-            enable-back-to-top="{{false}}"
-            enable-passive="{{true}}"
-
-            enable-detail="{{true}}"
-            detail-selector="#jobDetail"
-            detail-collection-fallback="{{selectedCollection}}"
-
-            bind:itemtap="onJobTap"
-            bind:scrolltolower="onScrollLower"
-            bind:scroll="onScroll"
-            bind:touchstart="onTouchStart"
-            bind:touchend="onTouchEnd"
-          />
-        </view>
-        <!-- Subscription overlay for 精选 tab when expired - covers search-bar + job-list -->
-        <view wx:if="{{currentTab === 1 && !isFeaturedUnlocked}}" class="featured-overlay">
-          <view class="featured-overlay-text" bindtap="onFeaturedSubscribeTap">{{ui.featuredSubscribeText}}</view>
-        </view>
-      </view>
+      <job-tab
+        id="jobTab1"
+        tab-type="{{1}}"
+        active="{{currentTab === 1}}"
+        is-featured-unlocked="{{isFeaturedUnlocked}}"
+        featured-scroll-enabled="{{featuredScrollEnabled}}"
+        bind:itemtap="onJobTap"
+        bind:refreshsaved="onRefreshSaved"
+        bind:restoresearch="onRestoreSearch"
+        bind:featuresubscribe="onFeaturedSubscribeTap"
+      />
     </swiper-item>
+    
     <!-- 收藏 tab -->
     <swiper-item>
-      <view class="tab-content-wrapper">
-        <view class="search-bar">
-          <input
-            class="search-input"
-            type="text"
-            placeholder="{{ui.searchPlaceholder}}"
-            placeholder-class="search-placeholder"
-            confirm-type="search"
-            value="{{tabState[2].searchKeyword}}"
-            bindinput="onSearchInput"
-          />
-
-          <view class="search-actions">
-            <view class="search-pill" bindtap="toggleSaveMenu">
-              <text class="search-pill-text">{{ui.saveMenuLabel}}</text>
-              <view class="search-pill-triangle {{tabState[2].showSaveMenu ? 'search-pill-triangle-up' : ''}}" />
-            </view>
-            <view class="search-pill" bindtap="toggleDrawer">
-              <text class="search-pill-text">{{ui.filterLabel}}</text>
-              <view class="search-pill-triangle" />
-            </view>
-          </view>
-        </view>
-
-        <!-- Save Menu Dropdown -->
-        <view wx:if="{{tabState[2].showSaveMenu}}" class="save-menu-mask save-menu-mask-open" bindtap="toggleSaveMenu"></view>
-        <view wx:if="{{tabState[2].showSaveMenu}}" class="save-menu-dropdown">
-          <view class="save-menu-option" bindtap="onSaveAllJobs">
-            <text class="save-menu-option-text">{{ui.collectAllLabel}}</text>
-          </view>
-          <view class="save-menu-option" bindtap="onSaveSearchCondition">
-            <text class="save-menu-option-text">{{ui.saveSearchLabel}}</text>
-          </view>
-          <view class="save-menu-option" bindtap="onRestoreSearchCondition">
-            <text class="save-menu-option-text">{{ui.restoreSearchLabel}}</text>
-          </view>
-        </view>
-
-        <view class="job-list-wrapper">
-          <job-list
-            jobs="{{jobsByTab[2] || []}}"
-            loading="{{loading}}"
-            has-more="{{hasMore}}"
-            scroll-y="{{true}}"
-            scroll-top="{{tabState[2].scrollTop}}"
-            lower-threshold="{{lowerThreshold}}"
-            scroll-with-animation="{{true}}"
-            enhanced="{{true}}"
-            show-scrollbar="{{false}}"
-            enable-back-to-top="{{false}}"
-            enable-passive="{{true}}"
-
-            enable-detail="{{true}}"
-            detail-selector="#jobDetail"
-            detail-collection-fallback="{{selectedCollection}}"
-
-            bind:itemtap="onJobTap"
-            bind:scrolltolower="onScrollLower"
-            bind:scroll="onScroll"
-            bind:touchstart="onTouchStart"
-            bind:touchend="onTouchEnd"
-          />
-          <!-- Empty state for favorites tab -->
-          <view wx:if="{{currentTab === 2 && !loading && jobsByTab[2] && jobsByTab[2].length === 0}}" class="empty-favorites">
-            <text class="empty-favorites-text">{{ui.emptyFavorites}}</text>
-          </view>
-        </view>
-      </view>
+      <job-tab
+        id="jobTab2"
+        tab-type="{{2}}"
+        active="{{currentTab === 2}}"
+        is-featured-unlocked="{{isFeaturedUnlocked}}"
+        featured-scroll-enabled="{{featuredScrollEnabled}}"
+        bind:itemtap="onJobTap"
+        bind:refreshsaved="onRefreshSaved"
+        bind:restoresearch="onRestoreSearch"
+        bind:featuresubscribe="onFeaturedSubscribeTap"
+      />
     </swiper-item>
   </swiper>
-  <!-- Drawer Component for each tab -->
-  <drawer
-    wx:if="{{currentTab === 0}}"
-    show="{{tabState[0].showDrawer}}"
-    value="{{tabState[0].drawerFilter}}"
-    bind:close="toggleDrawer"
-    bind:confirm="onDrawerConfirm"
-    bind:reset="onDrawerReset"
-    bind:openFavorites="openFavoritesSheet"
-  />
-  <drawer
-    wx:if="{{currentTab === 1}}"
-    show="{{tabState[1].showDrawer}}"
-    value="{{tabState[1].drawerFilter}}"
-    bind:close="toggleDrawer"
-    bind:confirm="onDrawerConfirm"
-    bind:reset="onDrawerReset"
-    bind:openFavorites="openFavoritesSheet"
-  />
-  <drawer
-    wx:if="{{currentTab === 2}}"
-    show="{{tabState[2].showDrawer}}"
-    value="{{tabState[2].drawerFilter}}"
-    bind:close="toggleDrawer"
-    bind:confirm="onDrawerConfirm"
-    bind:reset="onDrawerReset"
-    bind:openFavorites="openFavoritesSheet"
-  />
 
   <!-- Job Detail Drawer Component -->
   <job-detail
