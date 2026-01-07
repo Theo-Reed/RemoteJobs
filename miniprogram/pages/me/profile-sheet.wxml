@@ -1,13 +1,13 @@
 <!-- 个人资料底部弹窗 -->
 <block wx:if="{{showProfileSheet}}">
-  <view class="profile-sheet-mask {{profileSheetOpen ? 'profile-sheet-mask-open' : ''}}"
+  <view class="bottom-sheet-mask {{profileSheetOpen ? 'bottom-sheet-mask-open' : ''}}"
         bindtap="closeProfileSheet"></view>
-  <view class="profile-sheet {{profileSheetOpen ? 'profile-sheet-open' : ''}}">
-    <view class="profile-sheet-header">
+  <view class="bottom-sheet {{profileSheetOpen ? 'bottom-sheet-open' : ''}}">
+    <view class="bottom-sheet-header">
       <text class="profile-sheet-title">用户资料</text>
     </view>
 
-    <view class="profile-sheet-content">
+    <view class="bottom-sheet-content profile-sheet-content">
       <!-- Upload Avatar - 独立一栏，左右布局 -->
       <view class="profile-avatar-section" catchtap="onUploadAvatar">
         <text class="profile-avatar-title">{{ui.uploadAvatar}}</text>

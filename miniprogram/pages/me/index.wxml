@@ -54,11 +54,11 @@
 
   <!-- Language bottom sheet (same animation as saved sheet) -->
   <block wx:if="{{showLanguageSheet}}">
-    <view class="language-sheet-mask {{languageSheetOpen ? 'language-sheet-mask-open' : ''}}"
+    <view class="bottom-sheet-mask {{languageSheetOpen ? 'bottom-sheet-mask-open' : ''}}"
           bindtap="closeLanguageSheet"></view>
-    <view class="language-sheet {{languageSheetOpen ? 'language-sheet-open' : ''}}">
+    <view class="bottom-sheet {{languageSheetOpen ? 'bottom-sheet-open' : ''}}">
 
-      <view class="language-sheet-content">
+      <view class="bottom-sheet-content">
         <view class="language-item {{currentLanguage === 'Chinese' ? 'language-item-active' : ''}}"
               data-value="Chinese" bindtap="onLanguageSelect">
           <text class="language-item-text">{{ui.langDefault}}</text>
@@ -77,11 +77,11 @@
 
   <!-- AI Translate bottom sheet -->
   <block wx:if="{{showAiTranslateSheet}}">
-    <view class="language-sheet-mask {{aiTranslateSheetOpen ? 'language-sheet-mask-open' : ''}}"
+    <view class="bottom-sheet-mask {{aiTranslateSheetOpen ? 'bottom-sheet-mask-open' : ''}}"
           bindtap="closeAiTranslateSheet"></view>
-    <view class="language-sheet {{aiTranslateSheetOpen ? 'language-sheet-open' : ''}}">
+    <view class="bottom-sheet {{aiTranslateSheetOpen ? 'bottom-sheet-open' : ''}}">
 
-      <view class="language-sheet-content">
+      <view class="bottom-sheet-content">
         <view class="language-item {{aiTranslateLanguage === 'Default' ? 'language-item-active' : ''}}"
               data-value="Default" bindtap="onAiTranslateLanguageSelect">
           <text class="language-item-text">{{ui.aiTranslateDefault}}</text>
@@ -99,11 +99,11 @@
 
   <!-- Invite code bottom sheet -->
   <block wx:if="{{showInviteSheet}}">
-    <view class="invite-sheet-mask {{inviteSheetOpen ? 'invite-sheet-mask-open' : ''}}"
+    <view class="bottom-sheet-mask {{inviteSheetOpen ? 'bottom-sheet-mask-open' : ''}}"
           bindtap="closeInviteSheet"></view>
-    <view class="invite-sheet {{inviteSheetOpen ? 'invite-sheet-open' : ''}}">
+    <view class="bottom-sheet {{inviteSheetOpen ? 'bottom-sheet-open' : ''}}">
 
-      <view class="invite-sheet-content">
+      <view class="bottom-sheet-content invite-sheet-content">
         <view class="invite-section">
           <text class="invite-section-title">{{ui.myInviteCode}}</text>
           <view class="invite-code-display" bindtap="onCopyInviteCode">
