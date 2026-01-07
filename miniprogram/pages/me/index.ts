@@ -10,7 +10,6 @@ import {getPhoneNumberFromAuth, updatePhoneNumber} from '../../utils/phoneAuth'
 Page({
     data: {
         userInfo: null as WechatMiniprogram.UserInfo | null,
-        isLoggedIn: false,
         isInitialLoading: true,
         phoneAuthBusy: false,
 
@@ -89,7 +88,6 @@ Page({
         const app = getApp<IAppOption>() as any
         const user = app?.globalData?.user
 
-        const isLoggedIn = !!(user && (user.isAuthed || user.phone))
         const isVerified = !!(user && (user.isAuthed || user.phone)) // 认证状态：有手机号或已认证
 
         // 使用新包裹字段 membership
@@ -108,8 +106,7 @@ Page({
             }
         }
 
-        const hasCloudProfile = user && typeof user.avatar === 'string' && typeof user.nickname === 'string' && user.avatar && user.nickname
-        const userInfo = hasCloudProfile
+        const userInfo = user && user.avatar && user.nickname
             ? ({ avatarUrl: user.avatar, nickName: user.nickname } as WechatMiniprogram.UserInfo)
             : null
 
@@ -125,7 +122,6 @@ Page({
         const maskedPhone = this.formatPhoneNumber(user?.phone)
 
         this.setData({
-            isLoggedIn,
             isVerified,
             isMember,
             memberLevel,
@@ -147,7 +143,6 @@ Page({
 
         const ui = {
             meTitle: t('me.title', lang),
-            userNotLoggedIn: t('me.userNotLoggedIn', lang),
             generateResumeEntry: t('me.generateResumeEntry', lang),
             publishSkillEntry: t('me.publishSkillEntry', lang),
             aiTranslateEntry: t('me.aiTranslateEntry', lang),
@@ -621,10 +616,6 @@ Page({
     },
 
     onAvatarTap() {
-        if (!this.data.isLoggedIn) {
-            wx.showToast({ title: '请先登录', icon: 'none' })
-            return
-        }
         this.openProfileSheet()
     },
 

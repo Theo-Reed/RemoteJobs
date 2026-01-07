@@ -29,12 +29,18 @@ exports.main = async (event, context) => {
     }
 
     const now = db.serverDate()
+    
+    // 生成随机昵称：用户 + 6位随机数字/小写字母
+    const randomStr = Math.random().toString(36).substring(2, 8)
+    const defaultNickname = `用户${randomStr}`
+    const defaultAvatar = 'cloud://env-id.636c-env-id-1392489857/avatars/default-avatar.png' // 请替换为实际的环境 ID
+
     const userData = {
         openid: OPENID,
         isAuthed: false,
         phone: null,
-        nickname: null,
-        avatar: null,
+        nickname: defaultNickname,
+        avatar: defaultAvatar,
         language: 'Chinese',
         
         // --- 核心改动：会员权益与配额包裹字段 ---
@@ -63,6 +69,7 @@ exports.main = async (event, context) => {
           certificates: [],
           skills: []
         },
+        resume_completeness: 0,
 
         createdAt: now,
         updatedAt: now,

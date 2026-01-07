@@ -278,9 +278,9 @@ Component({
       const app = getApp<IAppOption>() as any
       const user = app?.globalData?.user
       const openid = user?.openid
-      const isLoggedIn = !!(user && (user.isAuthed || user.phone))
+      const isVerified = !!(user && (user.isAuthed || user.phone))
       
-      if (!isLoggedIn || !openid) {
+      if (!isVerified || !openid) {
         this.setData({ 
           jobs: [], 
           loading: false, 
@@ -654,13 +654,13 @@ Component({
     async onSaveAllJobs() {
       this.setData({ showSaveMenu: false })
       
-      // 检查登录状态
+      // 检查认证状态
       const app = getApp<IAppOption>() as any
       const user = app?.globalData?.user
       const openid = user?.openid
-      const isLoggedIn = !!(user && (user.isAuthed || user.phone))
-      if (!isLoggedIn || !openid) {
-        wx.showToast({ title: '请先登录/绑定手机号', icon: 'none' })
+      const isVerified = !!(user && (user.isAuthed || user.phone))
+      if (!isVerified || !openid) {
+        wx.showToast({ title: '请先绑定手机号', icon: 'none' })
         return
       }
       
@@ -794,13 +794,13 @@ Component({
     async onSaveSearchCondition() {
       this.setData({ showSaveMenu: false })
       
-      // 检查登录状态
+      // 检查认证状态
       const app = getApp<IAppOption>() as any
       const user = app?.globalData?.user
       const openid = user?.openid
-      const isLoggedIn = !!(user && (user.isAuthed || user.phone))
-      if (!isLoggedIn || !openid) {
-        wx.showToast({ title: '请先登录/绑定手机号', icon: 'none' })
+      const isVerified = !!(user && (user.isAuthed || user.phone))
+      if (!isVerified || !openid) {
+        wx.showToast({ title: '请先绑定手机号', icon: 'none' })
         return
       }
       
@@ -854,13 +854,13 @@ Component({
     async onRestoreSearchCondition() {
       this.setData({ showSaveMenu: false })
       
-      // 检查登录状态
+      // 检查认证状态
       const app = getApp<IAppOption>() as any
       const user = app?.globalData?.user
       const openid = user?.openid
-      const isLoggedIn = !!(user && (user.isAuthed || user.phone))
-      if (!isLoggedIn || !openid) {
-        wx.showToast({ title: '请先登录/绑定手机号', icon: 'none' })
+      const isVerified = !!(user && (user.isAuthed || user.phone))
+      if (!isVerified || !openid) {
+        wx.showToast({ title: '请先绑定手机号', icon: 'none' })
         return
       }
       

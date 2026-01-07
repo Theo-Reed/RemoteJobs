@@ -7,6 +7,9 @@ Page({
     // 个人信息
     name: '',
     photo: '',
+    gender: '',
+    birthday: '',
+    identity: '',
     wechat: '',
     email: '',
     phone: '',
@@ -25,11 +28,14 @@ Page({
     
     // 编辑状态
     showEduDrawer: false,
+    showBasicInfoDrawer: false,
     showDegreePicker: false,
     degreePickerValue: [0, 0],
     studyTypes: [] as string[],
+    showGenderPicker: false,
+    showIdentityPicker: false,
     showDatePicker: false,
-    currentDatePickingField: '', // 'startDate' | 'endDate'
+    currentDatePickingField: '', // 'startDate' | 'endDate' | 'birthday'
     datePickerValue: [0, 0],
     years: [] as number[],
     months: [] as number[],
@@ -42,10 +48,19 @@ Page({
       endDate: '',
       description: '',
     },
+    basicInfoForm: {
+      name: '',
+      gender: '',
+      birthday: '',
+      identity: '',
+    },
     degreeOptions: [] as string[],
+    genderOptions: [] as string[],
+    identityOptions: [] as string[],
     
     // UI 文本
     ui: {} as Record<string, any>,
+    completeness: 0, // 0: incomplete, 1: complete (except certs), 2: perfect (with certs)
   },
 
   onLoad() {
@@ -97,6 +112,9 @@ Page({
       contactInfo: t('resume.contactInfo', lang),
       name: t('resume.name', lang),
       photo: t('resume.photo', lang),
+      gender: t('resume.gender', lang),
+      birthday: t('resume.birthday', lang),
+      identity: t('resume.identity', lang),
       wechat: t('resume.wechat', lang),
       email: t('resume.email', lang),
       phone: t('resume.phone', lang),
@@ -111,6 +129,10 @@ Page({
       schoolPlaceholder: t('resume.schoolPlaceholder', lang),
       majorPlaceholder: t('resume.majorPlaceholder', lang),
       degreePlaceholder: t('resume.degreePlaceholder', lang),
+      genderPlaceholder: t('resume.genderPlaceholder', lang),
+      identityPlaceholder: t('resume.identityPlaceholder', lang),
+      birthdayPlaceholder: t('resume.birthdayPlaceholder', lang),
+      namePlaceholder: t('resume.namePlaceholder', lang),
       description: t('resume.description', lang),
       descriptionPlaceholder: t('resume.descriptionPlaceholder', lang),
       optional: t('resume.optional', lang),
@@ -124,8 +146,29 @@ Page({
 
     const degreeOptions = t<string[]>('resume.degreeOptions', lang)
     const studyTypes = t<string[]>('resume.studyTypes', lang)
+    const genderOptions = t<string[]>('resume.genderOptions', lang)
+    const identityOptions = t<string[]>('resume.identityOptions', lang)
 
-    this.setData({ ui, degreeOptions, studyTypes })
+    this.setData({ ui, degreeOptions, studyTypes, genderOptions, identityOptions }, () => {
+      this.updateTips()
+    })
+  },
+
+  updateTips() {
+    const { completeness } = this.data
+    const app = getApp<IAppOption>() as any
+    const lang = normalizeLanguage(app?.globalData?.language)
+
+    let tips = t('resume.tips', lang)
+    if (completeness === 1) {
+      tips = t('resume.tipsComplete', lang)
+    } else if (completeness === 2) {
+      tips = t('resume.tipsPerfect', lang)
+    }
+
+    this.setData({
+      'ui.tips': tips
+    })
   },
 
   loadResumeData() {
@@ -136,14 +179,42 @@ Page({
       // 核心改动：使用新的 resume_profile 字段
       const profile = user.resume_profile || {}
       
+      const name = profile.name || ''
+      const photo = profile.photo || ''
+      const gender = profile.gender || ''
+      const birthday = profile.birthday || ''
+      const identity = profile.identity || ''
+      const wechat = profile.wechat || ''
+      const email = profile.email || ''
+      const phone = profile.phone || ''
+      const educations = profile.educations || []
+      const certificates = profile.certificates || []
+
+      // 计算完整度
+      const isBasicComplete = !!(name && photo && gender && birthday && identity)
+      const isContactComplete = !!(wechat || email || phone)
+      const isEducationComplete = educations.length > 0
+      const isCertificatesComplete = certificates.length > 0
+
+      let completeness = 0
+      if (isBasicComplete && isContactComplete && isEducationComplete) {
+        completeness = isCertificatesComplete ? 2 : 1
+      }
+
       this.setData({
-        name: profile.name || '',
-        photo: profile.photo || '',
-        wechat: profile.wechat || '',
-        email: profile.email || '',
-        phone: profile.phone || user.phone || '', // 兜底使用账户手机号
-        educations: profile.educations || [],
-        certificates: profile.certificates || [],
+        name,
+        photo,
+        gender,
+        birthday,
+        identity,
+        wechat,
+        email,
+        phone,
+        educations,
+        certificates,
+        completeness
+      }, () => {
+        this.updateTips()
       })
     }
   },
@@ -151,9 +222,29 @@ Page({
   async saveResumeProfile(data: any) {
     try {
       wx.showLoading({ title: '保存中...' })
+
+      // 合并现有数据计算新的完整度
+      const app = getApp<IAppOption>() as any
+      const user = app.globalData.user || {}
+      const currentProfile = user.resume_profile || {}
+      const newProfile = { ...currentProfile, ...data }
+      
+      const isBasicComplete = !!(newProfile.name && newProfile.photo && newProfile.gender && newProfile.birthday && newProfile.identity)
+      const isContactComplete = !!(newProfile.wechat || newProfile.email || newProfile.phone)
+      const isEducationComplete = newProfile.educations?.length > 0
+      const isCertificatesComplete = newProfile.certificates?.length > 0
+
+      let completeness = 0
+      if (isBasicComplete && isContactComplete && isEducationComplete) {
+        completeness = isCertificatesComplete ? 2 : 1
+      }
+
       const res: any = await wx.cloud.callFunction({
         name: 'updateUserProfile',
-        data: { resume_profile: data }
+        data: { 
+          resume_profile: data,
+          resume_completeness: completeness
+        }
       })
       
       if (res.result?.ok) {
@@ -192,19 +283,6 @@ Page({
           wx.showToast({ title: '上传失败', icon: 'none' })
         } finally {
           wx.hideLoading()
-        }
-      }
-    })
-  },
-  onEditName() {
-    wx.showModal({
-      title: '编辑姓名',
-      placeholderText: '请输入真实姓名',
-      editable: true,
-      content: this.data.name,
-      success: (res) => {
-        if (res.confirm && res.content) {
-          this.saveResumeProfile({ name: res.content })
         }
       }
     })
@@ -249,6 +327,81 @@ Page({
     })
   },
   
+  // 个人基本信息相关逻辑
+  onEditBasicInfo() {
+    this.setData({
+      showBasicInfoDrawer: true,
+      basicInfoForm: {
+        name: this.data.name,
+        gender: this.data.gender,
+        birthday: this.data.birthday,
+        identity: this.data.identity,
+      }
+    })
+  },
+  closeBasicInfoDrawer() {
+    this.setData({ showBasicInfoDrawer: false })
+  },
+  onBasicNameInput(e: any) {
+    this.setData({ 'basicInfoForm.name': e.detail.value })
+  },
+  openGenderPicker() {
+    this.setData({ showGenderPicker: true })
+  },
+  closeGenderPicker() {
+    this.setData({ showGenderPicker: false })
+  },
+  onSelectGender(e: any) {
+    this.setData({ 
+      'basicInfoForm.gender': e.currentTarget.dataset.value,
+      showGenderPicker: false
+    })
+  },
+  openBirthdayPicker() {
+    const currentBirthday = this.data.basicInfoForm.birthday
+    let yearIndex = this.data.years.indexOf(new Date().getFullYear() - 25) // 默认25岁
+    let monthIndex = 0
+
+    if (currentBirthday) {
+      const [y, m] = currentBirthday.split('-').map(Number)
+      const foundYearIndex = this.data.years.indexOf(y)
+      if (foundYearIndex > -1) yearIndex = foundYearIndex
+      monthIndex = m - 1
+    }
+
+    this.setData({ 
+      showDatePicker: true,
+      currentDatePickingField: 'birthday',
+      datePickerValue: [yearIndex, monthIndex]
+    })
+  },
+  openIdentityPicker() {
+    this.setData({ showIdentityPicker: true })
+  },
+  closeIdentityPicker() {
+    this.setData({ showIdentityPicker: false })
+  },
+  onSelectIdentity(e: any) {
+    this.setData({ 
+      'basicInfoForm.identity': e.currentTarget.dataset.value,
+      showIdentityPicker: false
+    })
+  },
+  async onSaveBasicInfo() {
+    const { basicInfoForm, ui } = this.data
+    if (!basicInfoForm.name.trim()) {
+      wx.showToast({ title: ui.namePlaceholder, icon: 'none' })
+      return
+    }
+    await this.saveResumeProfile({
+      name: basicInfoForm.name,
+      gender: basicInfoForm.gender,
+      birthday: basicInfoForm.birthday,
+      identity: basicInfoForm.identity,
+    })
+    this.closeBasicInfoDrawer()
+  },
+
   // 教育经历相关逻辑
   onAddEducation() {
     this.setData({
@@ -364,6 +517,15 @@ Page({
     const dateStr = `${year}-${month}`
     
     const field = this.data.currentDatePickingField
+    
+    if (field === 'birthday') {
+      this.setData({
+        'basicInfoForm.birthday': dateStr,
+        showDatePicker: false
+      })
+      return
+    }
+
     const otherField = field === 'startDate' ? 'endDate' : 'startDate'
     const otherDate = (this.data.eduForm as any)[otherField]
 

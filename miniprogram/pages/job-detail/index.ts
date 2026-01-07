@@ -94,8 +94,6 @@ Page({
     // attach language-aware behavior
     ;(this as any)._langDetach = attachLanguageAware(this, {
       onLanguageRevive: () => {
-        const app = getApp<IAppOption>() as any
-        const lang = normalizeLanguage(app?.globalData?.language)
         wx.setNavigationBarTitle({ title: '' })
         this.updateLanguage()
         // 如果已有数据，重新处理显示
@@ -128,8 +126,6 @@ Page({
   },
 
   onShow() {
-    const app = getApp<IAppOption>() as any
-    const lang = normalizeLanguage(app?.globalData?.language)
     wx.setNavigationBarTitle({ title: '' })
   },
 
@@ -206,8 +202,8 @@ Page({
 
     const app = getApp<IAppOption>() as any
     const user = app?.globalData?.user
-    const isLoggedIn = !!(user && (user.isAuthed || user.phone))
-    if (!isLoggedIn) {
+    const isVerified = !!(user && (user.isAuthed || user.phone))
+    if (!isVerified) {
       wx.showToast({ title: this.data.pleaseLoginText, icon: 'none' })
       return
     }
@@ -273,10 +269,83 @@ Page({
     })
   },
 
-  onGenerateResume() {
+  async onGenerateResume() {
     this.closeApplyMenu()
-    // TODO: 实现生成简历功能
-    wx.showToast({ title: this.data.featureDevelopingText, icon: 'none' })
+    
+    const app = getApp<IAppOption>() as any
+    
+    try {
+      wx.showLoading({ title: '检查中...', mask: true })
+      // 实时请求数据库获取最新的完整度
+      const user = await app.refreshUser()
+      wx.hideLoading()
+      
+      const profile = user?.resume_profile || {}
+      const completeness = user?.resume_completeness || 0
+
+      if (completeness >= 1) {
+        // 简历完整，调用云托管接口
+        try {
+          wx.showLoading({ title: 'AI 思考中...', mask: true })
+          
+          const res = await wx.cloud.callContainer({
+            path: '/api/generate-from-db', // 您的接口路径
+            header: {
+              'X-WX-SERVICE': 'express-vyc1', // 您的服务名称
+              'content-type': 'application/json'
+            },
+            method: 'POST',
+            data: {
+              jobId: this.data.job?._id, // 岗位 ID
+              userId: user.openid,      // 用户 ID (OpenID)
+            }
+          })
+
+          wx.hideLoading()
+          console.log('云托管返回结果:', res)
+          
+          if (res.statusCode === 200) {
+            // 处理成功逻辑
+            wx.showToast({ title: '生成成功', icon: 'success' })
+          } else {
+            throw new Error('服务响应异常')
+          }
+        } catch (err) {
+          wx.hideLoading()
+          console.error('调用云托管失败:', err)
+          wx.showToast({ title: 'AI 服务暂时不可用', icon: 'none' })
+        }
+      } else {
+        // 找出具体缺失的内容 (用于诊断)
+        const missing = []
+        if (!(profile.name && profile.photo && profile.gender && profile.birthday && profile.identity)) missing.push('基本信息')
+        if (!(profile.wechat || profile.email || profile.phone)) missing.push('联系方式')
+        if (!(profile.educations?.length > 0)) missing.push('教育经历')
+        
+        const content = missing.length > 0 
+          ? `为了更好的生成效果，请完善: ${missing.join('、')}`
+          : '为了更好的生成效果，请先完善简历资料'
+
+        // 简历不完整，跳转到简历资料页
+        wx.showModal({
+          title: '简历信息不完整',
+          content: content,
+          confirmText: '去完善',
+          cancelText: '取消',
+          success: (res) => {
+            if (res.confirm) {
+              wx.navigateTo({
+                url: '/pages/resume-profile/index',
+              })
+            }
+          }
+        })
+      }
+    } catch (err) {
+      wx.hideLoading()
+      console.error('检查完整度失败:', err)
+      wx.showToast({ title: '检查失败，请重试', icon: 'none' })
+    }
   },
 
   async onOneClickResumeSubmit() {
@@ -286,11 +355,11 @@ Page({
       return
     }
 
-    // 检查登录状态
+    // 检查认证状态
     const app = getApp<IAppOption>() as any
     const user = app?.globalData?.user
-    const isLoggedIn = !!(user && (user.isAuthed || user.phone))
-    if (!isLoggedIn) {
+    const isVerified = !!(user && (user.isAuthed || user.phone))
+    if (!isVerified) {
       this.closeApplyMenu()
       wx.showToast({ title: this.data.pleaseLoginText, icon: 'none' })
       return

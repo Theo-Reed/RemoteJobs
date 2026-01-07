@@ -9,13 +9,14 @@ exports.main = async (event, context) => {
   const db = cloud.database()
   const { OPENID } = cloud.getWXContext()
 
-  const { nickname, avatar, phone, isAuthed, resume_profile } = event || {}
+  const { nickname, avatar, phone, isAuthed, resume_profile, resume_completeness } = event || {}
 
   const updates = {}
   if (typeof nickname === 'string') updates.nickname = nickname
   if (typeof avatar === 'string') updates.avatar = avatar
   if (typeof phone === 'string') updates.phone = phone
   if (typeof isAuthed === 'boolean') updates.isAuthed = isAuthed
+  if (typeof resume_completeness === 'number') updates.resume_completeness = resume_completeness
   
   // 处理 resume_profile 更新
   if (resume_profile && typeof resume_profile === 'object') {

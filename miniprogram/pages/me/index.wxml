@@ -12,19 +12,9 @@
         <block wx:if="{{isInitialLoading}}">
           <text class="nickname">加载中...</text>
         </block>
-        <block wx:elif="{{!isLoggedIn}}">
-          <button
-                  class="phone-auth-name-btn"
-                  open-type="getPhoneNumber"
-                  bindgetrealtimephonenumber="onGetRealtimePhoneNumber"
-                  bindgetphonenumber="onGetPhoneNumber"
-          >
-            <text class="nickname nickname-login">{{ui.userNotLoggedIn}}</text>
-          </button>
-        </block>
         <block wx:else>
           <view class="nickname-container">
-            <text class="nickname">{{userInfo ? userInfo.nickName : '已登录'}}</text>
+            <text class="nickname">{{userInfo.nickName}}</text>
             <view wx:if="{{memberLevel > 0 && memberBadgeText}}" class="member-badge {{memberLevel === 1 ? 'member-badge-trial' : (memberLevel === 2 ? 'member-badge-normal' : 'member-badge-premium')}}">
               <text class="member-text">{{memberBadgeText}}</text>
             </view>

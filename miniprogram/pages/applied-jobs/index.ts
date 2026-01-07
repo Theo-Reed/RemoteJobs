@@ -45,9 +45,9 @@ Page({
   async loadAppliedJobs() {
     const app = getApp<IAppOption>() as any
     const user = app?.globalData?.user
-    const isLoggedIn = !!(user && (user.isAuthed || user.phone))
+    const isVerified = !!(user && (user.isAuthed || user.phone))
 
-    if (!isLoggedIn) {
+    if (!isVerified) {
       this.setData({ appliedJobs: [] })
       return
     }

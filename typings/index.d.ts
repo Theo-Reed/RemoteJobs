@@ -29,6 +29,9 @@ type AppUser = {
   resume_profile?: {
     name: string
     photo: string
+    gender: string
+    birthday: string
+    identity: string
     wechat: string
     email: string
     phone: string
@@ -37,6 +40,9 @@ type AppUser = {
       graduationDate: string
       major?: string
       degree?: string
+      description?: string
+      startDate?: string
+      endDate?: string
     }>
     certificates: string[]
     skills: string[]

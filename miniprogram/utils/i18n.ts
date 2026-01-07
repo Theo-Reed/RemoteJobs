@@ -13,7 +13,6 @@ const dict = {
     },
     me: {
         title: { Chinese: '我', English: 'Me' },
-        userNotLoggedIn: { Chinese: '用户未登录', English: 'Not logged in' },
         favoritesEntry: { Chinese: '我收藏的岗位', English: 'Saved jobs' },
         languageEntry: { Chinese: '语言', English: 'Language' },
         langChinese: { Chinese: '中文', English: 'Chinese' },
@@ -52,9 +51,14 @@ const dict = {
     resume: {
         title: { Chinese: '简历资料', English: 'Resume Profile' },
         tips: { Chinese: '完善以下信息，让 AI 更好地为您生成简历', English: 'Complete the info for better AI resume generation' },
+        tipsComplete: { Chinese: '信息很完整，快去体验AI简历吧', English: 'Information is very complete, go experience AI Resume!' },
+        tipsPerfect: { Chinese: '非常完美，快去体验AI简历吧', English: 'Very perfect, go experience AI Resume!' },
         personalInfo: { Chinese: '基本信息', English: 'Basic Info' },
         contactInfo: { Chinese: '联系方式', English: 'Contact' },
-        name: { Chinese: '个人姓名', English: 'Name' },
+        name: { Chinese: '个人信息', English: 'Personal Profile' },
+        gender: { Chinese: '性别', English: 'Gender' },
+        birthday: { Chinese: '出生年月', English: 'Birthday' },
+        identity: { Chinese: '身份', English: 'Identity' },
         photo: { Chinese: '照片', English: 'Photo' },
         wechat: { Chinese: '微信号', English: 'WeChat' },
         email: { Chinese: '邮箱', English: 'Email' },
@@ -67,6 +71,10 @@ const dict = {
         schoolPlaceholder: { Chinese: '请输入学校名称', English: 'Enter school name' },
         majorPlaceholder: { Chinese: '请输入专业名称', English: 'Enter major name' },
         degreePlaceholder: { Chinese: '请选择学历', English: 'Select degree' },
+        genderPlaceholder: { Chinese: '请选择性别', English: 'Select gender' },
+        identityPlaceholder: { Chinese: '请选择身份', English: 'Select identity' },
+        birthdayPlaceholder: { Chinese: '请选择出生年月', English: 'Select birthday' },
+        namePlaceholder: { Chinese: '请输入真实姓名', English: 'Enter your real name' },
         description: { Chinese: '在校描述', English: 'Description' },
         descriptionPlaceholder: { Chinese: '主要课程、荣誉奖励等', English: 'Main courses, honors, etc.' },
         optional: { Chinese: '选填', English: 'Optional' },
@@ -86,6 +94,14 @@ const dict = {
         studyTypes: {
             Chinese: ['全日制', '非全日制'],
             English: ['Full-time', 'Part-time']
+        },
+        genderOptions: {
+            Chinese: ['男', '女', '保密'],
+            English: ['Male', 'Female', 'Secret']
+        },
+        identityOptions: {
+            Chinese: ['在校生', '职场人'],
+            English: ['Student', 'Professional']
         },
     },
     community: {
@@ -142,7 +158,7 @@ const dict = {
         linkCopied: { Chinese: '链接已复制', English: 'Link copied' },
         featureDeveloping: { Chinese: '功能开发中', English: 'Feature under development' },
         dataLoadFailed: { Chinese: '数据加载失败', English: 'Failed to load data' },
-        pleaseLogin: { Chinese: '请先登录/绑定手机号', English: 'Please login/bind phone number first' },
+        pleaseLogin: { Chinese: '请先绑定手机号', English: 'Please bind your phone number first' },
         saveSuccess: { Chinese: '收藏成功', English: 'Saved successfully' },
         unsaveSuccess: { Chinese: '已取消收藏', English: 'Unsaved successfully' },
         operationFailed: { Chinese: '操作失败', English: 'Operation failed' },
@@ -165,7 +181,6 @@ export type I18nKey =
     | 'tab.jobs'
     | 'tab.me'
     | 'me.title'
-    | 'me.userNotLoggedIn'
     | 'me.favoritesEntry'
     | 'me.languageEntry'
     | 'me.langChinese'
@@ -240,6 +255,18 @@ export type I18nKey =
     | 'jobs.allDataLoaded'
     | 'jobs.copyLink'
     | 'jobs.contentEmpty'
+    | 'jobs.applyMenuTitle'
+    | 'jobs.copySourceLink'
+    | 'jobs.aiResumeGenerate'
+    | 'jobs.oneClickSubmitResume'
+    | 'jobs.noSourceLink'
+    | 'jobs.linkCopied'
+    | 'jobs.featureDeveloping'
+    | 'jobs.dataLoadFailed'
+    | 'jobs.pleaseLogin'
+    | 'jobs.saveSuccess'
+    | 'jobs.unsaveSuccess'
+    | 'jobs.operationFailed'
     | 'drawer.salary'
     | 'drawer.experience'
     | 'drawer.regionTitle'
@@ -248,9 +275,14 @@ export type I18nKey =
     | 'drawer.confirm'
     | 'resume.title'
     | 'resume.tips'
+    | 'resume.tipsComplete'
+    | 'resume.tipsPerfect'
     | 'resume.personalInfo'
     | 'resume.contactInfo'
     | 'resume.name'
+    | 'resume.gender'
+    | 'resume.birthday'
+    | 'resume.identity'
     | 'resume.photo'
     | 'resume.wechat'
     | 'resume.email'
@@ -263,6 +295,10 @@ export type I18nKey =
     | 'resume.schoolPlaceholder'
     | 'resume.majorPlaceholder'
     | 'resume.degreePlaceholder'
+    | 'resume.genderPlaceholder'
+    | 'resume.identityPlaceholder'
+    | 'resume.birthdayPlaceholder'
+    | 'resume.namePlaceholder'
     | 'resume.description'
     | 'resume.descriptionPlaceholder'
     | 'resume.optional'
@@ -277,6 +313,8 @@ export type I18nKey =
     | 'resume.delete'
     | 'resume.degreeOptions'
     | 'resume.studyTypes'
+    | 'resume.genderOptions'
+    | 'resume.identityOptions'
     | 'tab.jobs'
     | 'app.navTitle'
 

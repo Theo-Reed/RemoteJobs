@@ -21,7 +21,7 @@ exports.main = async (event, context) => {
       error: 'missing code',
       errcode: -1
     }
-  }
+    }
 
   // 使用微信云开发提供的 openapi 获取手机号
   try {

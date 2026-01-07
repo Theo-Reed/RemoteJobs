@@ -368,7 +368,7 @@
 
 .form-textarea {
   width: 100%;
-  min-height: 160rpx;
+  min-height: 320rpx;
   background-color: #f8fafc;
   border-radius: 16rpx;
   padding: 24rpx 30rpx;
