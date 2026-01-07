@@ -33,7 +33,10 @@ exports.main = async (event, context) => {
     // 生成随机昵称：用户 + 6位随机数字/小写字母
     const randomStr = Math.random().toString(36).substring(2, 8)
     const defaultNickname = `用户${randomStr}`
-    const defaultAvatar = 'cloud://env-id.636c-env-id-1392489857/avatars/default-avatar.png' // 请替换为实际的环境 ID
+    
+    // 动态获取当前环境 ID，拼接默认头像地址
+    const { ENV } = cloud.getWXContext()
+    const defaultAvatar = `cloud://${ENV}.636c-${ENV}-1392489857/avatars/default-avatar.png`
 
     const userData = {
         openid: OPENID,
