@@ -9,7 +9,10 @@
       </block>
 
       <view class="user-text">
-        <block wx:if="{{!isLoggedIn}}">
+        <block wx:if="{{isInitialLoading}}">
+          <text class="nickname">加载中...</text>
+        </block>
+        <block wx:elif="{{!isLoggedIn}}">
           <button
                   class="phone-auth-name-btn"
                   open-type="getPhoneNumber"
@@ -124,94 +127,6 @@
     </view>
   </block>
 
-  <!-- User Profile Sheet (from bottom, same as restore-sheet) -->
-  <block wx:if="{{showProfileSheet}}">
-    <view class="bottom-sheet-mask {{profileSheetOpen ? 'bottom-sheet-mask-open' : ''}}"
-          bindtap="closeProfileSheet"></view>
-    <view class="bottom-sheet profile-sheet {{profileSheetOpen ? 'bottom-sheet-open' : ''}}">
-      <view class="bottom-sheet-header profile-sheet-header">
-        <text class="profile-sheet-title">用户资料</text>
-      </view>
-
-      <view class="bottom-sheet-content profile-sheet-content">
-        <!-- Upload Avatar -->
-        <view class="profile-item" catchtap="onUploadAvatar">
-          <view class="profile-item-left">
-            <text class="profile-item-label">{{ui.uploadAvatar}}</text>
-          </view>
-          <view class="profile-item-right">
-            <block wx:if="{{userInfo}}">
-              <view class="profile-avatar-wrapper">
-                <image class="profile-avatar-preview" src="{{userInfo.avatarUrl}}" mode="aspectFill"/>
-              </view>
-            </block>
-            <block wx:else>
-              <view class="profile-avatar-wrapper">
-                <view class="profile-avatar-placeholder"></view>
-              </view>
-            </block>
-          </view>
-        </view>
-
-        <!-- Edit Nickname -->
-        <view class="profile-item">
-          <view class="profile-item-left">
-            <text class="profile-item-label">{{ui.editNickname}}</text>
-          </view>
-          <view class="profile-item-right">
-            <block wx:if="{{editingNickname}}">
-              <input
-                      class="profile-nickname-input"
-                      type="text"
-                      value="{{newNickname}}"
-                      bindinput="onNicknameInput"
-                      maxlength="20"
-                      placeholder="请输入用户名"
-                      focus="{{editingNickname}}"
-              />
-              <view class="profile-edit-actions">
-                <text class="profile-edit-btn profile-edit-cancel" catchtap="onCancelEditNickname">
-                  取消
-                </text>
-                <text class="profile-edit-btn profile-edit-save" catchtap="onSaveNickname">保存</text>
-              </view>
-            </block>
-            <block wx:else>
-              <text class="profile-item-value">{{userInfo ? userInfo.nickName : '未设置'}}</text>
-              <text class="profile-edit-icon" catchtap="onEditNickname">编辑</text>
-            </block>
-          </view>
-        </view>
-
-        <!-- Phone Number -->
-        <view class="profile-item">
-          <view class="profile-item-left">
-            <text class="profile-item-label">{{ui.phoneNumber}}</text>
-          </view>
-          <view class="profile-item-right">
-            <text class="profile-item-value">{{maskedPhone}}</text>
-            <button
-                    class="profile-change-phone-btn"
-                    open-type="getPhoneNumber"
-                    bindgetphonenumber="onChangePhoneNumber"
-            >
-              {{ui.changePhone}}
-            </button>
-          </view>
-        </view>
-
-        <!-- Member Expired Date -->
-        <view class="profile-item" catchtap="onRenewMember">
-          <view class="profile-item-left">
-            <text class="profile-item-label">{{ui.memberExpiredDate}}</text>
-          </view>
-          <view class="profile-item-right profile-item-right-center">
-            <view class="profile-item-value {{isMember ? 'profile-member-active' : 'profile-member-expired'}}">
-              {{expiredDateText}}
-            </view>
-          </view>
-        </view>
-      </view>
-    </view>
-  </block>
+  <!-- User Profile Sheet -->
+  <include src="./profile-sheet.wxml"/>
 </view>

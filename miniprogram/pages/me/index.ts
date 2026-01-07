@@ -11,6 +11,7 @@ Page({
     data: {
         userInfo: null as WechatMiniprogram.UserInfo | null,
         isLoggedIn: false,
+        isInitialLoading: true,
         phoneAuthBusy: false,
 
 
@@ -37,7 +38,8 @@ Page({
 
         showProfileSheet: false,
         profileSheetOpen: false,
-        editingNickname: false,
+        showNicknameModal: false,
+        nicknameModalOpen: false,
         newNickname: '',
         maskedPhone: '', // 脱敏后的手机号
 
@@ -64,6 +66,17 @@ Page({
     },
 
     onShow() {
+        this.initPage()
+    },
+
+    async initPage() {
+        const app = getApp<IAppOption>()
+        if (app.globalData.userPromise) {
+            await app.globalData.userPromise
+        }
+        
+        this.setData({ isInitialLoading: false })
+        
         // Use setTimeout to defer heavy operations and avoid blocking UI
         setTimeout(() => {
             this.syncUserFromApp()
@@ -155,8 +168,11 @@ Page({
             memberExpiredDate: t('me.memberExpiredDate', lang),
             phoneNumber: t('me.phoneNumber', lang),
             changePhone: t('me.changePhone', lang),
+            nicknameTooLong: t('me.nicknameTooLong', lang),
             resumeProfileEntry: t('me.resumeProfileEntry', lang),
             appliedJobsEntry: t('me.appliedJobsEntry', lang),
+            save: lang === 'Chinese' || lang === 'AIChinese' ? '保存' : 'Save',
+            cancel: lang === 'Chinese' || lang === 'AIChinese' ? '取消' : 'Cancel',
         }
 
         // Chinese 表示中文（使用原始字段）
@@ -620,7 +636,6 @@ Page({
             showProfileSheet: true,
             profileSheetOpen: false,
             newNickname: currentNickname,
-            editingNickname: false,
         })
 
         setTimeout(() => {
@@ -631,7 +646,7 @@ Page({
     closeProfileSheet() {
         this.setData({ profileSheetOpen: false })
         setTimeout(() => {
-            this.setData({ showProfileSheet: false, editingNickname: false, newNickname: '' })
+            this.setData({ showProfileSheet: false, newNickname: '' })
         }, 260)
     },
 
@@ -683,7 +698,26 @@ Page({
     },
 
     onEditNickname() {
-        this.setData({ editingNickname: true })
+        const app = getApp<IAppOption>() as any
+        const user = app?.globalData?.user
+        const currentNickname = user?.nickname || ''
+        
+        this.setData({
+            showNicknameModal: true,
+            nicknameModalOpen: false,
+            newNickname: currentNickname
+        })
+        
+        setTimeout(() => {
+            this.setData({ nicknameModalOpen: true })
+        }, 30)
+    },
+
+    closeNicknameModal() {
+        this.setData({ nicknameModalOpen: false })
+        setTimeout(() => {
+            this.setData({ showNicknameModal: false })
+        }, 260)
     },
 
     onNicknameInput(e: any) {
@@ -691,14 +725,26 @@ Page({
     },
 
     async onSaveNickname() {
-        const { newNickname } = this.data
-        if (!newNickname || newNickname.trim().length === 0) {
+        const { newNickname, ui } = this.data
+        const trimmedNickname = (newNickname || '').trim()
+        
+        if (trimmedNickname.length === 0) {
             wx.showToast({ title: '用户名不能为空', icon: 'none' })
             return
         }
 
-        if (newNickname.length > 20) {
-            wx.showToast({ title: '用户名不能超过20个字符', icon: 'none' })
+        // 验证长度：中文字符计为2，英文字符计为1，总长度不能超过20 (即小于10个中文字)
+        let totalLen = 0
+        for (let i = 0; i < trimmedNickname.length; i++) {
+            if (trimmedNickname.charCodeAt(i) > 127) {
+                totalLen += 2
+            } else {
+                totalLen += 1
+            }
+        }
+
+        if (totalLen > 20) {
+            wx.showToast({ title: ui.nicknameTooLong, icon: 'none' })
             return
         }
 
@@ -706,7 +752,7 @@ Page({
             wx.showLoading({ title: '保存中...', mask: true })
             const updateRes: any = await wx.cloud.callFunction({
                 name: 'updateUserProfile',
-                data: { nickname: newNickname.trim() },
+                data: { nickname: trimmedNickname },
             })
 
             const updatedUser = updateRes?.result?.user
@@ -714,7 +760,7 @@ Page({
             if (app?.globalData) app.globalData.user = updatedUser
 
             this.syncUserFromApp()
-            this.setData({ editingNickname: false })
+            this.closeNicknameModal()
             wx.hideLoading()
             wx.showToast({ title: '用户名更新成功', icon: 'success' })
         }
@@ -725,10 +771,7 @@ Page({
     },
 
     onCancelEditNickname() {
-        const app = getApp<IAppOption>() as any
-        const user = app?.globalData?.user
-        const currentNickname = user?.nickname || ''
-        this.setData({ editingNickname: false, newNickname: currentNickname })
+        this.closeNicknameModal()
     },
 
     onRenewMember() {

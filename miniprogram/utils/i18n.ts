@@ -41,10 +41,11 @@ const dict = {
         langAI: { Chinese: 'AI岗位信息提炼和翻译', English: 'AI Job Intel Extract & Translate' },
         memberBadge: { Chinese: '丈月尺会员', English: 'Subscribed' },
         uploadAvatar: { Chinese: '上传头像', English: 'Upload Avatar' },
-        editNickname: { Chinese: '修改用户名', English: 'Edit Username' },
+        editNickname: { Chinese: '用户名', English: 'Username' },
         memberExpiredDate: { Chinese: '会员到期日期', English: 'Expiration Date' },
         phoneNumber: { Chinese: '手机号', English: 'Phone Number' },
         changePhone: { Chinese: '更换', English: 'Change' },
+        nicknameTooLong: { Chinese: '用户名太长了', English: 'Nickname is too long' },
         resumeProfileEntry: { Chinese: '简历资料', English: 'Resume Profile' },
         appliedJobsEntry: { Chinese: '投递过的工作', English: 'Applied Jobs' },
     },
@@ -179,6 +180,7 @@ export type I18nKey =
     | 'me.memberExpiredDate'
     | 'me.phoneNumber'
     | 'me.changePhone'
+    | 'me.nicknameTooLong'
     | 'me.resumeProfileEntry'
     | 'me.appliedJobsEntry'
     | 'community.desc'

@@ -6,6 +6,7 @@ type LangListener = (lang: AppLanguage) => void
 App<IAppOption>({
   globalData: {
     user: null as any,
+    userPromise: null as Promise<any> | null,
     language: 'Chinese' as AppLanguage,
     _langListeners: new Set<LangListener>(),
     // 页面跳转临时数据存储
@@ -31,7 +32,8 @@ App<IAppOption>({
 
     this.applyLanguage()
 
-    await this.refreshUser().catch(() => {})
+    this.globalData.userPromise = this.refreshUser().catch(() => null)
+    await this.globalData.userPromise
 
     const lang = ((this as any).globalData.language || 'Chinese') as AppLanguage
     this.applyLanguage()

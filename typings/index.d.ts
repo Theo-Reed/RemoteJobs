@@ -69,6 +69,7 @@ type Order = {
 interface IAppOption {
   globalData: {
     user: AppUser | null,
+    userPromise: Promise<any> | null,
   }
   refreshUser: () => Promise<any>,
 }
