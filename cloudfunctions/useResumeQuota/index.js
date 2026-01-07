@@ -2,228 +2,142 @@ const cloud = require('wx-server-sdk')
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 
+/**
+ * 统一配额扣减逻辑 (简历生成/微调)
+ * event: {
+ *   job_id: string,
+ *   job_title: string,
+ *   is_edit: boolean // true: 微调, false: 首次生成
+ * }
+ */
 exports.main = async (event, context) => {
   const db = cloud.database()
+  const _ = db.command
   const { OPENID } = cloud.getWXContext()
+  const { job_id, job_title, is_edit = false } = event || {}
 
-  const { job_id, job_title, is_edit = false } = event || {} // is_edit: true表示微调，false表示首次生成
-
-  if (!OPENID) {
-    return {
-      success: false,
-      message: '无法获取用户身份',
-    }
-  }
-
-  if (!job_id) {
-    return {
-      success: false,
-      message: '岗位ID不能为空',
-    }
+  if (!OPENID || !job_id) {
+    return { success: false, message: '参数无效' }
   }
 
   try {
     const userRef = db.collection('users').doc(OPENID)
-    const userResult = await userRef.get()
-    const user = userResult.data || {}
+    const userRes = await userRef.get()
+    const user = userRes.data
 
-    // 先检查会员状态
+    if (!user) return { success: false, message: '用户不存在' }
+
     const now = new Date()
-    const expireAt = user.member_expire_at ? new Date(user.member_expire_at) : null
-    const isValidMember = user.member_level && user.member_level > 0 && expireAt && expireAt > now
+    const membership = user.membership || { level: 0 }
+    const level = membership.level || 0
+    const expireAt = membership.expire_at ? new Date(membership.expire_at) : null
+    const isValidMember = level > 0 && expireAt && expireAt > now
 
     if (!isValidMember) {
-      return {
-        success: false,
-        message: '您不是有效会员或会员已过期',
-        needUpgrade: true,
-      }
+      return { success: false, message: '会员已过期或未激活', needUpgrade: true }
     }
 
-    // 获取会员方案
-    const schemeResult = await db.collection('member_schemes')
-      .where({ scheme_id: user.member_level })
-      .get()
-
-    if (!schemeResult.data || schemeResult.data.length === 0) {
-      return {
-        success: false,
-        message: '会员方案不存在',
-      }
+    // 1. 全局审计（所有会员共用 300 次硬上限，防止滥用）
+    if (membership.total_ai_usage && membership.total_ai_usage.used >= (membership.total_ai_usage.limit || 300)) {
+      return { success: false, message: '总 AI 配额已耗尽' }
     }
 
-    const scheme = schemeResult.data[0]
+    // 2. 差异化权益判断
+    if (level === 1 || level === 2) {
+      const limits = level === 1 
+        ? { jobs: 3, tweak: 3 } 
+        : { jobs: 10, tweak: 5 };
 
-    // 检查岗位使用记录
-    const usageResult = await db.collection('user_job_usage')
-      .where({
-        user_id: OPENID,
-        job_id: job_id,
-      })
-      .get()
+      const jobDetails = membership.job_details || {}
+      const currentJob = jobDetails[job_id]
 
-    let jobUsage = usageResult.data && usageResult.data.length > 0 ? usageResult.data[0] : null
-
-    // 如果是首次生成（不是微调）
-    if (!is_edit) {
-      // 检查岗位数限制（3天和普通会员）
-      if (scheme.max_jobs > 0) {
-        const usedJobsCount = user.used_jobs_count || 0
-        if (usedJobsCount >= scheme.max_jobs) {
-          return {
-            success: false,
-            message: `已达到最大岗位数限制（${scheme.max_jobs}个）`,
-            needUpgrade: true,
-          }
+      if (!is_edit) {
+        // 首次生成：检查岗位槽位
+        if (!currentJob && membership.job_quota.used >= limits.jobs) {
+          return { success: false, message: `岗位数量已达上限 (${limits.jobs}个)`, needUpgrade: true }
         }
+      } else {
+        // 微调：检查该岗位微调次数
+        if (!currentJob) return { success: false, message: '请先生成该岗位的初始简历' }
+        if (currentJob.tweak_count >= limits.tweak) {
+          return { success: false, message: `该岗位微调次数已达上限 (${limits.tweak}次)`, needUpgrade: true }
+        }
+      }
+    }
 
-        // 如果该岗位还没有使用记录，需要创建新记录并增加已使用岗位数
-        if (!jobUsage) {
-          // 创建岗位使用记录
-          await db.collection('user_job_usage').add({
-            data: {
-              user_id: OPENID,
-              job_id: job_id,
-              job_title: job_title || '',
-              resume_edits_count: 0,
-              email_sends_count: 0,
-              email_communications_count: 0,
-              createdAt: db.serverDate(),
-              updatedAt: db.serverDate(),
-            },
-          })
+    // 3. 执行扣减与更新
+    const updateData = {
+      'membership.total_ai_usage.used': _.inc(1),
+      'updatedAt': db.serverDate()
+    }
 
-          // 增加已使用岗位数
-          await userRef.update({
-            data: {
-              used_jobs_count: usedJobsCount + 1,
-              updatedAt: db.serverDate(),
-            },
-          })
-
-          return {
-            success: true,
-            message: '简历生成成功',
-            isNewJob: true,
+    if (level === 1 || level === 2) {
+      const jobPath = `membership.job_details.${job_id}`
+      if (!is_edit) {
+        // 首次生成：如果该岗位是第一次出现在 job_details 中，增加 job_quota.used
+        if (!membership.job_details || !membership.job_details[job_id]) {
+          updateData['membership.job_quota.used'] = _.inc(1)
+          updateData[jobPath] = {
+            tweak_count: 0,
+            email_count: 0,
+            applied: false,
+            job_title: job_title || '',
+            createdAt: db.serverDate()
           }
         }
       } else {
-        // 高级会员：检查总配额
-        const totalResumeQuota = user.total_resume_quota || 0
-        if (totalResumeQuota <= 0) {
-          return {
-            success: false,
-            message: '简历生成配额不足',
-            needUpgrade: true,
-          }
-        }
-
-        // 扣除总配额
-        await userRef.update({
-          data: {
-            total_resume_quota: totalResumeQuota - 1,
-            updatedAt: db.serverDate(),
-          },
-        })
-
-        // 如果该岗位还没有使用记录，创建新记录
-        if (!jobUsage) {
-          await db.collection('user_job_usage').add({
-            data: {
-              user_id: OPENID,
-              job_id: job_id,
-              job_title: job_title || '',
-              resume_edits_count: 0,
-              email_sends_count: 0,
-              email_communications_count: 0,
-              createdAt: db.serverDate(),
-              updatedAt: db.serverDate(),
-            },
-          })
-        }
-
-        return {
-          success: true,
-          message: '简历生成成功',
-          remainingQuota: totalResumeQuota - 1,
-        }
+        // 微调
+        updateData[`${jobPath}.tweak_count`] = _.inc(1)
       }
-    } else {
-      // 微调操作
-      if (!jobUsage) {
-        return {
-          success: false,
-          message: '请先生成简历',
-        }
-      }
-
-      // 检查微调次数限制
-      if (scheme.max_resume_edits_per_job > 0) {
-        const editsCount = jobUsage.resume_edits_count || 0
-        if (editsCount >= scheme.max_resume_edits_per_job) {
-          return {
-            success: false,
-            message: `该岗位已达到最大微调次数（${scheme.max_resume_edits_per_job}次）`,
-            needUpgrade: true,
-          }
-        }
-
-        // 增加微调次数
-        await db.collection('user_job_usage').doc(jobUsage._id).update({
-          data: {
-            resume_edits_count: editsCount + 1,
-            last_resume_edit_at: db.serverDate(),
-            updatedAt: db.serverDate(),
-          },
-        })
-
-        return {
-          success: true,
-          message: '简历微调成功',
-          remainingEdits: scheme.max_resume_edits_per_job - (editsCount + 1),
-        }
-      } else {
-        // 高级会员：不限制微调次数，但需要检查总配额
-        const totalResumeQuota = user.total_resume_quota || 0
-        if (totalResumeQuota <= 0) {
-          return {
-            success: false,
-            message: '简历生成配额不足',
-            needUpgrade: true,
-          }
-        }
-
-        // 扣除总配额并更新微调次数
-        await Promise.all([
-          userRef.update({
-            data: {
-              total_resume_quota: totalResumeQuota - 1,
-              updatedAt: db.serverDate(),
-            },
-          }),
-          db.collection('user_job_usage').doc(jobUsage._id).update({
-            data: {
-              resume_edits_count: (jobUsage.resume_edits_count || 0) + 1,
-              last_resume_edit_at: db.serverDate(),
-              updatedAt: db.serverDate(),
-            },
-          }),
-        ])
-
-        return {
-          success: true,
-          message: '简历微调成功',
-          remainingQuota: totalResumeQuota - 1,
-        }
-      }
+    } else if (level === 3) {
+       // 高级会员不记录详细槽位限制，但为了展示方便，还是可以记录一下
+       const jobPath = `membership.job_details.${job_id}`
+       if (!membership.job_details || !membership.job_details[job_id]) {
+         updateData['membership.job_quota.used'] = _.inc(1)
+         updateData[jobPath] = {
+           tweak_count: is_edit ? 1 : 0,
+           email_count: 0,
+           applied: false,
+           job_title: job_title || '',
+           createdAt: db.serverDate()
+         }
+       } else if (is_edit) {
+         updateData[`${jobPath}.tweak_count`] = _.inc(1)
+       }
     }
+
+    await userRef.update({ data: updateData })
+    
+    // 同步更新 user_job_usage 集合以保持兼容性
+    try {
+      const usageCol = db.collection('user_job_usage')
+      const usageRes = await usageCol.where({ user_id: OPENID, job_id }).get()
+      if (usageRes.data.length > 0) {
+        await usageCol.doc(usageRes.data[0]._id).update({
+          data: {
+            resume_edits_count: _.inc(is_edit ? 1 : 0),
+            updatedAt: db.serverDate()
+          }
+        })
+      } else {
+        await usageCol.add({
+          data: {
+            user_id: OPENID,
+            job_id,
+            job_title: job_title || '',
+            resume_edits_count: is_edit ? 1 : 0,
+            email_sends_count: 0,
+            email_communications_count: 0,
+            createdAt: db.serverDate(),
+            updatedAt: db.serverDate()
+          }
+        })
+      }
+    } catch (e) { console.error('Sync to user_job_usage failed', e) }
+
+    return { success: true, message: is_edit ? '微调成功' : '生成成功' }
   } catch (err) {
-    console.error('使用简历配额失败:', err)
-    return {
-      success: false,
-      message: '使用简历配额失败',
-      error: err.message,
-    }
+    console.error(err)
+    return { success: false, message: '系统错误', error: err.message }
   }
 }
-

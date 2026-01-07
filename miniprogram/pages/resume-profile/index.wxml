@@ -1,106 +1,198 @@
 <!--miniprogram/pages/resume-profile/index.wxml-->
 <view class="page">
+  <view class="header-section">
+    <view class="title-row">
+      <text class="page-title">{{ui.title}}</text>
+    </view>
+    <view class="tips-card">
+      <image class="tips-icon" src="../../assets/icons/four-pointed-start.png" mode="aspectFit" />
+      <text class="tips-text">{{ui.tips}}</text>
+    </view>
+  </view>
+
   <scroll-view     
     class="resume-content" 
     scroll-y="{{true}}"
     enhanced="true" 
     show-scrollbar="{{false}}"
-    upper-threshold="0"
-    bounces="{{false}}"
   >
     <view class="resume-body">
-      <!-- 个人姓名 -->
-      <view class="resume-section">
-        <view class="resume-section-header">
-          <text class="resume-section-title">{{ui.name}}</text>
-        </view>
-        <view class="resume-section-content">
-          <text class="resume-text">{{name || ui.noData}}</text>
-        </view>
-      </view>
-
-      <!-- 照片 -->
-      <view class="resume-section">
-        <view class="resume-section-header">
-          <text class="resume-section-title">{{ui.photo}}</text>
-        </view>
-        <view class="resume-section-content">
-          <block wx:if="{{photo}}">
-            <image class="resume-photo" src="{{photo}}" mode="aspectFill"></image>
-          </block>
-          <block wx:else>
-            <view class="resume-photo-placeholder">
-              <text class="resume-photo-placeholder-text">{{ui.noData}}</text>
+      <!-- 基本信息 -->
+      <view class="section-group">
+        <view class="section-group-title">{{ui.personalInfo}}</view>
+        <view class="card">
+          <!-- 照片 -->
+          <view class="list-item photo-item" bindtap="onEditPhoto">
+            <view class="item-label">{{ui.photo}}</view>
+            <view class="item-value">
+              <block wx:if="{{photo}}">
+                <image class="avatar-img" src="{{photo}}" mode="aspectFill"></image>
+              </block>
+              <block wx:else>
+                <view class="avatar-placeholder"></view>
+              </block>
+              <view class="arrow-icon"></view>
             </view>
-          </block>
+          </view>
+          
+          <!-- 个人姓名 -->
+          <view class="list-item" bindtap="onEditName">
+            <view class="item-label">{{ui.name}}</view>
+            <view class="item-value">
+              <text class="{{name ? 'value-text' : 'placeholder-text'}}">{{name || ui.noData}}</text>
+              <view class="arrow-icon"></view>
+            </view>
+          </view>
         </view>
       </view>
 
-      <!-- 微信号 -->
-      <view class="resume-section">
-        <view class="resume-section-header">
-          <text class="resume-section-title">{{ui.wechat}}</text>
-        </view>
-        <view class="resume-section-content">
-          <text class="resume-text">{{wechat || ui.noData}}</text>
-        </view>
-      </view>
-
-      <!-- 邮箱 -->
-      <view class="resume-section">
-        <view class="resume-section-header">
-          <text class="resume-section-title">{{ui.email}}</text>
-        </view>
-        <view class="resume-section-content">
-          <text class="resume-text">{{email || ui.noData}}</text>
-        </view>
-      </view>
-
-      <!-- 手机号 -->
-      <view class="resume-section">
-        <view class="resume-section-header">
-          <text class="resume-section-title">{{ui.phone}}</text>
-        </view>
-        <view class="resume-section-content">
-          <text class="resume-text">{{phone || ui.noData}}</text>
+      <!-- 联系方式 -->
+      <view class="section-group">
+        <view class="section-group-title">{{ui.contactInfo}}</view>
+        <view class="card">
+          <view class="list-item" bindtap="onEditWechat">
+            <view class="item-label">{{ui.wechat}}</view>
+            <view class="item-value">
+              <text class="{{wechat ? 'value-text' : 'placeholder-text'}}">{{wechat || ui.noData}}</text>
+              <view class="arrow-icon"></view>
+            </view>
+          </view>
+          
+          <view class="list-item" bindtap="onEditEmail">
+            <view class="item-label">{{ui.email}}</view>
+            <view class="item-value">
+              <text class="{{email ? 'value-text' : 'placeholder-text'}}">{{email || ui.noData}}</text>
+              <view class="arrow-icon"></view>
+            </view>
+          </view>
+          
+          <view class="list-item" bindtap="onEditPhone">
+            <view class="item-label">{{ui.phone}}</view>
+            <view class="item-value">
+              <text class="{{phone ? 'value-text' : 'placeholder-text'}}">{{phone || ui.noData}}</text>
+              <view class="arrow-icon"></view>
+            </view>
+          </view>
         </view>
       </view>
 
       <!-- 毕业院校 -->
-      <view class="resume-section">
-        <view class="resume-section-header">
-          <text class="resume-section-title">{{ui.education}}</text>
+      <view class="section-group">
+        <view class="section-header-row">
+          <view class="section-group-title">{{ui.education}}</view>
+          <view class="add-btn" bindtap="onAddEducation">
+            <text class="add-btn-text">{{ui.addEducation}}</text>
+          </view>
         </view>
-        <view class="resume-section-content">
+        
+        <view class="card education-card">
           <block wx:if="{{educations && educations.length > 0}}">
-            <view class="education-item" wx:for="{{educations}}" wx:key="index">
-              <view class="education-school">{{item.school || ui.noData}}</view>
-              <view class="education-date">{{ui.graduationDate}}: {{item.graduationDate || ui.noData}}</view>
+            <view class="education-item" wx:for="{{educations}}" wx:key="index" bindtap="onEditEducation" data-index="{{index}}">
+              <view class="edu-info">
+                <view class="edu-school">{{item.school || ui.noData}}</view>
+                <view class="edu-details">
+                  <text wx:if="{{item.degree}}">{{item.degree}}</text>
+                  <text wx:if="{{item.degree && item.major}}"> · </text>
+                  <text wx:if="{{item.major}}">{{item.major}}</text>
+                </view>
+                <view class="edu-date" wx:if="{{item.startDate || item.endDate || item.graduationDate}}">
+                  {{item.startDate || ''}} - {{item.endDate || item.graduationDate || ''}}
+                </view>
+              </view>
+              <view class="arrow-icon"></view>
             </view>
           </block>
           <block wx:else>
-            <text class="resume-text">{{ui.noData}}</text>
+            <view class="empty-state" bindtap="onAddEducation">
+              <text class="empty-text">{{ui.noData}}</text>
+            </view>
           </block>
         </view>
       </view>
 
       <!-- 证书 -->
-      <view class="resume-section">
-        <view class="resume-section-header">
-          <text class="resume-section-title">{{ui.certificates}}</text>
+      <view class="section-group">
+        <view class="section-header-row">
+          <view class="section-group-title">{{ui.certificates}}</view>
+          <view class="add-btn" bindtap="onAddCertificate">
+            <text class="add-btn-text">{{ui.addCertificate}}</text>
+          </view>
         </view>
-        <view class="resume-section-content">
+        
+        <view class="card certificate-card">
           <block wx:if="{{certificates && certificates.length > 0}}">
-            <view class="certificate-item" wx:for="{{certificates}}" wx:key="index">
-              <text class="certificate-text">{{item}}</text>
+            <view class="certificate-item" wx:for="{{certificates}}" wx:key="index" bindtap="onEditCertificate" data-index="{{index}}">
+              <text class="cert-text">{{item}}</text>
+              <view class="arrow-icon"></view>
             </view>
           </block>
           <block wx:else>
-            <text class="resume-text">{{ui.noData}}</text>
+            <view class="empty-state" bindtap="onAddCertificate">
+              <text class="empty-text">{{ui.noData}}</text>
+            </view>
           </block>
         </view>
       </view>
+      
+      <view class="bottom-safe-area"></view>
     </view>
   </scroll-view>
+
+  <!-- 教育经历编辑弹窗 (右侧弹出) -->
+  <view class="drawer-mask {{showEduDrawer ? 'drawer-mask-show' : ''}}" bindtap="closeEduDrawer"></view>
+  <view class="drawer {{showEduDrawer ? 'drawer-show' : ''}}">
+    <view class="drawer-header">
+      <text class="drawer-title">{{editingEduIndex === -1 ? ui.addEducation : ui.education}}</text>
+      <view class="drawer-close" bindtap="closeEduDrawer">×</view>
+    </view>
+    
+    <view class="drawer-content">
+      <view class="form-item">
+        <text class="form-label">{{ui.education}}</text>
+        <input class="form-input" placeholder="{{ui.schoolPlaceholder}}" value="{{eduForm.school}}" bindinput="onEduSchoolInput" />
+      </view>
+
+      <view class="form-item">
+        <text class="form-label">{{ui.degree}}</text>
+        <picker mode="selector" range="{{degreeOptions}}" bindchange="onEduDegreeChange">
+          <view class="picker-value {{eduForm.degree ? '' : 'placeholder-text'}}">
+            {{eduForm.degree || ui.degreePlaceholder}}
+          </view>
+        </picker>
+      </view>
+
+      <view class="form-item">
+        <text class="form-label">{{ui.major}}</text>
+        <input class="form-input" placeholder="{{ui.majorPlaceholder}}" value="{{eduForm.major}}" bindinput="onEduMajorInput" />
+      </view>
+
+      <view class="form-item">
+        <text class="form-label">{{ui.startDate}}</text>
+        <picker mode="date" fields="month" value="{{eduForm.startDate}}" bindchange="onEduStartDateChange">
+          <view class="picker-value {{eduForm.startDate ? '' : 'placeholder-text'}}">
+            {{eduForm.startDate || ui.startDate}}
+          </view>
+        </picker>
+      </view>
+
+      <view class="form-item">
+        <text class="form-label">{{ui.endDate}}</text>
+        <picker mode="date" fields="month" value="{{eduForm.endDate}}" bindchange="onEduEndDateChange">
+          <view class="picker-value {{eduForm.endDate ? '' : 'placeholder-text'}}">
+            {{eduForm.endDate || ui.endDate}}
+          </view>
+        </picker>
+      </view>
+    </view>
+
+    <view class="drawer-footer">
+      <view wx:if="{{editingEduIndex !== -1}}" class="btn-delete" bindtap="onDeleteEducation">
+        <text>{{ui.delete}}</text>
+      </view>
+      <view class="btn-save" bindtap="onSaveEducation">
+        <text>{{ui.save}}</text>
+      </view>
+    </view>
+  </view>
 </view>
 

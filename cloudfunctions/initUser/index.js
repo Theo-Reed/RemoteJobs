@@ -12,18 +12,9 @@ exports.main = async (event, context) => {
     const existing = await userRef.get()
     const user = existing?.data || {}
 
-    if (!user.language) {
-      await userRef.update({
-        data: {
-          language: 'Chinese',
-          updatedAt: db.serverDate(),
-        },
-      })
-      const updated = await userRef.get()
-      return { openid: OPENID, user: updated.data }
+    if (user.openid) {
+      return { openid: OPENID, user }
     }
-
-    return { openid: OPENID, user }
   } catch (err) {
     let inviteCode = null
     try {
@@ -45,16 +36,34 @@ exports.main = async (event, context) => {
         nickname: null,
         avatar: null,
         language: 'Chinese',
-        member_level: 0, // 0:普通用户, 1:3天会员, 2:普通月卡, 3:高级月卡
-        member_expire_at: null,
-        // 新的配额字段
-        total_resume_quota: -1,
-        total_email_quota: -1,
-        email_quota_reset_at: null,
-        used_jobs_count: 0,
-        // 保留旧字段以兼容
-        ai_resume_quota: 0,
-        email_quota: 0,
+        
+        // --- 核心改动：会员权益与配额包裹字段 ---
+        membership: {
+          level: 0, // 0:普通用户, 1:3天会员, 2:普通月卡, 3:高级月卡
+          expire_at: null,
+          total_ai_usage: {
+            used: 0,
+            limit: 300 // 内部硬上限，对高级会员生效
+          },
+          job_quota: {
+            used: 0,
+            limit: 0
+          },
+          job_details: {} // 记录每个岗位的微调/沟通次数
+        },
+
+        // --- 核心改动：简历资料包裹字段 ---
+        resume_profile: {
+          name: '',
+          photo: '',
+          wechat: '',
+          email: '',
+          phone: '',
+          educations: [],
+          certificates: [],
+          skills: []
+        },
+
         createdAt: now,
         updatedAt: now,
     }

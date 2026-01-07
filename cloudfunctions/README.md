@@ -11,7 +11,7 @@
   - `package.json`
 
 - `cloudfunctions/updateUserProfile/`
-  - `index.js`：更新 users 里的 avatar/nickname/phone/isAuthed 等字段
+  - `index.js`：更新 users 里的 resume_profile/avatar/nickname/phone/isAuthed 等字段
   - `package.json`
 
 - `cloudfunctions/updateUserLanguage/`
@@ -45,129 +45,51 @@
   - `package.json`
 
 - `cloudfunctions/checkMemberStatus/`
-  - `index.js`：检查用户会员状态和配额
+  - `index.js`：检查用户会员状态和配额（返回 membership 包裹对象）
   - `package.json`
 
-- `cloudfunctions/useQuota/`
-  - `index.js`：使用配额（AI简历或邮件）
+- `cloudfunctions/useResumeQuota/`
+  - `index.js`：统一的简历生成/微调配额扣减
   - `package.json`
 
-## 新增云函数步骤（WeChat DevTools）
-
-1. 在项目根目录创建 `cloudfunctions/<函数名>/`，包含 `index.js` 和 `package.json`。
-2. 打开微信开发者工具 -> **云开发** -> **云函数**。
-3. 右键对应函数目录 -> **上传并部署：云端安装依赖**。
-
-## 调用示例
-
-```js
-// 首次进入初始化用户
-wx.cloud.callFunction({ name: 'initUser', data: {} })
-
-// 手机号授权（需要 button open-type=getPhoneNumber）
-wx.cloud.callFunction({
-  name: 'getPhoneNumber',
-  data: { code }
-})
-
-// 写入 users（产品级登录：isAuthed = 手机号授权完成）
-wx.cloud.callFunction({
-  name: 'updateUserProfile',
-  data: {
-    phone: '13800000000',
-    isAuthed: true,
-  }
-})
-
-// 更新语言偏好（i18n）
-wx.cloud.callFunction({
-  name: 'updateUserLanguage',
-  data: { language: 'English' } // or 'Chinese'
-})
-
-// 会员系统相关调用示例
-// 1. 初始化会员方案（仅首次部署时调用一次）
-wx.cloud.callFunction({ name: 'initMemberSchemes', data: {} })
-
-// 2. 获取会员方案列表
-wx.cloud.callFunction({ name: 'getMemberSchemes', data: {} })
-
-// 3. 创建订单
-wx.cloud.callFunction({
-  name: 'createOrder',
-  data: { scheme_id: 1 } // 1:3天会员, 2:普通月卡, 3:高级月卡
-})
-
-// 4. 支付成功后，更新订单状态
-wx.cloud.callFunction({
-  name: 'updateOrderStatus',
-  data: {
-    order_id: 'ORDER1234567890',
-    status: '已支付'
-  }
-})
-
-// 5. 激活会员（支付成功后调用）
-wx.cloud.callFunction({
-  name: 'activateMembership',
-  data: { order_id: 'ORDER1234567890' }
-})
-
-// 6. 检查会员状态
-wx.cloud.callFunction({ name: 'checkMemberStatus', data: {} })
-
-// 7. 使用配额（AI简历）
-wx.cloud.callFunction({
-  name: 'useQuota',
-  data: { quota_type: 'ai_resume', amount: 1 }
-})
-
-// 8. 使用配额（邮件）
-wx.cloud.callFunction({
-  name: 'useQuota',
-  data: { quota_type: 'email', amount: 1 }
-})
-```
+- `cloudfunctions/useEmailQuota/`
+  - `index.js`：统一的邮件投递/沟通配额扣减
+  - `package.json`
 
 ## 数据库集合
 
 ### users 集合
-新增字段：
-- `member_level`: Integer - 0:普通用户, 1:3天会员, 2:普通月卡, 3:高级月卡
-- `member_expire_at`: DateTime - 会员到期时间
-- `ai_resume_quota`: Integer - 剩余 AI 简历生成次数
-- `email_quota`: Integer - 剩余邮件发送次数
+存储用户的基础信息、会员权益与个人资料。
+
+#### 核心字段
+- `openid`: String (Document ID) - 用户唯一标识
+- `membership`: Object - 会员权益包裹字段
+  - `level`: Integer - 0:普通用户, 1:3天体验, 2:月度普通, 3:月度高级
+  - `expire_at`: DateTime - 会员到期时间
+  - `total_ai_usage`: Object - {used, limit} 总 AI 动作水位（300次硬上限）
+  - `job_quota`: Object - {used, limit} 岗位槽位限额
+  - `job_details`: Object - 记录每个岗位的微调/邮件沟通明细
+- `resume_profile`: Object - 个人简历资料
+  - `name`, `photo`, `wechat`, `email`, `phone`, `educations`, `certificates`, `skills`
+- `language`: String - 用户界面语言 (Chinese/English/...)
+- `isAuthed`: Boolean - 是否已完成手机号授权
+- `createdAt`, `updatedAt`: DateTime
 
 ### orders 集合
-- `order_id`: String - 唯一订单号
-- `user_id`: String - 用户 openid
-- `scheme_id`: Integer - 会员方案ID
-- `amount`: Number - 实际支付金额
-- `status`: String - 待支付、已支付、已退款、已关闭
-- `pay_time`: DateTime - 支付成功时间
-- `createdAt`: DateTime - 创建时间
-- `updatedAt`: DateTime - 更新时间
+- `order_id`, `user_id`, `scheme_id`, `amount`, `status`, `pay_time`, `createdAt`, `updatedAt`
 
 ### member_schemes 集合
-- `scheme_id`: Integer - 方案ID (1:3天会员, 2:普通月卡, 3:高级月卡)
-- `name`: String - 方案名称
-- `price`: Number - 价格
-- `duration_days`: Integer - 有效时长（天）
-- `ai_limit`: Integer - AI 简历生成次数
-- `email_limit`: Integer - 邮件发送次数
-- `createdAt`: DateTime - 创建时间
-- `updatedAt`: DateTime - 更新时间
+- `scheme_id`, `name`, `price`, `duration_days`, `max_jobs`, `max_resume_edits_per_job`, `max_email_communications_per_job` 等
 
-## 会员方案配置
+## 会员方案权益对照
 
-- **3天会员** (scheme_id: 1): 9.9元，AI简历5次，邮件3次/月
-- **月普通会员** (scheme_id: 2): 29.9元，AI简历20次，邮件30次/月
-- **月高级会员** (scheme_id: 3): 89.9元，AI简历300次，邮件300次/月
+| 等级 | 会员名称 | 价格 | 岗位总数 | 岗位微调上限 | 后续沟通上限 |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **1** | 3天体验 | 9.9 | 3 | 3 | 0 |
+| **2** | 月度普通 | 29.9 | 10 | 5 | 5 |
+| **3** | 月度高级 | 89.9 | 不限* | 不限* | 不限* |
+*\*高级会员共享 300 次 AI 动作总额度*
 
 ## 注意
-
-- 小程序端需要在 `app.ts` 里 `wx.cloud.init({ env })`。
-- 云函数目录需要位于项目根的 `cloudfunctions/` 下，DevTools 才能识别。
-- 建议时间字段使用 `db.serverDate()`，避免客户端时间不准。
-- **首次部署时，需要先调用 `initMemberSchemes` 初始化会员方案数据**。
-- 支付流程：创建订单 -> 调用微信支付 -> 支付成功后更新订单状态 -> 激活会员。
+- **已废弃** `member_level`, `total_resume_quota`, `total_email_quota`, `used_jobs_count`, `ai_resume_quota`, `email_quota` 等根部字段，请统一使用 `membership` 和 `resume_profile`。
+- **已废弃** `useQuota` 云函数，由 `useResumeQuota` 和 `useEmailQuota` 替代。

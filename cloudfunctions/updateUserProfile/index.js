@@ -9,13 +9,21 @@ exports.main = async (event, context) => {
   const db = cloud.database()
   const { OPENID } = cloud.getWXContext()
 
-  const { nickname, avatar, phone, isAuthed } = event || {}
+  const { nickname, avatar, phone, isAuthed, resume_profile } = event || {}
 
   const updates = {}
   if (typeof nickname === 'string') updates.nickname = nickname
   if (typeof avatar === 'string') updates.avatar = avatar
   if (typeof phone === 'string') updates.phone = phone
   if (typeof isAuthed === 'boolean') updates.isAuthed = isAuthed
+  
+  // 处理 resume_profile 更新
+  if (resume_profile && typeof resume_profile === 'object') {
+    // 允许部分更新或整体更新
+    for (const key in resume_profile) {
+      updates[`resume_profile.${key}`] = resume_profile[key]
+    }
+  }
 
   if (Object.keys(updates).length === 0) {
     const current = await db.collection('users').doc(OPENID).get()

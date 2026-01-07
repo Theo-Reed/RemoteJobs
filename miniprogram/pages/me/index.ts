@@ -92,11 +92,12 @@ Page({
         const isLoggedIn = !!(user && (user.isAuthed || user.phone))
         const isVerified = !!(user && (user.isAuthed || user.phone)) // 认证状态：有手机号或已认证
 
-        // 使用新的会员字段判断会员状态
-        const memberLevel = user?.member_level || 0
-        const memberExpireAt = user?.member_expire_at
+        // 使用新包裹字段 membership
+        const membership = user?.membership
+        const memberLevel = membership?.level || 0
+        const memberExpireAt = membership?.expire_at
         
-        // 判断是否是有效会员：member_level > 0 且未过期
+        // 判断是否是有效会员：memberLevel > 0 且未过期
         let isMember = false
         let expiredDate = null
         if (memberLevel > 0 && memberExpireAt) {
@@ -200,7 +201,7 @@ Page({
         if (memberLevel === undefined) {
             const app = getApp<IAppOption>() as any
             const user = app?.globalData?.user
-            memberLevel = (this.data as any).memberLevel || user?.member_level || 0
+            memberLevel = (this.data as any).memberLevel || user?.membership?.level || 0
         }
 
         // 如果不是会员，不显示徽章

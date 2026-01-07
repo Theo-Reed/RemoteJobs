@@ -66,69 +66,47 @@ exports.main = async (event, context) => {
 
     // 确定会员等级
     // 0:普通用户, 1:3天会员, 2:普通月卡, 3:高级月卡
-    let member_level = 0
+    let level = 0
     if (scheme.scheme_id === 1) {
-      member_level = 1
+      level = 1
     } else if (scheme.scheme_id === 2) {
-      member_level = 2
+      level = 2
     } else if (scheme.scheme_id === 3) {
-      member_level = 3
+      level = 3
+    }
+
+    // --- 核心改动：更新新版 membership 结构 ---
+    const newMembership = user.membership || {
+      level: 0,
+      expire_at: null,
+      total_ai_usage: { used: 0, limit: 300 },
+      job_quota: { used: 0, limit: 0 },
+      job_details: {}
     }
 
     // 如果用户已有会员且未过期，在现有到期时间基础上延长
-    // 如果已过期或没有会员，从当前时间开始计算
     let finalExpireAt = expireAt
-    if (user.member_expire_at) {
-      const currentExpireAt = new Date(user.member_expire_at)
+    if (newMembership.expire_at) {
+      const currentExpireAt = new Date(newMembership.expire_at)
       if (currentExpireAt > now) {
-        // 未过期，延长
         finalExpireAt = new Date(currentExpireAt.getTime() + scheme.duration_days * 24 * 60 * 60 * 1000)
       }
     }
 
-    // 更新用户会员信息
-    // 根据新方案结构初始化配额
-    let total_resume_quota = -1  // 默认-1（按岗位数限制）
-    let total_email_quota = -1   // 默认-1（按岗位数限制）
-    let used_jobs_count = 0      // 已使用的岗位数
-    let email_quota_reset_at = null
+    // 确定会员等级并同步
+    newMembership.level = level
+    newMembership.expire_at = finalExpireAt
+    
+    // 根据等级设置岗位上限
+    if (level === 1) newMembership.job_quota.limit = 3
+    else if (level === 2) newMembership.job_quota.limit = 10
+    else if (level === 3) newMembership.job_quota.limit = 300
 
-    // 如果是高级会员（scheme_id === 3），使用总额度限制
-    if (scheme.scheme_id === 3) {
-      total_resume_quota = scheme.total_resume_limit || 300
-      total_email_quota = scheme.total_email_limit || 300
-      
-      // 计算邮件配额重置时间（下个月1号）
-      const resetDate = new Date(now)
-      resetDate.setMonth(resetDate.getMonth() + 1)
-      resetDate.setDate(1)
-      resetDate.setHours(0, 0, 0, 0)
-      email_quota_reset_at = resetDate
-    }
-
-    // 如果是同等级会员续费
-    if (user.member_level === member_level && user.member_expire_at) {
-      const currentExpireAt = new Date(user.member_expire_at)
-      if (currentExpireAt > now) {
-        // 同等级续费，保留已使用的岗位数，但重置配额
-        used_jobs_count = user.used_jobs_count || 0
-        
-        // 高级会员续费，配额累加
-        if (scheme.scheme_id === 3) {
-          total_resume_quota = (user.total_resume_quota || 0) + (scheme.total_resume_limit || 300)
-          total_email_quota = (user.total_email_quota || 0) + (scheme.total_email_limit || 300)
-        }
-      }
-    }
+    // 如果是同等级续费，高级会员配额可根据需要在此累加 total_ai_usage.limit（目前默认为300）
 
     await userRef.update({
       data: {
-        member_level,
-        member_expire_at: finalExpireAt,
-        total_resume_quota,
-        total_email_quota,
-        email_quota_reset_at,
-        used_jobs_count,
+        membership: newMembership,
         updatedAt: db.serverDate(),
       },
     })

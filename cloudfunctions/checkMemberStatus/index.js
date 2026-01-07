@@ -19,83 +19,51 @@ exports.main = async (event, context) => {
     const user = userResult.data || {}
 
     const now = new Date()
-    const expireAt = user.member_expire_at ? new Date(user.member_expire_at) : null
+    const membership = user.membership || {
+      level: 0,
+      expire_at: null,
+      total_ai_usage: { used: 0, limit: 300 },
+      job_quota: { used: 0, limit: 0 },
+      job_details: {}
+    }
+
+    const expireAt = membership.expire_at ? new Date(membership.expire_at) : null
 
     // 检查会员是否过期
     let isExpired = true
     let isValidMember = false
 
-    if (user.member_level && user.member_level > 0 && expireAt && expireAt > now) {
+    if (membership.level > 0 && expireAt && expireAt > now) {
       isExpired = false
       isValidMember = true
     }
 
-    // 检查邮件配额是否需要重置（高级会员每月重置）
-    let total_email_quota = user.total_email_quota || -1
-    let email_quota_reset_at = user.email_quota_reset_at ? new Date(user.email_quota_reset_at) : null
-    
-    if (user.member_level === 3 && email_quota_reset_at && email_quota_reset_at <= now) {
-      // 需要重置邮件配额
-      const schemeResult = await db.collection('member_schemes')
-        .where({ scheme_id: 3 })
-        .get()
-      
-      if (schemeResult.data && schemeResult.data.length > 0) {
-        const scheme = schemeResult.data[0]
-        total_email_quota = scheme.total_email_limit || 300
-        
-        // 计算下个月1号的重置时间
-        const resetDate = new Date(now)
-        resetDate.setMonth(resetDate.getMonth() + 1)
-        resetDate.setDate(1)
-        resetDate.setHours(0, 0, 0, 0)
-        email_quota_reset_at = resetDate
-        
-        await userRef.update({
-          data: {
-            total_email_quota,
-            email_quota_reset_at,
-            updatedAt: db.serverDate(),
-          },
-        })
-      }
-    }
-
     // 如果过期，重置为普通用户
-    if (isExpired && user.member_level && user.member_level > 0) {
-      await userRef.update({
-        data: {
-          member_level: 0,
-          member_expire_at: null,
-          total_resume_quota: -1,
-          total_email_quota: -1,
-          email_quota_reset_at: null,
-          used_jobs_count: 0,
-          updatedAt: db.serverDate(),
-        },
-      })
+    if (isExpired && membership.level > 0) {
+      membership.level = 0
+      membership.expire_at = null
+      membership.job_quota.limit = 0
+      
+      const resetData = {
+        membership: membership,
+        updatedAt: db.serverDate(),
+      }
+
+      await userRef.update({ data: resetData })
 
       return {
         success: true,
-        member_level: 0,
+        membership,
         isExpired: true,
         isValidMember: false,
-        total_resume_quota: -1,
-        total_email_quota: -1,
-        used_jobs_count: 0,
-        member_expire_at: null,
       }
     }
 
     return {
       success: true,
-      member_level: user.member_level || 0,
+      membership,
       isExpired: isExpired,
       isValidMember: isValidMember,
-      total_resume_quota: user.total_resume_quota !== undefined ? user.total_resume_quota : -1,
-      total_email_quota: total_email_quota,
-      used_jobs_count: user.used_jobs_count || 0,
-      member_expire_at: user.member_expire_at || null,
     }
   } catch (err) {
     console.error('检查会员状态失败:', err)
