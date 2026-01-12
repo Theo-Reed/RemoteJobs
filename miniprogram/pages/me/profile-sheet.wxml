@@ -49,15 +49,16 @@
           <view class="profile-phone-header">
             <text class="profile-phone-title">{{ui.phoneNumber}}</text>
             <button
+                    wx:if="{{!userPhone}}"
                     class="profile-phone-change-btn"
                     open-type="getPhoneNumber"
                     bindgetphonenumber="onChangePhoneNumber"
             >
-              <text class="profile-phone-change-btn-text">{{ui.changePhone}}</text>
+              <text class="profile-phone-change-btn-text">{{ui.setPhone || '设置'}}</text>
             </button>
           </view>
           <view class="profile-phone-content">
-            <text class="profile-phone-value">{{maskedPhone}}</text>
+            <text class="profile-phone-value">{{userPhone ? maskedPhone : ui.notSet}}</text>
           </view>
         </view>
       </view>

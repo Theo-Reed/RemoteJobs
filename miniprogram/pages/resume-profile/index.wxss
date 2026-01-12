@@ -287,7 +287,7 @@
 }
 
 .bottom-safe-area {
-  height: 80rpx;
+  height: 0;
 }
 
 .ai-message-value {
@@ -372,7 +372,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1rpx solid #f1f5f9;
   flex-shrink: 0;
 }
 

@@ -773,8 +773,8 @@
 }
 
 .invite-modern-btn {
-    width: 174rpx !important;
-    height: 70rpx !important;
+    width: 160rpx !important;
+    height: 60rpx !important;
     background: #1e293b;
     color: #ffffff;
     border-radius: 20rpx;

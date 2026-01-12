@@ -53,6 +53,7 @@ Page({
         showNicknameModal: false,
         nicknameModalOpen: false,
         newNickname: '',
+        userPhone: '', // 原始手机号
         maskedPhone: '', // 脱敏后的手机号
 
         ui: {} as Record<string, string>,
@@ -125,8 +126,8 @@ Page({
             }
         }
 
-        const userInfo = user && user.avatar && user.nickname
-            ? ({ avatarUrl: user.avatar, nickName: user.nickname } as WechatMiniprogram.UserInfo)
+        const userInfo = user && (user.avatar || user.nickname)
+            ? ({ avatarUrl: user.avatar || '', nickName: user.nickname || '' } as WechatMiniprogram.UserInfo)
             : null
 
         const isAiUnlocked = isAiChineseUnlocked(user)
@@ -139,7 +140,8 @@ Page({
         const memberExpiryText = isMember ? `${t('me.memberExpiredDate', normalizeLanguage(app?.globalData?.language))}: ${expiredDateText}` : ''
 
         // Format phone number (前3位+****+后4位)
-        const maskedPhone = this.formatPhoneNumber(user?.phone)
+        const rawPhone = user?.phone || ''
+        const maskedPhone = this.formatPhoneNumber(rawPhone)
 
         // Quota logic
         const jobQuotaUsed = membership?.job_quota?.used || 0
@@ -154,6 +156,7 @@ Page({
             isMember,
             memberLevel,
             userInfo,
+            userPhone: rawPhone,
             isAiChineseUnlocked: isAiUnlocked,
             myInviteCode,
             expiredDate,
@@ -783,6 +786,8 @@ Page({
     },
 
     onRenew() {
+        if (!this.checkPhoneBeforePayment()) return;
+
         const { memberLevel, memberBadgeText } = this.data
         if (!memberLevel) return
 
@@ -799,6 +804,8 @@ Page({
     },
 
     onUpgrade() {
+        if (!this.checkPhoneBeforePayment()) return;
+
         const { memberLevel, upgradeAmount } = this.data
         let targetLevel = 0
         let title = ''
@@ -828,7 +835,27 @@ Page({
         })
     },
 
+    checkPhoneBeforePayment(): boolean {
+        if (!this.data.userPhone) {
+            wx.showModal({
+                title: this.data.ui.phoneWarningTitle,
+                content: this.data.ui.paymentPhoneRequired,
+                showCancel: false,
+                confirmText: this.data.ui.confirm || '确 定',
+                success: () => {
+                    this.openProfileSheet();
+                }
+            });
+            return false;
+        }
+        return true;
+    },
+
     async executePaymentFlow(schemeId: number, amount?: number) {
+        if (!this.data.userPhone) {
+            this.checkPhoneBeforePayment();
+            return;
+        }
         ui.showLoading('正在创建订单...')
 
         try {
@@ -965,22 +992,54 @@ Page({
                 throw new Error('未获取到手机号')
             }
 
-            await updatePhoneNumber(phone)
-            this.syncUserFromApp()
-            wx.showToast({ title: '手机号更新成功', icon: 'success' })
+            // 如果是首次设置手机号，弹出重要提示
+            if (!this.data.userPhone) {
+                wx.showModal({
+                    title: this.data.ui.phoneWarningTitle,
+                    content: this.data.ui.phoneWarningContent,
+                    confirmText: this.data.ui.phoneWarningConfirm,
+                    showCancel: true,
+                    success: async (res) => {
+                        if (res.confirm) {
+                            try {
+                                await updatePhoneNumber(phone)
+                                this.syncUserFromApp()
+                                wx.showToast({ title: '手机号设置成功', icon: 'success' })
+                            } catch (err: any) {
+                                this.handlePhoneUpdateError(err)
+                            } finally {
+                                this.setData({ phoneAuthBusy: false })
+                            }
+                        } else {
+                            this.setData({ phoneAuthBusy: false })
+                        }
+                    },
+                    fail: () => {
+                        this.setData({ phoneAuthBusy: false })
+                    }
+                })
+            } else {
+                // 如果已经有手机号（理论上按钮已隐藏，但为保险起见保留逻辑）
+                await updatePhoneNumber(phone)
+                this.syncUserFromApp()
+                wx.showToast({ title: '手机号更新成功', icon: 'success' })
+                this.setData({ phoneAuthBusy: false })
+            }
         }
         catch (err: any) {
-            console.error('[PhoneAuth] onChangePhoneNumber error:', err)
-            const errorMsg = err?.message || err?.errMsg || '手机号更新失败'
-            wx.showToast({ 
-                title: errorMsg.length > 10 ? '手机号更新失败' : errorMsg, 
-                icon: 'none',
-                duration: 2000
-            })
-        }
-        finally {
+            this.handlePhoneUpdateError(err)
             this.setData({ phoneAuthBusy: false })
         }
+    },
+
+    handlePhoneUpdateError(err: any) {
+        console.error('[PhoneAuth] phone update error:', err)
+        const errorMsg = err?.message || err?.errMsg || '手机号设置失败'
+        wx.showToast({ 
+            title: errorMsg.length > 10 ? '手机号设置失败' : errorMsg, 
+            icon: 'none',
+            duration: 2000
+        })
     },
 
     onResumeProfileTap() {

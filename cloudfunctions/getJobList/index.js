@@ -103,10 +103,21 @@ exports.main = async (event, context) => {
     
     // 来源筛选（支持多选）
     if (Array.isArray(source_name) && source_name.length > 0) {
-      if (source_name.length === 1) {
-        whereCondition.source_name = source_name[0]
-      } else {
-        whereCondition.source_name = db.command.in(source_name)
+      const normalSources = source_name.filter(s => s !== 'Wellfound')
+      const hasWellfound = source_name.includes('Wellfound')
+      
+      const sourceConditions = []
+      if (normalSources.length > 0) {
+        sourceConditions.push(db.command.in(normalSources))
+      }
+      if (hasWellfound) {
+        sourceConditions.push(db.RegExp({ regexp: 'wellfound', options: 'i' }))
+      }
+      
+      if (sourceConditions.length === 1) {
+        whereCondition.source_name = sourceConditions[0]
+      } else if (sourceConditions.length > 1) {
+        whereCondition.source_name = db.command.or(sourceConditions)
       }
     }
 

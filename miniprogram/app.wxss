@@ -127,7 +127,6 @@
   margin: 0;
   position: relative;
   flex-shrink: 0;
-  border-bottom: 1rpx solid #f1f5f9;
 }
 
 .bottom-sheet-header-left,

@@ -16,7 +16,7 @@ const EXP_KEYS: ExpKey[] = ['全部', '经验不限', '1年以内', '1-3年', '3
 const REGION_KEYS: string[] = ['全部', '国内', '国外', 'web3']
 
 // 所有来源选项（不再根据区域动态变化）
-const ALL_SOURCE_OPTIONS: string[] = ['全部', 'BOSS直聘', '智联招聘']
+const ALL_SOURCE_OPTIONS: string[] = ['全部', 'BOSS直聘', '智联招聘', 'Wellfound']
 
 const EN_SALARY: Record<string, string> = {
   '全部': 'All',
@@ -41,6 +41,7 @@ const EN_SOURCE: Record<string, string> = {
   '全部': 'All',
   'BOSS直聘': 'BOSS Zhipin',
   '智联招聘': 'Zhilian Zhaopin',
+  'Wellfound': 'Wellfound',
 }
 
 Page({
