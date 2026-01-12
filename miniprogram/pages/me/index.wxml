@@ -3,7 +3,7 @@
 
   <view wx:if="{{isInitialLoading}}" class="loading-box">
     <view class="loading-spinner"></view>
-    <text>{{ui.loading || '加载中...'}}</text>
+    <text>{{ui.loading}}</text>
   </view>
 
   <block wx:else>
@@ -67,7 +67,7 @@
         <view class="vip-card-footer">
           <block wx:if="{{memberLevel === 1 && isQuotaExhausted}}">
             <view class="upgrade-guide-box" catchtap="onUpgrade">
-              <text class="upgrade-text">额度已满？补差价 ¥{{upgradeAmount}} 升级月卡 ❯</text>
+              <text class="upgrade-text">{{ui.upgradeGuide}}</text>
             </view>
           </block>
           <view wx:else></view> <!-- 占位保持 space-between -->
@@ -129,7 +129,7 @@
           <text class="row-label">{{ui.languageEntry}}</text>
         </view>
         <view class="row-right">
-          <text class="row-value">{{appLanguage === 'Chinese' ? '中文 (标准)' : (appLanguage === 'AIChinese' ? 'AI 智能全中文' : (appLanguage === 'English' ? 'English' : 'AI Smart English'))}}</text>
+          <text class="row-value">{{appLanguage === 'Chinese' ? ui.langChinese : (appLanguage === 'AIChinese' ? ui.langAIChinese : (appLanguage === 'English' ? ui.langEnglish : ui.langAIEnglish))}}</text>
           <text class="row-arrow">❯</text>
         </view>
       </view>
@@ -166,7 +166,7 @@
         <view class="bottom-sheet-header-left"></view>
         <text class="bottom-sheet-title">{{ui.languageEntry}}</text>
         <view class="bottom-sheet-header-right">
-          <view class="bottom-sheet-header-btn" bindtap="closeLanguageSheet">{{ui.confirm || '完成'}}</view>
+          <view class="bottom-sheet-header-btn" bindtap="closeLanguageSheet">{{ui.confirm}}</view>
         </view>
       </view>
       <view class="bottom-sheet-content">
@@ -235,7 +235,7 @@
         <view class="bottom-sheet-header-left"></view>
         <text class="bottom-sheet-title">{{ui.inviteCodeEntry}}</text>
         <view class="bottom-sheet-header-right">
-          <view class="bottom-sheet-header-btn" bindtap="closeInviteSheet">{{ui.confirm || '完成'}}</view>
+          <view class="bottom-sheet-header-btn" bindtap="closeInviteSheet">{{ui.confirm}}</view>
         </view>
       </view>
       <view class="bottom-sheet-content invite-sheet-content">
@@ -271,7 +271,7 @@
         <view class="bottom-sheet-header-left"></view>
         <text class="bottom-sheet-title">{{ui.manageBenefits}}</text>
         <view class="bottom-sheet-header-right">
-          <view class="bottom-sheet-header-btn" bindtap="closeMemberHub">{{ui.confirm || '完成'}}</view>
+          <view class="bottom-sheet-header-btn" bindtap="closeMemberHub">{{ui.confirm}}</view>
         </view>
       </view>
       <view class="bottom-sheet-content member-hub-content">
@@ -289,7 +289,7 @@
         <view class="hub-quota-card">
           <view class="quota-title-row">
             <text class="quota-title">{{ui.aiQuotaTitle}}</text>
-            <text class="quota-infinite-tag" wx:if="{{memberLevel === 3}}">UNLIMITED</text>
+            <text class="quota-infinite-tag" wx:if="{{memberLevel === 3}}">{{ui.unlimited}}</text>
           </view>
           
           <block wx:if="{{memberLevel === 3}}">
@@ -359,7 +359,7 @@
         <view class="bottom-sheet-header-left"></view>
         <text class="bottom-sheet-title">{{ui.contactAuthor}}</text>
         <view class="bottom-sheet-header-right">
-          <view class="bottom-sheet-header-btn" bindtap="closeContactSheet">{{ui.confirm || '完成'}}</view>
+          <view class="bottom-sheet-header-btn" bindtap="closeContactSheet">{{ui.confirm}}</view>
         </view>
       </view>
       <view class="bottom-sheet-content author-sheet-content">

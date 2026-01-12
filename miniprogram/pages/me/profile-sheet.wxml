@@ -7,7 +7,7 @@
       <view class="bottom-sheet-header-left"></view>
       <text class="bottom-sheet-title">{{ui.userProfileTitle}}</text>
       <view class="bottom-sheet-header-right">
-        <view class="bottom-sheet-header-btn" bindtap="closeProfileSheet">{{ui.confirm || '完成'}}</view>
+        <view class="bottom-sheet-header-btn" bindtap="closeProfileSheet">{{ui.confirm}}</view>
       </view>
     </view>
 
@@ -54,7 +54,7 @@
                     open-type="getPhoneNumber"
                     bindgetphonenumber="onChangePhoneNumber"
             >
-              <text class="profile-phone-change-btn-text">{{ui.setPhone || '设置'}}</text>
+              <text class="profile-phone-change-btn-text">{{ui.setPhone}}</text>
             </button>
           </view>
           <view class="profile-phone-content">

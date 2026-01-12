@@ -1,11 +1,12 @@
 // miniprogram/pages/me/index.ts
 
 import {isAiChineseUnlocked} from '../../utils/subscription'
-import {normalizeLanguage, t, type AppLanguage} from '../../utils/i18n'
+import {normalizeLanguage, type AppLanguage} from '../../utils/i18n'
 import {attachLanguageAware} from '../../utils/languageAware'
 import {toDateMs} from '../../utils/time'
 import {getPhoneNumberFromAuth, updatePhoneNumber} from '../../utils/phoneAuth'
 import {ui} from '../../utils/ui'
+import {buildPageUI} from './ui.config'
 
 
 Page({
@@ -94,8 +95,8 @@ Page({
             await app.globalData.userPromise
         }
         
-        this.syncUserFromApp()
         this.syncLanguageFromApp()
+        this.syncUserFromApp()
         
         // 如果是会员，显式等待徽章文本加载，防止闪烁
         const membership = (app as any)?.globalData?.user?.membership
@@ -139,7 +140,8 @@ Page({
 
         // Sync expired date
         const expiredDateText = this.formatExpiredDate(expiredDate)
-        const memberExpiryText = isMember ? `${t('me.memberExpiredDate', normalizeLanguage(app?.globalData?.language))}: ${expiredDateText}` : ''
+        const uiStrings = this.data.ui || {}
+        const memberExpiryText = isMember ? `${uiStrings.memberExpiredDate || ''}: ${expiredDateText}` : ''
 
         // Format phone number (前3位+****+后4位)
         const rawPhone = user?.phone || ''
@@ -180,82 +182,11 @@ Page({
         const app = getApp<IAppOption>() as any
         const lang = normalizeLanguage(app?.globalData?.language)
 
-        const ui = {
-            meTitle: t('me.title', lang),
-            generateResumeEntry: t('me.generateResumeEntry', lang),
-            publishSkillEntry: t('me.publishSkillEntry', lang),
-            languageEntry: t('me.languageEntry', lang),
-            langChinese: t('me.langChinese', lang),
-            langChineseDesc: t('me.langChineseDesc', lang),
-            langEnglish: t('me.langEnglish', lang),
-            langEnglishDesc: t('me.langEnglishDesc', lang),
-            langAIChinese: t('me.langAIChinese', lang),
-            langAIChineseDesc: t('me.langAIChineseDesc', lang),
-            langAIEnglish: t('me.langAIEnglish', lang),
-            langAIEnglishDesc: t('me.langAIEnglishDesc', lang),
-            inviteCodeEntry: t('me.inviteCodeEntry', lang),
-            myInviteCode: t('me.myInviteCode', lang),
-            inputInviteCode: t('me.inputInviteCode', lang),
-            inviteCodeCopied: t('me.inviteCodeCopied', lang),
-            inviteCodeInvalid: t('me.inviteCodeInvalid', lang),
-            inviteCodeApplied: t('me.inviteCodeApplied', lang),
-            comingSoon: t('me.comingSoon', lang),
-            memberBadge: t('me.memberBadge', lang),
-            uploadAvatar: t('me.uploadAvatar', lang),
-            editNickname: t('me.editNickname', lang),
-            memberExpiredDate: t('me.memberExpiredDate', lang),
-            phoneNumber: t('me.phoneNumber', lang),
-            changePhone: t('me.changePhone', lang),
-            nicknameTooLong: t('me.nicknameTooLong', lang),
-            resumeProfileEntry: t('me.resumeProfileEntry', lang),
-            appliedJobsEntry: t('me.appliedJobsEntry', lang),
-            generatedResumesEntry: t('me.generatedResumesEntry', lang),
-            loading: t('me.loading', lang),
-            loginNow: t('me.loginNow', lang),
-            viewEditProfile: t('me.viewEditProfile', lang),
-            regularUser: t('me.regularUser', lang),
-            jobQuota: t('me.jobQuota', lang),
-            memberFullAccess: t('me.memberFullAccess', lang),
-            unlockAIFeatures: t('me.unlockAIFeatures', lang),
-            upgradeGuide: t('me.upgradeGuide', lang),
-            manageBenefits: t('me.manageBenefits', lang),
-            unlockNow: t('me.unlockNow', lang),
-            resumeProfileSubtitle: t('me.resumeProfileSubtitle', lang),
-            generatedResumesSubtitle: t('me.generatedResumesSubtitle', lang),
-            appliedJobsSubtitle: t('me.appliedJobsSubtitle', lang),
-            basicMode: t('me.basicMode', lang),
-            aiMode: t('me.aiMode', lang),
-            vipTag: t('me.vipTag', lang),
-            inputInviteCodePlaceholder: t('me.inputInviteCodePlaceholder', lang),
-            copy: t('me.copy', lang),
-            apply: t('me.apply', lang),
-            contactAuthor: t('me.contactAuthor', lang),
-            contactAuthorDesc: t('me.contactAuthorDesc', lang),
-            authorWechatSlogan: t('me.authorWechatSlogan', lang),
-            shareDesc: t('me.shareDesc', lang),
-            expiresSuffix: t('me.expiresSuffix', lang),
-            aiQuotaTitle: t('me.aiQuotaTitle', lang),
-            unlimitedUse: t('me.unlimitedUse', lang),
-            quotaUsed: t('me.quotaUsed', lang),
-            totalQuota: t('me.totalQuota', lang),
-            renewNow: t('me.renewNow', lang),
-            upgradeAmountText: t('me.upgradeAmountText', lang),
-            userProfileTitle: t('me.userProfileTitle', lang),
-            notSet: t('me.notSet', lang),
-            benefitTranslateTitle: t('me.benefitTranslateTitle', lang),
-            benefitTranslateSub: t('me.benefitTranslateSub', lang),
-            benefitResumeTitle: t('me.benefitResumeTitle', lang),
-            benefitResumeSub: t('me.benefitResumeSub', lang),
-            benefitApplyTitle: t('me.benefitApplyTitle', lang),
-            benefitApplySub: t('me.benefitApplySub', lang),
-            save: t('resume.save', lang),
-            cancel: t('resume.cancel', lang),
-            qrHint: t('me.qrHint', lang),
-        }
+        const uiStrings = buildPageUI(lang, this.data)
 
         this.setData({
             appLanguage: lang,
-            ui,
+            ui: uiStrings,
         })
 
         // intentionally do not set navigationBarTitleText
@@ -290,25 +221,37 @@ Page({
                 const schemes = res.result.schemes
                 // 根据 memberLevel 找到对应的方案
                 const scheme = schemes.find((s: any) => s.scheme_id === memberLevel)
-                if (scheme && scheme.displayName) {
-                    this.setData({ memberBadgeText: scheme.displayName })
-                } else {
+                const memberBadgeText = (scheme && scheme.displayName) ? scheme.displayName : ''
+                
+                if (!scheme && memberLevel !== undefined && memberLevel > 0) {
                     console.warn('未找到对应的会员方案，memberLevel:', memberLevel, 'schemes:', schemes)
-                    this.setData({ memberBadgeText: '' })
                 }
+
+                this.setData({ 
+                    memberBadgeText,
+                    ['ui.memberRenewContent']: buildPageUI(this.data.appLanguage as any, { ...this.data, memberBadgeText }).memberRenewContent
+                })
 
                 // 计算升级差价
                 if (memberLevel === 1) {
                     const level2Scheme = schemes.find((s: any) => s.scheme_id === 2)
                     if (level2Scheme && scheme) {
                         const diff = (level2Scheme.price || 0) - (scheme.price || 0)
-                        this.setData({ upgradeAmount: diff > 0 ? diff : 0 })
+                        const amount = diff > 0 ? diff : 0
+                        this.setData({ 
+                            upgradeAmount: amount,
+                            ['ui.upgradeGuide']: buildPageUI(this.data.appLanguage as any, { ...this.data, upgradeAmount: amount }).upgradeGuide
+                        })
                     }
                 } else if (memberLevel === 2) {
                     const level3Scheme = schemes.find((s: any) => s.scheme_id === 3)
                     if (level3Scheme && scheme) {
                         const diff = (level3Scheme.price || 0) - (scheme.price || 0)
-                        this.setData({ upgradeAmount: diff > 0 ? diff : 0 })
+                        const amount = diff > 0 ? diff : 0
+                        this.setData({ 
+                            upgradeAmount: amount,
+                            ['ui.upgradeGuide']: buildPageUI(this.data.appLanguage as any, { ...this.data, upgradeAmount: amount }).upgradeGuide
+                        })
                     }
                 }
             } else {
@@ -322,12 +265,13 @@ Page({
     },
 
     async onGetRealtimePhoneNumber(e: any) {
+        const { ui: uiStrings } = this.data
         if ((this.data as any).phoneAuthBusy) return
 
         const encryptedData = e?.detail?.encryptedData
         const iv = e?.detail?.iv
         if (!encryptedData || !iv) {
-            wx.showToast({ title: '未获取到手机号授权', icon: 'none' })
+            wx.showToast({ title: uiStrings.authCancel, icon: 'none' })
             return
         }
 
@@ -351,10 +295,10 @@ Page({
             if (app?.globalData) app.globalData.user = updatedUser
 
             this.syncUserFromApp()
-            wx.showToast({ title: '登录成功', icon: 'success' })
+            wx.showToast({ title: uiStrings.loginSuccess, icon: 'success' })
         }
         catch (err) {
-            wx.showToast({ title: '手机号授权失败', icon: 'none' })
+            wx.showToast({ title: uiStrings.phoneAuthFailed, icon: 'none' })
         }
         finally {
             this.setData({ phoneAuthBusy: false })
@@ -362,11 +306,12 @@ Page({
     },
 
     async onGetPhoneNumber(e: any) {
+        const { ui: uiStrings } = this.data
         if ((this.data as any).phoneAuthBusy) return
 
         const code = e?.detail?.code
         if (!code) {
-            wx.showToast({ title: '未获取到手机号授权', icon: 'none' })
+            wx.showToast({ title: uiStrings.authCancel, icon: 'none' })
             return
         }
 
@@ -390,10 +335,10 @@ Page({
             if (app?.globalData) app.globalData.user = updatedUser
 
             this.syncUserFromApp()
-            wx.showToast({ title: '登录成功', icon: 'success' })
+            wx.showToast({ title: uiStrings.loginSuccess, icon: 'success' })
         }
         catch (err) {
-            wx.showToast({ title: '手机号授权失败', icon: 'none' })
+            wx.showToast({ title: uiStrings.phoneAuthFailed, icon: 'none' })
         }
         finally {
             this.setData({ phoneAuthBusy: false })
@@ -414,15 +359,8 @@ Page({
         }, 300)
     },
 
-    closeLanguageSheetImmediate() {
-        // close with animation and unmount shortly after; don't await anything
-        this.setData({ languageSheetOpen: false })
-        setTimeout(() => {
-            this.setData({ showLanguageSheet: false })
-        }, 300)
-    },
-
     async onLanguageSelect(e: WechatMiniprogram.TouchEvent) {
+        const { ui: uiStrings } = this.data
         const lang = (e.currentTarget.dataset.value || '') as AppLanguage
         if (!lang) return
 
@@ -431,18 +369,18 @@ Page({
         // 如果选择的语言和当前语言相同，只关闭弹窗，不做任何操作
         const currentLang = normalizeLanguage(app?.globalData?.language)
         if (currentLang === lang) {
-            this.closeLanguageSheetImmediate()
+            this.closeLanguageSheet()
             return
         }
 
         // Check if AI features are unlocked
         if (lang.startsWith('AI') && !this.data.isAiChineseUnlocked) {
-            this.closeLanguageSheetImmediate()
+            this.closeLanguageSheet()
             wx.showModal({
-                title: 'AI翻译与提炼 🔒',
-                content: '开启 AI 增强模式需要付费解锁。',
-                confirmText: '去支付',
-                cancelText: '取消',
+                title: uiStrings.aiUnlockTitle,
+                content: uiStrings.aiUnlockContent,
+                confirmText: uiStrings.toPay,
+                cancelText: uiStrings.cancel,
                 success: (res) => {
                     if (res.confirm) {
                         this.openMemberHub()
@@ -453,7 +391,7 @@ Page({
         }
 
         // 1) Close sheet immediately (no waiting)
-        this.closeLanguageSheetImmediate()
+        this.closeLanguageSheet()
 
         // 2) Show modal loading (blocks all touches)
         ui.showLoading('')
@@ -470,7 +408,7 @@ Page({
         try {
             await Promise.all([minDuration, action])
             ui.hideLoading()
-            ui.showSuccess('设置已更新')
+            ui.showSuccess(uiStrings.settingsUpdated)
         }
         catch (err) {
             try {
@@ -535,7 +473,7 @@ Page({
             }
         }
         catch (err) {
-            wx.showToast({ title: '加载邀请码失败', icon: 'none' })
+            wx.showToast({ title: this.data.ui.loadInviteCodeFailed, icon: 'none' })
         }
     },
 
@@ -598,11 +536,11 @@ Page({
                 this.closeInviteSheet()
             }
             else {
-                wx.showToast({ title: resultData?.message || '应用失败', icon: 'none' })
+                wx.showToast({ title: resultData?.message || ui.applyFailed, icon: 'none' })
             }
         }
         catch (err) {
-            wx.showToast({ title: '应用失败', icon: 'none' })
+            wx.showToast({ title: ui.applyFailed, icon: 'none' })
         }
     },
 
@@ -634,6 +572,7 @@ Page({
     },
 
     async onUploadAvatar() {
+        const { ui: uiStrings } = this.data
         try {
             const res = await wx.chooseMedia({
                 count: 1,
@@ -645,7 +584,7 @@ Page({
 
             const tempFilePath = res.tempFiles[0].tempFilePath
 
-            ui.showLoading('上传中...')
+            ui.showLoading(uiStrings.uploading)
 
             // Upload to cloud storage
             const cloudPath = `avatars/${Date.now()}-${Math.random().toString(36).substr(2, 9)}.jpg`
@@ -668,7 +607,7 @@ Page({
 
             this.syncUserFromApp()
             ui.hideLoading()
-            ui.showSuccess('头像更新成功')
+            ui.showSuccess(uiStrings.uploadSuccess)
         }
         catch (err: any) {
             ui.hideLoading()
@@ -676,7 +615,7 @@ Page({
                 // User cancelled, do nothing
                 return
             }
-            wx.showToast({ title: '上传失败', icon: 'none' })
+            wx.showToast({ title: uiStrings.uploadFailed, icon: 'none' })
         }
     },
 
@@ -708,11 +647,11 @@ Page({
     },
 
     async onSaveNickname() {
-        const { newNickname, ui } = this.data
+        const { newNickname, ui: uiStrings } = this.data
         const trimmedNickname = (newNickname || '').trim()
         
         if (trimmedNickname.length === 0) {
-            wx.showToast({ title: '用户名不能为空', icon: 'none' })
+            wx.showToast({ title: uiStrings.nicknameEmpty, icon: 'none' })
             return
         }
 
@@ -727,12 +666,12 @@ Page({
         }
 
         if (totalLen > 20) {
-            wx.showToast({ title: ui.nicknameTooLong, icon: 'none' })
+            wx.showToast({ title: uiStrings.nicknameTooLong, icon: 'none' })
             return
         }
 
         try {
-            ui.showLoading('保存中...')
+            ui.showLoading(uiStrings.saving)
             const updateRes: any = await wx.cloud.callFunction({
                 name: 'updateUserProfile',
                 data: { nickname: trimmedNickname },
@@ -745,11 +684,11 @@ Page({
             this.syncUserFromApp()
             this.closeNicknameModal()
             ui.hideLoading()
-            ui.showSuccess('用户名更新成功')
+            ui.showSuccess(uiStrings.nicknameSuccess)
         }
         catch (err) {
             ui.hideLoading()
-            ui.showError('更新失败')
+            ui.showError(uiStrings.updateFailed)
         }
     },
 
@@ -780,23 +719,16 @@ Page({
         }, 300)
     },
 
-    closeMemberHubImmediate() {
-        this.setData({ memberHubOpen: false })
-        setTimeout(() => {
-            this.setData({ showMemberHub: false })
-        }, 300)
-    },
-
     onRenew() {
         if (!this.checkPhoneBeforePayment()) return;
 
-        const { memberLevel, memberBadgeText } = this.data
+        const { memberLevel, ui: uiStrings } = this.data
         if (!memberLevel) return
 
         wx.showModal({
-            title: '会员续费',
-            content: `即将为您办理 ${memberBadgeText} 的续费手续。`,
-            confirmText: '立即续费',
+            title: uiStrings.memberRenew,
+            content: uiStrings.memberRenewContent,
+            confirmText: uiStrings.renewNow,
             success: (res) => {
                 if (res.confirm) {
                     this.executePaymentFlow(memberLevel)
@@ -808,19 +740,19 @@ Page({
     onUpgrade() {
         if (!this.checkPhoneBeforePayment()) return;
 
-        const { memberLevel, upgradeAmount } = this.data
+        const { memberLevel, upgradeAmount, ui: uiStrings } = this.data
         let targetLevel = 0
         let title = ''
         let content = ''
 
         if (memberLevel === 1) {
             targetLevel = 2
-            title = '升级普通会员'
-            content = `补差价 ¥${upgradeAmount} 即可升级为普通会员，享受更多岗位配额及 AI 提炼次数。`
+            title = uiStrings.upgradeBasicTitle
+            content = uiStrings.upgradeBasicContent.replace('{amount}', upgradeAmount.toString())
         } else if (memberLevel === 2) {
             targetLevel = 3
-            title = '升级高级会员'
-            content = `补差价 ¥${upgradeAmount} 即可升级为高级会员，尊享无限次 AI 提炼及专属视觉效果。`
+            title = uiStrings.upgradeProTitle
+            content = uiStrings.upgradeProContent.replace('{amount}', upgradeAmount.toString())
         }
 
         if (!targetLevel) return
@@ -828,7 +760,7 @@ Page({
         wx.showModal({
             title,
             content,
-            confirmText: '立即升级',
+            confirmText: uiStrings.apply,
             success: (res) => {
                 if (res.confirm) {
                     this.executePaymentFlow(targetLevel, upgradeAmount)
@@ -843,7 +775,7 @@ Page({
                 title: this.data.ui.phoneWarningTitle,
                 content: this.data.ui.paymentPhoneRequired,
                 showCancel: false,
-                confirmText: this.data.ui.confirm || '确 定',
+                confirmText: this.data.ui.confirm,
                 success: () => {
                     this.openProfileSheet();
                 }
@@ -854,11 +786,12 @@ Page({
     },
 
     async executePaymentFlow(schemeId: number, amount?: number) {
+        const { ui: uiStrings } = this.data
         if (!this.data.userPhone) {
             this.checkPhoneBeforePayment();
             return;
         }
-        ui.showLoading('正在创建订单...')
+        ui.showLoading(uiStrings.creatingOrder)
 
         try {
             const env = require('../../env.js')
@@ -866,7 +799,7 @@ Page({
             const envId = env.cloudEnv || env.default?.cloudEnv
             
             if (!mchId) {
-                throw new Error('未能在 env.js 中找到商户号 mchId')
+                throw new Error(uiStrings.mchIdMissing)
             }
 
             // 1. 创建订单并获取统一下单参数
@@ -883,14 +816,14 @@ Page({
             console.log('[Payment] createOrder response:', orderRes.result)
 
             if (!orderRes.result?.success) {
-                throw new Error(orderRes.result?.message || '订单创建失败')
+                throw new Error(orderRes.result?.message || uiStrings.orderCreateFailed)
             }
 
             const { payment, order_id } = orderRes.result
             
             if (!payment || !payment.paySign) {
                 console.error('[Payment] Missing payment parameters:', payment)
-                throw new Error('支付参数缺失，请检查云开发后台微信支付配置')
+                throw new Error(uiStrings.payParamMissing)
             }
 
             ui.hideLoading()
@@ -911,7 +844,7 @@ Page({
                 })
             })
 
-            ui.showLoading('正在激活会员...')
+            ui.showLoading(uiStrings.activatingMember)
 
             // 3. 更新订单状态
             await wx.cloud.callFunction({
@@ -931,7 +864,7 @@ Page({
             })
 
             if (!activateRes.result?.success) {
-                throw new Error(activateRes.result?.message || '激活会员失败')
+                throw new Error(activateRes.result?.message || uiStrings.activateMemberFailed)
             }
 
             // 5. 刷新用户信息
@@ -940,7 +873,7 @@ Page({
             this.syncUserFromApp()
 
             ui.hideLoading()
-            ui.showSuccess('支付成功')
+            ui.showSuccess(uiStrings.paySuccess)
 
             // 如果是在会员中心操作，支付成功后关闭
             this.closeMemberHub()
@@ -949,22 +882,23 @@ Page({
             console.error('[Payment] Error:', err)
             
             if (err.errMsg && err.errMsg.includes('requestPayment:fail cancel')) {
-                ui.showError('支付已取消')
+                ui.showError(uiStrings.payCancelled)
                 return
             }
 
             wx.showModal({
-                title: '支付提示',
-                content: err.message || '支付过程出现问题，请稍后再试',
+                title: uiStrings.payPrompt,
+                content: err.message || uiStrings.payError,
                 showCancel: false
             })
         }
     },
 
     formatExpiredDate(expired: any): string {
-        if (!expired) return '未开通'
+        const { ui: uiStrings } = this.data
+        if (!expired) return uiStrings.notActivated
         const ms = toDateMs(expired)
-        if (!ms) return '未开通'
+        if (!ms) return uiStrings.notActivated
         const date = new Date(ms)
         const year = date.getFullYear()
         const month = String(date.getMonth() + 1).padStart(2, '0')
@@ -973,7 +907,8 @@ Page({
     },
 
     formatPhoneNumber(phone: string | null | undefined): string {
-        if (!phone || phone.length < 7) return '未绑定'
+        const { ui: uiStrings } = this.data
+        if (!phone || phone.length < 7) return uiStrings.notBound
         // 前3位+****+后4位
         const prefix = phone.substring(0, 3)
         const suffix = phone.substring(phone.length - 4)
@@ -981,6 +916,7 @@ Page({
     },
 
     async onChangePhoneNumber(e: any) {
+        const { ui: uiStrings } = this.data
         if ((this.data as any).phoneAuthBusy) return
 
         if (e?.detail?.errMsg && e.detail.errMsg.includes('cancel')) {
@@ -991,7 +927,7 @@ Page({
         try {
             const phone = await getPhoneNumberFromAuth(e.detail)
             if (!phone) {
-                throw new Error('未获取到手机号')
+                throw new Error(uiStrings.phoneAuthFailed)
             }
 
             // 如果是首次设置手机号，弹出重要提示
@@ -1006,7 +942,7 @@ Page({
                             try {
                                 await updatePhoneNumber(phone)
                                 this.syncUserFromApp()
-                                wx.showToast({ title: '手机号设置成功', icon: 'success' })
+                                wx.showToast({ title: uiStrings.phoneUpdateSuccess, icon: 'success' })
                             } catch (err: any) {
                                 this.handlePhoneUpdateError(err)
                             } finally {
@@ -1024,7 +960,7 @@ Page({
                 // 如果已经有手机号（理论上按钮已隐藏，但为保险起见保留逻辑）
                 await updatePhoneNumber(phone)
                 this.syncUserFromApp()
-                wx.showToast({ title: '手机号更新成功', icon: 'success' })
+                wx.showToast({ title: uiStrings.phoneUpdateSuccess, icon: 'success' })
                 this.setData({ phoneAuthBusy: false })
             }
         }
@@ -1035,10 +971,11 @@ Page({
     },
 
     handlePhoneUpdateError(err: any) {
+        const { ui: uiStrings } = this.data
         console.error('[PhoneAuth] phone update error:', err)
-        const errorMsg = err?.message || err?.errMsg || '手机号设置失败'
+        const errorMsg = err?.message || err?.errMsg || uiStrings.phoneUpdateFailed
         wx.showToast({ 
-            title: errorMsg.length > 10 ? '手机号设置失败' : errorMsg, 
+            title: errorMsg.length > 10 ? uiStrings.phoneUpdateFailed : errorMsg, 
             icon: 'none',
             duration: 2000
         })

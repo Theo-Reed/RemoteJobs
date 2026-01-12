@@ -60,7 +60,7 @@ const dict = {
         jobQuota: { Chinese: '岗位提炼配额', English: 'Job Intel Quota' },
         memberFullAccess: { Chinese: '您已开启全部会员特权', English: 'All member privileges unlocked' },
         unlockAIFeatures: { Chinese: '解锁 AI 自动翻译与岗位要求提炼', English: 'Unlock AI translation & job intel' },
-        upgradeGuide: { Chinese: '额度已满？补差价 升级月卡 ❯', English: 'Quota full? Upgrade for more ❯' },
+        upgradeGuide: { Chinese: '额度已满？补差价 ¥{amount} 升级月卡 ❯', English: 'Quota full? Pay ¥{amount} to upgrade ❯' },
         manageBenefits: { Chinese: '管理权益', English: 'Manage' },
         unlockNow: { Chinese: '立即解锁', English: 'Unlock' },
         resumeProfileSubtitle: { Chinese: '完善信息，提升 AI 匹配度', English: 'Complete info for better AI matching' },
@@ -80,6 +80,7 @@ const dict = {
         expiresSuffix: { Chinese: '到期', English: 'Expires' },
         aiQuotaTitle: { Chinese: 'AI 岗位提炼额度', English: 'AI Job Intel Quota' },
         unlimitedUse: { Chinese: '∞ 无限制使用', English: '∞ Unlimited' },
+        unlimited: { Chinese: '无限制', English: 'UNLIMITED' },
         quotaUsed: { Chinese: '已用', English: 'Used' },
         totalQuota: { Chinese: '总额度', English: 'Total' },
         renewNow: { Chinese: '立即续费', English: 'Renew Now' },
@@ -93,6 +94,41 @@ const dict = {
         benefitApplyTitle: { Chinese: '一键投递简历', English: 'One-Click Apply' },
         benefitApplySub: { Chinese: '极速直达招聘方，解决网络投递难题', English: 'Reach recruiters directly' },
         qrHint: { Chinese: '（长按识别二维码或保存图片）', English: '(Long press to scan or save image)' },
+        aiUnlockTitle: { Chinese: 'AI翻译与提炼 🔒', English: 'AI translation & intel 🔒' },
+        aiUnlockContent: { Chinese: '开启 AI 增强模式需要付费解锁。', English: 'Payment is required to unlock AI Enhanced Mode.' },
+        toPay: { Chinese: '去支付', English: 'To Pay' },
+        settingsUpdated: { Chinese: '设置已更新', English: 'Settings updated' },
+        loadInviteCodeFailed: { Chinese: '加载邀请码失败', English: 'Failed to load invite code' },
+        uploading: { Chinese: '上传中...', English: 'Uploading...' },
+        uploadSuccess: { Chinese: '头像更新成功', English: 'Avatar updated' },
+        uploadFailed: { Chinese: '上传失败', English: 'Upload failed' },
+        nicknameEmpty: { Chinese: '用户名不能为空', English: 'Nickname cannot be empty' },
+        saving: { Chinese: '保存中...', English: 'Saving...' },
+        nicknameSuccess: { Chinese: '用户名更新成功', English: 'Nickname updated' },
+        updateFailed: { Chinese: '更新失败', English: 'Update failed' },
+        memberRenew: { Chinese: '会员续费', English: 'Renew Membership' },
+        memberRenewContent: { Chinese: '即将为您办理 {badge} 的续费手续。', English: 'You are about to renew your {badge} subscription.' },
+        upgradeBasicTitle: { Chinese: '升级普通会员', English: 'Upgrade to Basic' },
+        upgradeBasicContent: { Chinese: '补差价 ¥{amount} 即可升级为普通会员，享受更多岗位配额及 AI 提炼次数。', English: 'Pay ¥{amount} more to upgrade to Basic for more quota.' },
+        upgradeProTitle: { Chinese: '升级高级会员', English: 'Upgrade to Premium' },
+        upgradeProContent: { Chinese: '补差价 ¥{amount} 即可升级为高级会员，尊享无限次 AI 提炼及专属视觉效果。', English: 'Pay ¥{amount} more to upgrade to Premium for unlimited AI intel.' },
+        creatingOrder: { Chinese: '正在创建订单...', English: 'Creating order...' },
+        activatingMember: { Chinese: '正在激活会员...', English: 'Activating membership...' },
+        paySuccess: { Chinese: '支付成功', English: 'Payment successful' },
+        payCancelled: { Chinese: '支付已取消', English: 'Payment cancelled' },
+        payPrompt: { Chinese: '支付提示', English: 'Payment Prompt' },
+        payError: { Chinese: '支付过程出现问题，请稍后再试', English: 'Payment failed, please try again later.' },
+        notActivated: { Chinese: '未开通', English: 'Not Activated' },
+        notBound: { Chinese: '未绑定', English: 'Not Bound' },
+        phoneUpdateSuccess: { Chinese: '手机号设置成功', English: 'Phone number updated' },
+        phoneUpdateFailed: { Chinese: '手机号设置失败', English: 'Failed to update phone number' },
+        authCancel: { Chinese: '未获取到手机号授权', English: 'Phone authorization cancelled' },
+        publishSkillEntry: { Chinese: '发布技能', English: 'Publish Skill' },
+        applyFailed: { Chinese: '应用失败', English: 'Apply failed' },
+        orderCreateFailed: { Chinese: '订单创建失败', English: 'Order creation failed' },
+        payParamMissing: { Chinese: '支付参数缺失，请检查云开发后台配置', English: 'Payment parameters missing, please check backend config' },
+        activateMemberFailed: { Chinese: '激活会员失败', English: 'Activate membership failed' },
+        mchIdMissing: { Chinese: '未能在 env.js 中找到商户号 mchId', English: 'mchId not found in env.js' },
     },
     resume: {
         title: { Chinese: '简历资料', English: 'Resume Profile' },
@@ -448,6 +484,86 @@ export type I18nKey =
     | 'jobs.clearFailed'
     | 'jobs.deleteFailed'
     | 'me.qrHint'
+    | 'me.generatedResumesEntry'
+    | 'me.loading'
+    | 'me.loginNow'
+    | 'me.viewEditProfile'
+    | 'me.regularUser'
+    | 'me.jobQuota'
+    | 'me.memberFullAccess'
+    | 'me.unlockAIFeatures'
+    | 'me.upgradeGuide'
+    | 'me.manageBenefits'
+    | 'me.unlockNow'
+    | 'me.resumeProfileSubtitle'
+    | 'me.generatedResumesSubtitle'
+    | 'me.appliedJobsSubtitle'
+    | 'me.basicMode'
+    | 'me.aiMode'
+    | 'me.vipTag'
+    | 'me.inputInviteCodePlaceholder'
+    | 'me.copy'
+    | 'me.apply'
+    | 'me.contactAuthor'
+    | 'me.contactAuthorDesc'
+    | 'me.authorWechatSlogan'
+    | 'me.wechatIdCopied'
+    | 'me.shareDesc'
+    | 'me.expiresSuffix'
+    | 'me.aiQuotaTitle'
+    | 'me.unlimitedUse'
+    | 'me.unlimited'
+    | 'me.quotaUsed'
+    | 'me.totalQuota'
+    | 'me.renewNow'
+    | 'me.upgradeAmountText'
+    | 'me.userProfileTitle'
+    | 'me.notSet'
+    | 'me.benefitTranslateTitle'
+    | 'me.benefitTranslateSub'
+    | 'me.benefitResumeTitle'
+    | 'me.benefitResumeSub'
+    | 'me.benefitApplyTitle'
+    | 'me.benefitApplySub'
+    | 'me.aiUnlockTitle'
+    | 'me.aiUnlockContent'
+    | 'me.toPay'
+    | 'me.settingsUpdated'
+    | 'me.loadInviteCodeFailed'
+    | 'me.uploading'
+    | 'me.uploadSuccess'
+    | 'me.uploadFailed'
+    | 'me.nicknameEmpty'
+    | 'me.saving'
+    | 'me.nicknameSuccess'
+    | 'me.updateFailed'
+    | 'me.memberRenew'
+    | 'me.memberRenewContent'
+    | 'me.upgradeBasicTitle'
+    | 'me.upgradeBasicContent'
+    | 'me.upgradeProTitle'
+    | 'me.upgradeProContent'
+    | 'me.creatingOrder'
+    | 'me.activatingMember'
+    | 'me.paySuccess'
+    | 'me.payCancelled'
+    | 'me.payPrompt'
+    | 'me.payError'
+    | 'me.notActivated'
+    | 'me.notBound'
+    | 'me.phoneUpdateSuccess'
+    | 'me.phoneUpdateFailed'
+    | 'me.authCancel'
+    | 'me.publishSkillEntry'
+    | 'me.applyFailed'
+    | 'me.orderCreateFailed'
+    | 'me.payParamMissing'
+    | 'me.activateMemberFailed'
+    | 'me.mchIdMissing'
+    | 'me.phoneWarningTitle'
+    | 'me.phoneWarningContent'
+    | 'me.phoneWarningConfirm'
+    | 'me.paymentPhoneRequired'
     | 'tab.jobs'
     | 'app.navTitle'
     | 'app.maintenanceMsg'
