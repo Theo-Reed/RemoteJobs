@@ -5,6 +5,7 @@ import {normalizeLanguage, t, type AppLanguage} from '../../utils/i18n'
 import {attachLanguageAware} from '../../utils/languageAware'
 import {toDateMs} from '../../utils/time'
 import {getPhoneNumberFromAuth, updatePhoneNumber} from '../../utils/phoneAuth'
+import {ui} from '../../utils/ui'
 
 
 Page({
@@ -23,6 +24,9 @@ Page({
         inviteSheetOpen: false,
         myInviteCode: '',
         inputInviteCode: '',
+
+        showContactSheet: false,
+        contactSheetOpen: false,
 
         isVerified: false, // User verification status
         isMember: false, // Member status based on expiredDate
@@ -56,6 +60,12 @@ Page({
 
     onLoad() {
         // subscribe once for this page instance
+        const env = require('../../env.js')
+        this.setData({
+            cloudEnv: env.cloudEnv,
+            cloudUrlPrefix: env.cloudUrlPrefix
+        })
+        
         ;(this as any)._langDetach = attachLanguageAware(this, {
             onLanguageRevive: () => {
                 this.syncLanguageFromApp()
@@ -137,6 +147,8 @@ Page({
         const jobQuotaProgress = jobQuotaLimit > 0 ? Math.min(100, (jobQuotaUsed / jobQuotaLimit) * 100) : 0
         const isQuotaExhausted = jobQuotaLimit > 0 && jobQuotaUsed >= jobQuotaLimit
 
+        const systemConfig = app?.globalData?.systemConfig || { isBeta: true }
+
         this.setData({
             isVerified,
             isMember,
@@ -151,7 +163,8 @@ Page({
             jobQuotaUsed,
             jobQuotaLimit,
             jobQuotaProgress,
-            isQuotaExhausted
+            isQuotaExhausted,
+            isBeta: !!systemConfig.isBeta
         })
 
         // 加载会员徽章及差价逻辑
@@ -192,8 +205,47 @@ Page({
             resumeProfileEntry: t('me.resumeProfileEntry', lang),
             appliedJobsEntry: t('me.appliedJobsEntry', lang),
             generatedResumesEntry: t('me.generatedResumesEntry', lang),
-            save: lang === 'Chinese' || lang === 'AIChinese' ? '保存' : 'Save',
-            cancel: lang === 'Chinese' || lang === 'AIChinese' ? '取消' : 'Cancel',
+            loading: t('me.loading', lang),
+            loginNow: t('me.loginNow', lang),
+            viewEditProfile: t('me.viewEditProfile', lang),
+            regularUser: t('me.regularUser', lang),
+            jobQuota: t('me.jobQuota', lang),
+            memberFullAccess: t('me.memberFullAccess', lang),
+            unlockAIFeatures: t('me.unlockAIFeatures', lang),
+            upgradeGuide: t('me.upgradeGuide', lang),
+            manageBenefits: t('me.manageBenefits', lang),
+            unlockNow: t('me.unlockNow', lang),
+            resumeProfileSubtitle: t('me.resumeProfileSubtitle', lang),
+            generatedResumesSubtitle: t('me.generatedResumesSubtitle', lang),
+            appliedJobsSubtitle: t('me.appliedJobsSubtitle', lang),
+            basicMode: t('me.basicMode', lang),
+            aiMode: t('me.aiMode', lang),
+            vipTag: t('me.vipTag', lang),
+            inputInviteCodePlaceholder: t('me.inputInviteCodePlaceholder', lang),
+            copy: t('me.copy', lang),
+            apply: t('me.apply', lang),
+            contactAuthor: t('me.contactAuthor', lang),
+            contactAuthorDesc: t('me.contactAuthorDesc', lang),
+            authorWechatSlogan: t('me.authorWechatSlogan', lang),
+            shareDesc: t('me.shareDesc', lang),
+            expiresSuffix: t('me.expiresSuffix', lang),
+            aiQuotaTitle: t('me.aiQuotaTitle', lang),
+            unlimitedUse: t('me.unlimitedUse', lang),
+            quotaUsed: t('me.quotaUsed', lang),
+            totalQuota: t('me.totalQuota', lang),
+            renewNow: t('me.renewNow', lang),
+            upgradeAmountText: t('me.upgradeAmountText', lang),
+            userProfileTitle: t('me.userProfileTitle', lang),
+            notSet: t('me.notSet', lang),
+            benefitTranslateTitle: t('me.benefitTranslateTitle', lang),
+            benefitTranslateSub: t('me.benefitTranslateSub', lang),
+            benefitResumeTitle: t('me.benefitResumeTitle', lang),
+            benefitResumeSub: t('me.benefitResumeSub', lang),
+            benefitApplyTitle: t('me.benefitApplyTitle', lang),
+            benefitApplySub: t('me.benefitApplySub', lang),
+            save: t('resume.save', lang),
+            cancel: t('resume.cancel', lang),
+            qrHint: t('me.qrHint', lang),
         }
 
         this.setData({
@@ -399,7 +451,7 @@ Page({
         this.closeLanguageSheetImmediate()
 
         // 2) Show modal loading (blocks all touches)
-        wx.showLoading({ title: '', mask: true })
+        ui.showLoading('')
 
         const minDuration = new Promise<void>((resolve) => setTimeout(resolve, 1500))
 
@@ -412,19 +464,15 @@ Page({
 
         try {
             await Promise.all([minDuration, action])
-            wx.hideLoading()
-            wx.showToast({
-                title: '设置已更新',
-                icon: 'success',
-                duration: 1500
-            })
+            ui.hideLoading()
+            ui.showSuccess('设置已更新')
         }
         catch (err) {
             try {
                 await action
             }
             finally {
-                wx.hideLoading()
+                ui.hideLoading()
             }
         }
     },
@@ -494,11 +542,31 @@ Page({
             data: myInviteCode,
             success: () => {
                 wx.showToast({ title: ui.inviteCodeCopied, icon: 'success' })
-            },
-            fail: () => {
-                wx.showToast({ title: '复制失败', icon: 'none' })
             }
         })
+    },
+
+    onContactAuthor() {
+        this.setData({
+            showContactSheet: true,
+            contactSheetOpen: false
+        })
+        setTimeout(() => {
+            this.setData({
+                contactSheetOpen: true
+            })
+        }, 30)
+    },
+
+    closeContactSheet() {
+        this.setData({
+            contactSheetOpen: false
+        })
+        setTimeout(() => {
+            this.setData({
+                showContactSheet: false
+            })
+        }, 300)
     },
 
     onInviteCodeInput(e: any) {
@@ -572,7 +640,7 @@ Page({
 
             const tempFilePath = res.tempFiles[0].tempFilePath
 
-            wx.showLoading({ title: '上传中...', mask: true })
+            ui.showLoading('上传中...')
 
             // Upload to cloud storage
             const cloudPath = `avatars/${Date.now()}-${Math.random().toString(36).substr(2, 9)}.jpg`
@@ -594,11 +662,11 @@ Page({
             if (app?.globalData) app.globalData.user = updatedUser
 
             this.syncUserFromApp()
-            wx.hideLoading()
-            wx.showToast({ title: '头像更新成功', icon: 'success' })
+            ui.hideLoading()
+            ui.showSuccess('头像更新成功')
         }
         catch (err: any) {
-            wx.hideLoading()
+            ui.hideLoading()
             if (err.errMsg && err.errMsg.includes('cancel')) {
                 // User cancelled, do nothing
                 return
@@ -659,7 +727,7 @@ Page({
         }
 
         try {
-            wx.showLoading({ title: '保存中...', mask: true })
+            ui.showLoading('保存中...')
             const updateRes: any = await wx.cloud.callFunction({
                 name: 'updateUserProfile',
                 data: { nickname: trimmedNickname },
@@ -671,12 +739,12 @@ Page({
 
             this.syncUserFromApp()
             this.closeNicknameModal()
-            wx.hideLoading()
-            wx.showToast({ title: '用户名更新成功', icon: 'success' })
+            ui.hideLoading()
+            ui.showSuccess('用户名更新成功')
         }
         catch (err) {
-            wx.hideLoading()
-            wx.showToast({ title: '更新失败', icon: 'none' })
+            ui.hideLoading()
+            ui.showError('更新失败')
         }
     },
 
@@ -761,7 +829,7 @@ Page({
     },
 
     async executePaymentFlow(schemeId: number, amount?: number) {
-        wx.showLoading({ title: '正在创建订单...', mask: true })
+        ui.showLoading('正在创建订单...')
 
         try {
             const env = require('../../env.js')
@@ -796,7 +864,7 @@ Page({
                 throw new Error('支付参数缺失，请检查云开发后台微信支付配置')
             }
 
-            wx.hideLoading()
+            ui.hideLoading()
 
             // 2. 发起微信支付
             await new Promise((resolve, reject) => {
@@ -814,7 +882,7 @@ Page({
                 })
             })
 
-            wx.showLoading({ title: '正在激活会员...', mask: true })
+            ui.showLoading('正在激活会员...')
 
             // 3. 更新订单状态
             await wx.cloud.callFunction({
@@ -842,21 +910,17 @@ Page({
             app.globalData.user = activateRes.result.user
             this.syncUserFromApp()
 
-            wx.hideLoading()
-            wx.showToast({
-                title: '支付成功',
-                icon: 'success',
-                duration: 2000
-            })
+            ui.hideLoading()
+            ui.showSuccess('支付成功')
 
             // 如果是在会员中心操作，支付成功后关闭
             this.closeMemberHub()
         } catch (err: any) {
-            wx.hideLoading()
+            ui.hideLoading()
             console.error('[Payment] Error:', err)
             
             if (err.errMsg && err.errMsg.includes('requestPayment:fail cancel')) {
-                wx.showToast({ title: '支付已取消', icon: 'none' })
+                ui.showError('支付已取消')
                 return
             }
 

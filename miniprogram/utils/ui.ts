@@ -1,0 +1,61 @@
+/**
+ * UI 反馈工具类
+ * 需要在 WXML 中引入 <ui-feedback id="ui-feedback" />
+ */
+
+export const ui = {
+  /**
+   * 显示加载中
+   */
+  showLoading(title: string = '加载中...', mask: boolean = true) {
+    const page = getCurrentPages().pop();
+    const feedback = page?.selectComponent('#ui-feedback') as any;
+    if (feedback) {
+      feedback.setData({ title, type: 'loading', mask, visible: true });
+    } else {
+      // 降级使用原生
+      wx.showLoading({ title, mask });
+    }
+  },
+
+  /**
+   * 隐藏加载
+   */
+  hideLoading() {
+    const page = getCurrentPages().pop();
+    const feedback = page?.selectComponent('#ui-feedback') as any;
+    if (feedback) {
+      feedback.setData({ visible: false });
+    } else {
+      wx.hideLoading();
+    }
+  },
+
+  /**
+   * 显示成功提示
+   */
+  showSuccess(title: string, duration: number = 2000) {
+    const page = getCurrentPages().pop();
+    const feedback = page?.selectComponent('#ui-feedback') as any;
+    if (feedback) {
+      feedback.setData({ title, type: 'success', mask: false, visible: true });
+      setTimeout(() => feedback.setData({ visible: false }), duration);
+    } else {
+      wx.showToast({ title, icon: 'success', duration });
+    }
+  },
+
+  /**
+   * 显示错误提示
+   */
+  showError(title: string, duration: number = 2500) {
+    const page = getCurrentPages().pop();
+    const feedback = page?.selectComponent('#ui-feedback') as any;
+    if (feedback) {
+      feedback.setData({ title, type: 'error', mask: false, visible: true });
+      setTimeout(() => feedback.setData({ visible: false }), duration);
+    } else {
+      wx.showToast({ title, icon: 'none', duration });
+    }
+  }
+};

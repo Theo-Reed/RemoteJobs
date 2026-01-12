@@ -2,6 +2,7 @@
 import { normalizeLanguage, t } from '../../utils/i18n'
 import { attachLanguageAware } from '../../utils/languageAware'
 import { toDateMs } from '../../utils/time'
+import { isAiChineseUnlocked } from '../../utils/subscription'
 
 Page({
   data: {
@@ -15,13 +16,13 @@ Page({
     isRestoreEditing: false,
 
     ui: {
-      tabPublic: '公开',
-      tabFeatured: '精选',
-      tabSaved: '收藏',
-      editLabel: '编辑',
-      doneLabel: '完成',
-      clearAllLabel: '一键清空',
-      noSavedSearchConditions: '暂无保存的搜索条件',
+      tabPublic: '',
+      tabFeatured: '',
+      tabSaved: '',
+      editLabel: '',
+      doneLabel: '',
+      clearAllLabel: '',
+      noSavedSearchConditions: '',
     } as Record<string, string>,
   },
 
@@ -90,6 +91,7 @@ Page({
           doneLabel: t('jobs.doneLabel', lang),
           clearAllLabel: t('jobs.clearAllLabel', lang),
           noSavedSearchConditions: t('jobs.noSavedSearchConditions', lang),
+          restoreMenuLabel: t('jobs.restoreSearchLabel', lang),
         },
       })
     },
@@ -97,17 +99,8 @@ Page({
     checkFeaturedSubscription() {
       const app = getApp<IAppOption>() as any
       const user = app?.globalData?.user
-      const expired = user?.expiredDate
-      if (!expired) {
-        this.setData({ isFeaturedUnlocked: false, featuredScrollEnabled: false })
-        return
-      }
-      const ms = toDateMs(expired)
-      if (!ms) {
-        this.setData({ isFeaturedUnlocked: false, featuredScrollEnabled: false })
-        return
-      }
-      const isUnlocked = ms > Date.now()
+      
+      const isUnlocked = isAiChineseUnlocked(user)
       this.setData({ isFeaturedUnlocked: isUnlocked, featuredScrollEnabled: isUnlocked })
     },
 
@@ -232,9 +225,11 @@ Page({
         }
         
         // 翻译 tab 名称
-        const tabNames = useEnglish 
-          ? ['Public', 'Featured', 'Saved']
-          : ['公开', '精选', '收藏']
+        const tabNames = [
+          t('jobs.tabPublic', lang),
+          t('jobs.tabFeatured', lang),
+          t('jobs.tabSaved', lang),
+        ]
         
         const formattedConditions = savedConditions.map((condition) => {
           const keyword = condition.searchKeyword || ''
@@ -313,6 +308,12 @@ Page({
       })
     },
 
+    goToMe() {
+      wx.switchTab({
+        url: '/pages/me/index'
+      })
+    },
+
     toggleRestoreEdit() {
       this.setData({ isRestoreEditing: !this.data.isRestoreEditing })
     },
@@ -361,11 +362,13 @@ Page({
       const openid = user?.openid
       if (!openid) return
 
+      const lang = normalizeLanguage(app?.globalData?.language)
+
       wx.showModal({
-        title: '确认清空',
-        content: '确定要删除所有保存的搜索条件吗？',
-        confirmText: '确定',
-        cancelText: '取消',
+        title: t('jobs.confirmClearTitle', lang),
+        content: t('jobs.confirmClearContent', lang),
+        confirmText: t('drawer.confirm', lang),
+        cancelText: t('resume.cancel', lang),
         success: async (res) => {
           if (res.confirm) {
             try {
@@ -385,9 +388,9 @@ Page({
 
               this.setData({ savedSearchConditions: [] })
               this.closeRestoreSheet()
-              wx.showToast({ title: '已清空', icon: 'success' })
+              wx.showToast({ title: t('jobs.cleared', lang), icon: 'success' })
             } catch (err) {
-              wx.showToast({ title: '清空失败', icon: 'none' })
+              wx.showToast({ title: t('jobs.clearFailed', lang), icon: 'none' })
             }
           }
         },
@@ -421,14 +424,17 @@ Page({
     },
 
   onFeaturedSubscribeTap() {
+    const app = getApp<IAppOption>() as any
+    const lang = normalizeLanguage(app?.globalData?.language)
+
     wx.showModal({
-      title: this.data.ui.tabFeatured + ' 🔒',
-      content: '该功能需要付费解锁。',
-      confirmText: '去付费',
-      cancelText: '取消',
+      title: t('jobs.unlockFeaturedTitle', lang),
+      content: t('jobs.unlockFeaturedContent', lang),
+      confirmText: t('jobs.goSubscribe', lang),
+      cancelText: t('jobs.thinkAgain', lang),
       success: (res) => {
         if (res.confirm) {
-          wx.showToast({ title: '暂未接入付费流程', icon: 'none' })
+          wx.switchTab({ url: '/pages/me/index' })
         }
       },
     })

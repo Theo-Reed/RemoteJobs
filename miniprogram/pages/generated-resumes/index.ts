@@ -1,4 +1,5 @@
-import { normalizeLanguage } from '../../utils/i18n'
+import { normalizeLanguage, t } from '../../utils/i18n'
+import { ui } from '../../utils/ui'
 
 Page({
   data: {
@@ -6,13 +7,35 @@ Page({
     loading: true,
     page: 1,
     hasMore: true,
+    ui: {} as any,
   },
 
   watcher: null as any,
 
   onLoad() {
+    this.syncLanguage()
     this.fetchResumes()
     this.initWatcher()
+  },
+
+  syncLanguage() {
+    const app = getApp<IAppOption>() as any
+    const lang = normalizeLanguage(app?.globalData?.language)
+    this.setData({
+      ui: {
+        assetCount: t('resume.assetCount', lang),
+        syncingAssets: t('resume.syncingAssets', lang),
+        statusApplied: t('resume.statusApplied', lang),
+        statusFailed: t('resume.statusFailed', lang),
+        generalResume: t('resume.generalResume', lang),
+        view: t('resume.view', lang),
+        loadFailed: t('jobs.loadFailed', lang),
+        totalPrefix: t('resume.totalPrefix', lang),
+        emptyTitle: t('resume.emptyTitle', lang),
+        emptySubtitle: t('resume.emptySubtitle', lang),
+        goJobs: t('resume.goJobs', lang),
+      }
+    })
   },
 
   onUnload() {
@@ -80,17 +103,19 @@ Page({
 
   async onPreviewResume(e: any) {
     const item = e.currentTarget.dataset.item
+    const app = getApp<IAppOption>() as any
+    const lang = normalizeLanguage(app?.globalData?.language)
     
     // 如果还在生成中，不处理预览
     if (item.status === 'processing') {
-      wx.showToast({ title: 'AI 正在努力生成中，请稍候', icon: 'none' })
+      ui.showError(t('resume.aiProcessing', lang))
       return
     }
 
     if (item.status === 'failed') {
       wx.showModal({
-        title: '生成失败',
-        content: item.errorMessage || '请尝试重新生成',
+        title: t('resume.generateFailed', lang),
+        content: item.errorMessage || t('resume.tryAgain', lang),
         showCancel: false
       })
       return
@@ -98,7 +123,7 @@ Page({
 
     if (!item.fileId) return
 
-    wx.showLoading({ title: '正在获取文件...', mask: true })
+    ui.showLoading('正在获取文件...')
 
     try {
       // 1. 从云存储下载
@@ -111,16 +136,16 @@ Page({
         filePath: downloadRes.tempFilePath,
         showMenu: true,
         success: () => {
-          wx.hideLoading()
+          ui.hideLoading()
         },
         fail: (err) => {
-          wx.hideLoading()
-          wx.showToast({ title: '无法打开该文档', icon: 'none' })
+          ui.hideLoading()
+          ui.showError('无法打开该文档')
         }
       })
     } catch (err) {
-      wx.hideLoading()
-      wx.showToast({ title: '下载失败', icon: 'none' })
+      ui.hideLoading()
+      ui.showError('下载失败')
     }
   },
 

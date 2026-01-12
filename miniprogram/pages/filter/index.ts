@@ -60,12 +60,7 @@ Page({
     displaySourceOptions: [] as string[],
 
     // 导航tab相关
-    navTabs: [
-      { key: 'salary', label: '薪资' },
-      { key: 'experience', label: '经验' },
-      { key: 'region', label: '工作类型' },
-      { key: 'source', label: '招聘软件' },
-    ] as Array<{ key: string; label: string }>,
+    navTabs: [] as Array<{ key: string; label: string }>,
 
     // 滚动定位
     scrollIntoView: '',
@@ -97,6 +92,23 @@ Page({
     const region = filterValue.region || '全部'
     const source_name = Array.isArray(filterValue.source_name) ? filterValue.source_name : (filterValue.source_name === '全部' ? [] : (filterValue.source_name ? [filterValue.source_name] : []))
     
+    // 根据 tabIndex 调整导航和选项
+    let navTabs = [
+      { key: 'salary', label: '薪资' },
+      { key: 'experience', label: '经验' },
+      { key: 'region', label: '工作类型' },
+      { key: 'source', label: '招聘软件' },
+    ]
+    let regionOptions = ['全部', '国内', '国外', 'web3']
+    
+    if (tabIndex === 0) {
+      // 公开 tab: 去掉工作类型
+      navTabs = navTabs.filter(t => t.key !== 'region')
+    } else if (tabIndex === 1) {
+      // 精选 tab: 去掉国内，且国外改名海外
+      regionOptions = ['全部', '国外', 'web3']
+    }
+
     // 计算每个来源的选中状态
     const sourceSelected: Record<string, boolean> = {}
     for (const sourceKey of ALL_SOURCE_OPTIONS) {
@@ -114,6 +126,8 @@ Page({
         source_name: source_name,
         region: region,
       },
+      navTabs,
+      regionOptions,
       sourceOptions: ALL_SOURCE_OPTIONS,
       sourceSelected: sourceSelected,
       _tabIndex: tabIndex, // 保存tab索引，用于返回时应用筛选
@@ -240,21 +254,26 @@ Page({
     const useEnglish = lang === 'English' || lang === 'AIEnglish'
     const displaySalaryOptions = (this.data.salaryOptions as SalaryKey[]).map((k) => (useEnglish ? EN_SALARY[k] : k))
     const displayExperienceOptions = (this.data.experienceOptions as ExpKey[]).map((k) => (useEnglish ? EN_EXP[k] : k))
+    
+    // 区域选项显示处理
     const displayRegionOptions = (this.data.regionOptions || []).map((k) => {
-      if (useEnglish) {
-        const map: Record<string, string> = { '全部': 'All', '国内': 'Domestic', '国外': 'Abroad', 'web3': 'Web3' }
-        return map[k] || k
-      }
+      if (k === '全部') return t('jobs.regionAll', lang)
+      if (k === '国内') return t('jobs.regionDomestic', lang)
+      if (k === '国外') return t('jobs.regionOverseas', lang)
+      if (k === 'web3') return t('jobs.regionWeb3', lang)
       return k
     })
     const displaySourceOptions = (this.data.sourceOptions || []).map((k) => (useEnglish ? (EN_SOURCE[k] || k) : k))
 
-    const navTabs = [
-      { key: 'salary', label: t('drawer.salary', lang) },
-      { key: 'experience', label: t('drawer.experience', lang) },
-      { key: 'region', label: t('drawer.regionTitle', lang) },
-      { key: 'source', label: t('drawer.sourceTitle', lang) },
-    ]
+    // 重新根据 data.navTabs 中的 key 来设置 label
+    const navTabs = (this.data.navTabs || []).map(tab => {
+        let label = tab.label
+        if (tab.key === 'salary') label = t('drawer.salary', lang)
+        if (tab.key === 'experience') label = t('drawer.experience', lang)
+        if (tab.key === 'region') label = t('drawer.regionTitle', lang)
+        if (tab.key === 'source') label = t('drawer.sourceTitle', lang)
+        return { ...tab, label }
+    })
 
     this.setData({
       displaySalaryOptions,

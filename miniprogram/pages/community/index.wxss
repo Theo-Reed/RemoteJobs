@@ -35,10 +35,10 @@
 }
 
 .nav-item-active {
-  background: #2e5fe9;
-  color: #ffffff;
+  background: #e5f0ff;
+  color: #1d4ed8;
   font-weight: 600;
-  box-shadow: 0 4rpx 12rpx rgba(46, 95, 233, 0.25);
+  box-shadow: 0 4rpx 12rpx rgba(29, 78, 216, 0.1);
 }
 
 .community-container {

@@ -19,15 +19,12 @@ const articleIdToI18nKey: Record<string, string> = {
 Page({
   data: {
     ui: {
-      title: '社区',
-      activitiesTitle: '社区活动',
-      successStoriesTitle: '成功森林',
-      jobHuntingTitle: '求职利剑',
-      statusActive: '报名中',
-      statusEnded: '已结束',
-      desc: '敬请期待',
-      loading: '加载中...',
-      all: '全部',
+      title: '',
+      statusActive: '',
+      statusEnded: '',
+      desc: '',
+      loading: '',
+      all: '',
     },
     articles: [] as Article[],
     displayArticles: [] as Article[],
@@ -68,7 +65,7 @@ Page({
             statusActive: t('community.statusActive', lang),
             statusEnded: t('community.statusEnded', lang),
             loading: t('jobs.loading', lang),
-            all: lang === 'Chinese' ? '全部' : 'All',
+            all: t('community.all', lang),
           },
           articles: updatedArticles,
           displayArticles: this.data.activeCategoryId === 'all' 

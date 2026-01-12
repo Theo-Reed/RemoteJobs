@@ -1,6 +1,7 @@
 // miniprogram/pages/resume-profile/index.ts
 import { normalizeLanguage, t } from '../../utils/i18n'
 import { attachLanguageAware } from '../../utils/languageAware'
+import { ui } from '../../utils/ui'
 
 Page({
   data: {
@@ -176,6 +177,8 @@ Page({
       businessDirection: t('resume.businessDirection', lang),
       businessDirectionPlaceholder: t('resume.businessDirectionPlaceholder', lang),
       addWorkExperience: t('resume.addWorkExperience', lang),
+      year: t('resume.year', lang),
+      month: t('resume.month', lang),
     }
 
     const degreeOptions = t<string[]>('resume.degreeOptions', lang)
@@ -260,7 +263,7 @@ Page({
 
   async saveResumeProfile(data: any) {
     try {
-      wx.showLoading({ title: '保存中...' })
+      ui.showLoading('保存中...')
 
       // 合并现有数据计算新的完整度
       const app = getApp<IAppOption>() as any
@@ -290,15 +293,15 @@ Page({
         const app = getApp<IAppOption>() as any
         app.globalData.user = res.result.user
         this.loadResumeData()
-        wx.showToast({ title: '保存成功', icon: 'success' })
+        ui.hideLoading()
+        ui.showSuccess('保存成功')
       } else {
         throw new Error('保存失败')
       }
     } catch (err) {
       console.error(err)
-      wx.showToast({ title: '保存失败', icon: 'none' })
-    } finally {
-      wx.hideLoading()
+      ui.hideLoading()
+      ui.showError('保存失败')
     }
   },
 

@@ -39,6 +39,13 @@ Page({
       emptyText: lang === 'Chinese' || lang === 'AIChinese' ? '暂无投递记录' : 'No applied jobs',
       loadingText: t('jobs.loading', lang),
       loadFailedText: t('jobs.loadFailed', lang),
+      ui: {
+        appliedAt: t('resume.appliedAt', lang),
+        unknownJob: t('resume.unknownJob', lang),
+        pending: t('resume.pending', lang),
+        processing: t('resume.processing', lang),
+        completed: t('resume.completed', lang),
+      }
     })
   },
 

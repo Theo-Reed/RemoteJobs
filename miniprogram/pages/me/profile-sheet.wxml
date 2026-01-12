@@ -4,7 +4,7 @@
         bindtap="closeProfileSheet"></view>
   <view class="bottom-sheet {{profileSheetOpen ? 'bottom-sheet-open' : ''}}">
     <view class="bottom-sheet-header">
-      <text class="profile-sheet-title">用户资料</text>
+      <text class="bottom-sheet-title">{{ui.userProfileTitle}}</text>
     </view>
 
     <view class="bottom-sheet-content profile-sheet-content">
@@ -36,7 +36,7 @@
             </view>
           </view>
           <view class="profile-nickname-content">
-            <text class="profile-nickname-value">{{userInfo ? userInfo.nickName : '未设置'}}</text>
+            <text class="profile-nickname-value">{{userInfo ? userInfo.nickName : ui.notSet}}</text>
           </view>
         </view>
 

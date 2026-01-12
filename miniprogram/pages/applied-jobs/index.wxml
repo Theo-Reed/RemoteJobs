@@ -9,10 +9,10 @@
       data-job-data="{{item.job_data}}"
     >
       <view class="job-item-header">
-        <text class="job-title">{{item.job_title || (item.job_data && item.job_data.title) || '未知岗位'}}</text>
+        <text class="job-title">{{item.job_title || (item.job_data && item.job_data.title) || ui.unknownJob}}</text>
         <view class="job-status">
           <text class="status-text status-{{item.status}}">
-            {{item.status === 'pending' ? '待处理' : (item.status === 'processing' ? '处理中' : '已完成')}}
+            {{item.status === 'pending' ? ui.pending : (item.status === 'processing' ? ui.processing : ui.completed)}}
           </text>
         </view>
       </view>
@@ -21,7 +21,7 @@
         <text class="job-meta-text">{{item.job_data && item.job_data.salary || ''}}</text>
       </view>
       <view class="job-item-time">
-        <text class="time-text">投递时间：{{item.formattedAppliedAt || item.applied_at}}</text>
+        <text class="time-text">{{ui.appliedAt}}{{item.formattedAppliedAt || item.applied_at}}</text>
       </view>
     </view>
   </view>

@@ -61,7 +61,7 @@
           </view>
         </view>
 
-        <view class="filter-section filter-section-region" id="section-region">
+        <view class="filter-section filter-section-region" id="section-region" wx:if="{{_tabIndex !== 0}}">
           <view class="filter-section-title">{{ui.regionTitle}}</view>
           <view class="filter-grid">
             <view

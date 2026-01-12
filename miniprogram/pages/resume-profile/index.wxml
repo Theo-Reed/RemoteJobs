@@ -1,5 +1,6 @@
 <!--miniprogram/pages/resume-profile/index.wxml-->
 <view class="page">
+  <ui-feedback id="ui-feedback" />
   <view class="header-section">
     <view class="title-row">
       <text class="page-title">{{ui.title}}</text>
@@ -13,7 +14,6 @@
   <scroll-view     
     class="resume-content" 
     scroll-y="{{true}}"
-    enhanced="true" 
     show-scrollbar="{{false}}"
   >
     <view class="resume-body">
@@ -381,14 +381,18 @@
   </view>
 
   <!-- 对 AI 说的话编辑弹窗 (底部弹出) -->
-  <view class="picker-mask {{showAiMessageSheet ? 'picker-mask-show' : ''}}" bindtap="closeAiMessageSheet"></view>
-  <view class="custom-picker ai-message-picker {{showAiMessageSheet ? 'custom-picker-show' : ''}}">
-    <view class="custom-picker-header">
-      <view class="custom-picker-cancel" bindtap="closeAiMessageSheet">{{ui.cancel}}</view>
-      <text class="custom-picker-title">{{ui.aiMessageLabel}}</text>
-      <view class="custom-picker-confirm" bindtap="onSaveAiMessageSheet">{{ui.save}}</view>
+  <view class="bottom-sheet-mask {{showAiMessageSheet ? 'bottom-sheet-mask-open' : ''}}" bindtap="closeAiMessageSheet"></view>
+  <view class="bottom-sheet ai-message-picker {{showAiMessageSheet ? 'bottom-sheet-open' : ''}}">
+    <view class="bottom-sheet-header">
+      <view class="bottom-sheet-header-left">
+        <view class="bottom-sheet-header-btn" bindtap="closeAiMessageSheet">{{ui.cancel}}</view>
+      </view>
+      <text class="bottom-sheet-title">{{ui.aiMessageLabel}}</text>
+      <view class="bottom-sheet-header-right">
+        <view class="bottom-sheet-header-btn primary" bindtap="onSaveAiMessageSheet">{{ui.save}}</view>
+      </view>
     </view>
-    <view class="ai-message-input-content">
+    <view class="bottom-sheet-content ai-message-input-content">
       <textarea 
         class="ai-message-textarea" 
         placeholder="{{ui.aiMessageDefault}}" 
@@ -402,13 +406,17 @@
   </view>
 
   <!-- 自定义性别选择器 (底部弹出) -->
-  <view class="picker-mask {{showGenderPicker ? 'picker-mask-show' : ''}}" bindtap="closeGenderPicker"></view>
-  <view class="custom-picker {{showGenderPicker ? 'custom-picker-show' : ''}}">
-    <view class="custom-picker-header">
-      <text class="custom-picker-title">{{ui.genderPlaceholder}}</text>
-      <view class="custom-picker-close" bindtap="closeGenderPicker">×</view>
+  <view class="bottom-sheet-mask {{showGenderPicker ? 'bottom-sheet-mask-open' : ''}}" bindtap="closeGenderPicker"></view>
+  <view class="bottom-sheet {{showGenderPicker ? 'bottom-sheet-open' : ''}}">
+    <view class="bottom-sheet-header">
+      <view class="bottom-sheet-header-left">
+        <view class="bottom-sheet-header-btn" bindtap="closeGenderPicker">{{ui.cancel || '取消'}}</view>
+      </view>
+      <text class="bottom-sheet-title">{{ui.genderPlaceholder}}</text>
+      <view class="bottom-sheet-header-right">
+      </view>
     </view>
-    <scroll-view class="custom-picker-body" scroll-y>
+    <scroll-view class="bottom-sheet-content custom-picker-body" scroll-y>
       <view 
         wx:for="{{genderOptions}}" 
         wx:key="*this" 
@@ -423,13 +431,17 @@
   </view>
 
   <!-- 自定义身份选择器 (底部弹出) -->
-  <view class="picker-mask {{showIdentityPicker ? 'picker-mask-show' : ''}}" bindtap="closeIdentityPicker"></view>
-  <view class="custom-picker {{showIdentityPicker ? 'custom-picker-show' : ''}}">
-    <view class="custom-picker-header">
-      <text class="custom-picker-title">{{ui.identityPlaceholder}}</text>
-      <view class="custom-picker-close" bindtap="closeIdentityPicker">×</view>
+  <view class="bottom-sheet-mask {{showIdentityPicker ? 'bottom-sheet-mask-open' : ''}}" bindtap="closeIdentityPicker"></view>
+  <view class="bottom-sheet {{showIdentityPicker ? 'bottom-sheet-open' : ''}}">
+    <view class="bottom-sheet-header">
+      <view class="bottom-sheet-header-left">
+        <view class="bottom-sheet-header-btn" bindtap="closeIdentityPicker">{{ui.cancel || '取消'}}</view>
+      </view>
+      <text class="bottom-sheet-title">{{ui.identityPlaceholder}}</text>
+      <view class="bottom-sheet-header-right">
+      </view>
     </view>
-    <scroll-view class="custom-picker-body" scroll-y>
+    <scroll-view class="bottom-sheet-content custom-picker-body" scroll-y>
       <view 
         wx:for="{{identityOptions}}" 
         wx:key="*this" 
@@ -444,17 +456,19 @@
   </view>
 
   <!-- 自定义年月选择器 (底部弹出) -->
-  <view class="picker-mask {{showDatePicker ? 'picker-mask-show' : ''}}" bindtap="closeDatePicker"></view>
-  <view class="custom-picker {{showDatePicker ? 'custom-picker-show' : ''}}">
-    <view class="custom-picker-header">
-      <view class="custom-picker-cancel" bindtap="closeDatePicker">{{ui.cancel}}</view>
-      <text class="custom-picker-title">{{(currentDatePickingField === 'startDate' || currentDatePickingField === 'work_startDate') ? ui.startDate : ((currentDatePickingField === 'endDate' || currentDatePickingField === 'work_endDate') ? ui.endDate : ui.birthday)}}</text>
-      <view class="header-right-btns">
-        <view wx:if="{{currentDatePickingField === 'work_endDate' || currentDatePickingField === 'endDate'}}" class="btn-present" bindtap="onSetToPresent">{{ui.toPresent}}</view>
-        <view class="custom-picker-confirm" bindtap="onConfirmDate">{{ui.save}}</view>
+  <view class="bottom-sheet-mask {{showDatePicker ? 'bottom-sheet-mask-open' : ''}}" bindtap="closeDatePicker"></view>
+  <view class="bottom-sheet {{showDatePicker ? 'bottom-sheet-open' : ''}}">
+    <view class="bottom-sheet-header">
+      <view class="bottom-sheet-header-left">
+        <view class="bottom-sheet-header-btn" bindtap="closeDatePicker">{{ui.cancel}}</view>
+      </view>
+      <text class="bottom-sheet-title">{{(currentDatePickingField === 'startDate' || currentDatePickingField === 'work_startDate') ? ui.startDate : ((currentDatePickingField === 'endDate' || currentDatePickingField === 'work_endDate') ? ui.endDate : ui.birthday)}}</text>
+      <view class="bottom-sheet-header-right">
+        <view wx:if="{{currentDatePickingField === 'work_endDate' || currentDatePickingField === 'endDate'}}" class="bottom-sheet-header-btn" style="color: #64748b; background: #f1f5f9; margin-right: 12rpx;" bindtap="onSetToPresent">{{ui.toPresent}}</view>
+        <view class="bottom-sheet-header-btn primary" bindtap="onConfirmDate">{{ui.save}}</view>
       </view>
     </view>
-    <view class="picker-view-container">
+    <view class="bottom-sheet-content picker-view-container">
       <picker-view 
         indicator-style="height: 100rpx;" 
         style="width: 100%; height: 450rpx;" 
@@ -462,10 +476,10 @@
         bindchange="onDatePickerChange"
       >
         <picker-view-column>
-          <view wx:for="{{years}}" wx:key="*this" class="picker-column-item">{{item}}年</view>
+          <view wx:for="{{years}}" wx:key="*this" class="picker-column-item">{{item}}{{ui.year}}</view>
         </picker-view-column>
         <picker-view-column>
-          <view wx:for="{{months}}" wx:key="*this" class="picker-column-item">{{item}}月</view>
+          <view wx:for="{{months}}" wx:key="*this" class="picker-column-item">{{item}}{{ui.month}}</view>
         </picker-view-column>
       </picker-view>
     </view>

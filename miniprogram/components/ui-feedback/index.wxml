@@ -1,0 +1,20 @@
+<view class="ui-feedback {{displayVisible ? 'ui-visible' : ''}} {{mask ? 'ui-mask' : ''}}" wx:if="{{innerVisible}}">
+  <view class="ui-content {{type}}">
+    <!-- Loading Spinner -->
+    <view wx:if="{{type === 'loading'}}" class="ui-loading-spinner">
+      <view class="ui-spinner-ring"></view>
+    </view>
+    
+    <!-- Status Icons -->
+    <view wx:if="{{type === 'success'}}" class="ui-icon-success">
+      <view class="ui-check"></view>
+    </view>
+    
+    <view wx:if="{{type === 'error'}}" class="ui-icon-error">
+      <view class="ui-error-line ui-error-line-1"></view>
+      <view class="ui-error-line ui-error-line-2"></view>
+    </view>
+
+    <text class="ui-message">{{title}}</text>
+  </view>
+</view>

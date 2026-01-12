@@ -1,20 +1,13 @@
 /* 个人资料底部弹窗样式 - 提取公共部分 */
 
-/* Header */
-.profile-sheet-title {
-    font-size: 30rpx;
-    font-weight: 600;
-    color: #1f2933;
-    line-height: 1;
-    margin: 0;
-    padding: 0;
-}
+/* Header 相关的样式已移动至 app.wxss 公共部分 */
 
 /* Content Layout */
 .profile-sheet-content {
     display: flex;
     flex-direction: column;
-    gap: 24rpx;
+    gap: 2rpx;
+    padding: 0 0 calc(32rpx + env(safe-area-inset-bottom));
 }
 
 /* --- 公共基础样式 --- */
@@ -23,9 +16,10 @@
 .profile-avatar-section,
 .profile-info-section {
     background: #ffffff;
-    border-radius: 24rpx;
-    padding: 32rpx;
-    box-shadow: 0 12rpx 30rpx rgba(15, 23, 42, 0.08);
+    border-radius: 0;
+    padding: 32rpx 40rpx;
+    box-shadow: none;
+    border-bottom: 1rpx solid #f1f5f9;
 }
 
 /* Title 基础样式 */

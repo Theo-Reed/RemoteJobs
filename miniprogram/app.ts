@@ -30,6 +30,9 @@ App<IAppOption>({
       traceUser: true,
     })
 
+    // Fetch remote configuration for Maintenance and Beta modes
+    this.refreshSystemConfig()
+
     this.applyLanguage()
 
     this.globalData.userPromise = this.refreshUser().catch(() => null)
@@ -38,6 +41,27 @@ App<IAppOption>({
     const lang = ((this as any).globalData.language || 'Chinese') as AppLanguage
     this.applyLanguage()
     this.emitLanguageChange(lang)
+  },
+
+  async refreshSystemConfig() {
+    try {
+      const db = wx.cloud.database()
+      const res = await db.collection('system_config').where({ id: 'global_settings' }).limit(1).get()
+      const config = (res.data && res.data[0]) as any
+      
+      this.globalData.systemConfig = config || { isBeta: true, isMaintenance: false }
+
+      if (config && config.isMaintenance) {
+        const lang = normalizeLanguage(this.globalData.language)
+        const msg = config.maintenanceMessage || t('app.maintenanceMsg', lang)
+        wx.reLaunch({
+          url: '/pages/logs/logs?mode=maintenance&msg=' + encodeURIComponent(msg)
+        })
+      }
+    } catch (err) {
+      console.warn('System config not found or accessible, using defaults.')
+      this.globalData.systemConfig = { isBeta: true, isMaintenance: false }
+    }
   },
 
   applyLanguage() {

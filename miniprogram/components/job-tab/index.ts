@@ -204,19 +204,6 @@ Component({
       // 构建筛选参数
       const filterParams: any = {}
       
-      if (tabType === 1) {
-        // 精选 tab：查询所有区域
-        filterParams.types = ['国内', '国外', 'web3']
-      } else {
-        // 公开 tab：使用 drawerFilter 中的区域筛选
-        const region = this.data.drawerFilter?.region || '全部'
-        if (region !== '全部') {
-          filterParams.types = [region]
-        } else {
-          filterParams.types = ['国内', '国外', 'web3']
-        }
-      }
-      
       // 来源筛选
       const source_names = this.data.drawerFilter?.source_name || []
       if (Array.isArray(source_names) && source_names.length > 0) {
@@ -240,8 +227,11 @@ Component({
       const currentLang = normalizeLanguage(app?.globalData?.language || 'Chinese')
       filterParams.language = currentLang
       
+      // 根据 tabType 选择不同的云函数
+      const cloudFunctionName = tabType === 0 ? 'getPublicJobList' : 'getFeaturedJobList'
+      
       const res = await wx.cloud.callFunction({
-        name: 'getJobList',
+        name: cloudFunctionName,
         data: {
           pageSize: this.data.pageSize,
           skip,
@@ -461,11 +451,21 @@ Component({
         }
         
         // 应用区域筛选
-        const region = this.data.drawerFilter?.region || '全部'
-        if (region !== '全部') {
-          whereCondition.type = region
+        const tabType = this.properties.tabType as number
+        if (tabType === 1) {
+          // 精选 tab
+          whereCondition.type = db.command.in(['国外', 'web3'])
+        } else if (tabType === 0) {
+          // 公开 tab
+          whereCondition.type = '国内'
         } else {
-          whereCondition.type = db.command.in(['国内', '国外', 'web3'])
+          // 收藏或其他
+          const region = this.data.drawerFilter?.region || '全部'
+          if (region !== '全部') {
+            whereCondition.type = region
+          } else {
+            whereCondition.type = db.command.in(['国内', '国外', 'web3'])
+          }
         }
         
         // 应用来源筛选

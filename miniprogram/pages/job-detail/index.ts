@@ -3,6 +3,7 @@ import { normalizeLanguage, t } from '../../utils/i18n'
 import { normalizeJobTags, translateFieldValue } from '../../utils/job'
 import { attachLanguageAware } from '../../utils/languageAware'
 import { processAndSaveAIResume } from '../../utils/resume'
+import { ui } from '../../utils/ui'
 const { cloudRunEnv } = require('../../env.js')
 
 const SAVED_COLLECTION = 'saved_jobs'
@@ -69,6 +70,7 @@ Page({
     operationFailedText: 'Operation failed',
     showApplyMenu: false,
     applyMenuOpen: false,
+    isGenerating: false,
   },
 
   onLoad() {
@@ -153,6 +155,9 @@ Page({
       saveSuccessText: t('jobs.saveSuccess', lang),
       unsaveSuccessText: t('jobs.unsaveSuccess', lang),
       operationFailedText: t('jobs.operationFailed', lang),
+      ui: {
+        unknownCompany: t('jobs.unknownCompany', lang),
+      }
     })
   },
 
@@ -275,12 +280,62 @@ Page({
     this.closeApplyMenu()
     
     const app = getApp<IAppOption>() as any
+    const jobId = this.data.job?._id
     
     try {
-      wx.showLoading({ title: '检查中...', mask: true })
+      ui.showLoading('检查状态...')
+      
+      // 1. 前置检查：是否已经为该岗位生成过简历
+      const db = wx.cloud.database()
+      const existingRes = await db.collection('generated_resumes')
+        .where({
+          jobId: jobId,
+          status: 'completed'
+        })
+        .limit(1)
+        .get()
+
+      if (existingRes.data && existingRes.data.length > 0) {
+        ui.hideLoading()
+        wx.showModal({
+          title: '已生成过简历',
+          content: '您已为该岗位生成过定制简历，是否需要重新生成？',
+          confirmText: '重新生成',
+          cancelText: '查看简历',
+          success: (res) => {
+            if (res.confirm) {
+              this.doGenerateResumeAction()
+            } else if (res.cancel) {
+              wx.navigateTo({
+                url: '/pages/generated-resumes/index'
+              })
+            }
+          }
+        })
+        return
+      }
+
+      // 2. 如果没有生成过，直接进入生成流程
+      await this.doGenerateResumeAction()
+      
+    } catch (err) {
+      ui.hideLoading()
+      console.error('检查记录失败:', err)
+      // 如果检查失败，为了不阻塞用户，直接尝试生成
+      this.doGenerateResumeAction()
+    }
+  },
+
+  async doGenerateResumeAction() {
+    if (this.data.isGenerating) return
+    const app = getApp<IAppOption>() as any
+    
+    try {
+      this.setData({ isGenerating: true })
+      ui.showLoading('正在连接 AI...', false)
+      
       // 实时请求数据库获取最新的完整度
       const user = await app.refreshUser()
-      wx.hideLoading()
       
       const profile = user?.resume_profile || {}
       const completeness = user?.resume_completeness || 0
@@ -288,8 +343,6 @@ Page({
       if (completeness >= 1) {
         // 简历完整，调用云托管接口
         try {
-          wx.showLoading({ title: 'AI 思考中...', mask: true })
-          
           let aiProfile = { ...profile }
           
           // 如果有头像，换取临时链接，确保后端能跨环境访问
@@ -303,7 +356,6 @@ Page({
               }
             } catch (fileErr) {
               console.error('换取头像链接失败:', fileErr)
-              // 失败了也继续，不影响文字生成
             }
           }
 
@@ -318,15 +370,16 @@ Page({
             },
             method: 'POST',
             data: {
-              jobId: this.data.job?._id,
-              userId: user.openid,
-              resume_profile: aiProfile,
-              job_data: this.data.job
+              jobId: this.data.job?._id, // 岗位 ID
+              userId: user.openid,      // 用户 ID (OpenID)
+              resume_profile: aiProfile, // 传处理后的资料
+              job_data: this.data.job    // 传完整的岗位 JSON
             },
-            timeout: 60000
+            timeout: 15000 // 15秒等待，专门为唤醒冷启动设计的阈值
           })
 
-          wx.hideLoading()
+          ui.hideLoading()
+          this.setData({ isGenerating: false })
           
           if (res.statusCode === 200 && res.data && (res.data as any).task_id) {
             const taskId = (res.data as any).task_id
@@ -349,13 +402,32 @@ Page({
             console.error('接口返回异常:', res)
             throw new Error('服务响应异常')
           }
-        } catch (err) {
-          wx.hideLoading()
-          console.error('调用云托管失败:', err)
-          wx.showToast({ title: 'AI 服务暂时不可用', icon: 'none' })
+        } catch (err: any) {
+          ui.hideLoading()
+          this.setData({ isGenerating: false })
+          
+          // 处理冷启动超时
+          if (err.errMsg?.includes('timeout') || err.errCode === 102002) {
+            wx.showModal({
+              title: 'AI 正在准备中',
+              content: '由于服务刚刚唤醒，AI 正在进行最后的热身。您可以稍等 10 秒后再次点击，或者直接前往“我的简历”列表查看。',
+              confirmText: '去查看',
+              cancelText: '知道了',
+              success: (modalRes) => {
+                if (modalRes.confirm) {
+                  wx.navigateTo({ url: '/pages/generated-resumes/index' })
+                }
+              }
+            })
+          } else {
+            console.error('调用云托管失败:', err)
+            ui.showError('AI 服务暂时繁忙')
+          }
         }
       } else {
-        // 找出具体缺失的内容 (用于诊断)
+        ui.hideLoading()
+        this.setData({ isGenerating: false })
+        
         const missing = []
         if (!(profile.name && profile.photo && profile.gender && profile.birthday && profile.identity)) missing.push('基本信息')
         if (!(profile.wechat || profile.email || profile.phone)) missing.push('联系方式')
@@ -381,16 +453,17 @@ Page({
         })
       }
     } catch (err) {
-      wx.hideLoading()
+      ui.hideLoading()
+      this.setData({ isGenerating: false })
       console.error('检查完整度失败:', err)
-      wx.showToast({ title: '检查失败，请重试', icon: 'none' })
+      ui.showError('系统检查失败')
     }
   },
 
   async onOneClickResumeSubmit() {
     const job = this.data.job
     if (!job) {
-      wx.showToast({ title: this.data.dataLoadFailedText, icon: 'none' })
+      ui.showError(this.data.dataLoadFailedText)
       return
     }
 
@@ -400,7 +473,7 @@ Page({
     const isVerified = !!(user && (user.isAuthed || user.phone))
     if (!isVerified) {
       this.closeApplyMenu()
-      wx.showToast({ title: this.data.pleaseLoginText, icon: 'none' })
+      ui.showError(this.data.pleaseLoginText)
       return
     }
 
@@ -416,7 +489,7 @@ Page({
     this.closeApplyMenu()
 
     try {
-      wx.showLoading({ title: '投递中...', mask: true })
+      ui.showLoading('投递中...')
 
       const res: any = await wx.cloud.callFunction({
         name: 'submitResume',
@@ -437,14 +510,10 @@ Page({
         },
       })
 
-      wx.hideLoading()
+      ui.hideLoading()
 
       if (res?.result?.success) {
-        wx.showToast({
-          title: '投递成功',
-          icon: 'success',
-          duration: 2000,
-        })
+        ui.showSuccess('投递成功')
       } else if (res?.result?.alreadyApplied) {
         wx.showModal({
           title: '提示',
@@ -461,23 +530,17 @@ Page({
           success: (modalRes) => {
             if (modalRes.confirm) {
               // TODO: 跳转到会员购买页面
-              wx.showToast({ title: '暂未接入付费流程', icon: 'none' })
+              ui.showError('暂未接入付费流程')
             }
           },
         })
       } else {
-        wx.showToast({
-          title: res?.result?.message || '投递失败',
-          icon: 'none',
-        })
+        ui.showError(res?.result?.message || '投递失败')
       }
     } catch (err: any) {
-      wx.hideLoading()
+      ui.hideLoading()
       console.error('投递失败:', err)
-      wx.showToast({
-        title: '投递失败，请重试',
-        icon: 'none',
-      })
+      ui.showError('投递失败，请重试')
     }
   },
 

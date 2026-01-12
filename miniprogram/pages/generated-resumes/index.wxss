@@ -114,17 +114,6 @@
   white-space: nowrap;
 }
 
-.processing-tag {
-  font-size: 18rpx;
-  color: #2e5fe9;
-  background: #eff6ff;
-  padding: 4rpx 10rpx;
-  border-radius: 6rpx;
-  font-weight: 700;
-  flex-shrink: 0;
-  animation: pulse 1.5s infinite;
-}
-
 .failed-tag {
   font-size: 18rpx;
   color: #ef4444;

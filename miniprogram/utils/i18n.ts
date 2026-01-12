@@ -17,7 +17,7 @@ const dict = {
         languageEntry: { Chinese: '语言与内容显示', English: 'Language & Display' },
         langChinese: { Chinese: '中文 (标准)', English: 'Chinese (Standard)' },
         langChineseDesc: { Chinese: '界面中文，岗位内容保持原样', English: 'Chinese UI, original job content' },
-        langEnglish: { Chinese: 'English (Standard)', English: 'English (Standard)' },
+        langEnglish: { Chinese: '英文', English: 'English' },
         langEnglishDesc: { Chinese: 'Interface in English, original job content', English: 'Interface in English, original job content' },
         langAIChinese: { Chinese: 'AI 智能全中文 (VIP)', English: 'AI Smart Chinese (VIP)' },
         langAIChineseDesc: { Chinese: '全中阅读，AI 自动提取薪资/经验/技能标签', English: 'Full Chinese, AI extracts salary/exp/skills' },
@@ -31,8 +31,6 @@ const dict = {
         loadFavoritesFailed: { Chinese: '加载收藏失败', English: 'Failed to load saved jobs' },
         emptyFavorites: { Chinese: '暂无收藏岗位', English: 'No saved jobs' },
         generateResumeEntry: { Chinese: '生成简历', English: 'Generate Resume' },
-        publishSkillEntry: { Chinese: '发布技能', English: 'Publish Skill' },
-        aiTranslateEntry: { Chinese: 'AI岗位翻译', English: 'AI Translate' },
         language: { Chinese: '语言', English: 'Language' },
         inviteCodeEntry: { Chinese: '邀请码', English: 'Invite Code' },
         myInviteCode: { Chinese: '我的邀请码', English: 'My Invite Code' },
@@ -40,11 +38,6 @@ const dict = {
         inviteCodeCopied: { Chinese: '邀请码已复制', English: 'Invite code copied' },
         inviteCodeInvalid: { Chinese: '邀请码格式不正确', English: 'Invalid invite code format' },
         inviteCodeApplied: { Chinese: '邀请码已应用', English: 'Invite code applied successfully' },
-        // Language selector labels (also used in AI Translate popup)
-        langDefault: { Chinese: '中文', English: '中文' },
-        langEnglish: { Chinese: 'English', English: 'English' },
-        aiTranslateDefault: { Chinese: '默认', English: 'Default' },
-        langAI: { Chinese: 'AI岗位信息提炼和翻译', English: 'AI Job Intel Extract & Translate' },
         memberBadge: { Chinese: '丈月尺会员', English: 'Subscribed' },
         uploadAvatar: { Chinese: '上传头像', English: 'Upload Avatar' },
         editNickname: { Chinese: '用户名', English: 'Username' },
@@ -55,6 +48,46 @@ const dict = {
         resumeProfileEntry: { Chinese: '简历资料', English: 'Resume Profile' },
         appliedJobsEntry: { Chinese: '投递记录', English: 'Applied Jobs' },
         generatedResumesEntry: { Chinese: '已生成简历', English: 'Generated Resumes' },
+        loading: { Chinese: '加载中...', English: 'Loading...' },
+        loginNow: { Chinese: '立即登录', English: 'Log In Now' },
+        viewEditProfile: { Chinese: '查看并编辑个人资料', English: 'View and edit profile' },
+        regularUser: { Chinese: '普通用户', English: 'Regular User' },
+        jobQuota: { Chinese: '岗位提炼配额', English: 'Job Intel Quota' },
+        memberFullAccess: { Chinese: '您已开启全部会员特权', English: 'All member privileges unlocked' },
+        unlockAIFeatures: { Chinese: '解锁 AI 自动翻译与岗位要求提炼', English: 'Unlock AI translation & job intel' },
+        upgradeGuide: { Chinese: '额度已满？补差价 升级月卡 ❯', English: 'Quota full? Upgrade for more ❯' },
+        manageBenefits: { Chinese: '管理权益', English: 'Manage' },
+        unlockNow: { Chinese: '立即解锁', English: 'Unlock' },
+        resumeProfileSubtitle: { Chinese: '完善信息，提升 AI 匹配度', English: 'Complete info for better AI matching' },
+        generatedResumesSubtitle: { Chinese: '预览及下载 PDF 简历', English: 'Preview & download PDF resumes' },
+        appliedJobsSubtitle: { Chinese: '追踪简历投递进度', English: 'Track job application status' },
+        basicMode: { Chinese: '基础模式', English: 'Basic Mode' },
+        aiMode: { Chinese: 'AI 增强模式', English: 'AI Enhanced Mode' },
+        vipTag: { Chinese: 'VIP', English: 'VIP' },
+        inputInviteCodePlaceholder: { Chinese: '请输入邀请码', English: 'Enter invite code' },
+        copy: { Chinese: '复制', English: 'Copy' },
+        apply: { Chinese: '应用', English: 'Apply' },
+        contactAuthor: { Chinese: '联系作者', English: 'Contact Author' },
+        contactAuthorDesc: { Chinese: '合作、反馈或活动报名', English: 'Collab, feedback or events' },
+        authorWechatSlogan: { Chinese: '活动报名成功后请务必添加作者微信，发布岗位及商务合作请备注原因。', English: 'Please add author on WeChat after activity signup. Job posts and business collabs require a note.' },
+        wechatIdCopied: { Chinese: '微信号已复制，请去微信添加', English: 'WeChat ID copied, please add in App' },
+        shareDesc: { Chinese: '每成功邀请一位好友，双方各获得3天高级会员', English: 'Refer a friend, both get 3 days Premium' },
+        expiresSuffix: { Chinese: '到期', English: 'Expires' },
+        aiQuotaTitle: { Chinese: 'AI 岗位提炼额度', English: 'AI Job Intel Quota' },
+        unlimitedUse: { Chinese: '∞ 无限制使用', English: '∞ Unlimited' },
+        quotaUsed: { Chinese: '已用', English: 'Used' },
+        totalQuota: { Chinese: '总额度', English: 'Total' },
+        renewNow: { Chinese: '立即续费', English: 'Renew Now' },
+        upgradeAmountText: { Chinese: '补差价 升级', English: 'Upgrade Now' },
+        userProfileTitle: { Chinese: '用户资料', English: 'User Profile' },
+        notSet: { Chinese: '未设置', English: 'Not Set' },
+        benefitTranslateTitle: { Chinese: 'AI 岗位智能翻译', English: 'AI Job Translation' },
+        benefitTranslateSub: { Chinese: '全中/英岗位描述，无障碍阅读', English: 'Full CN/EN descriptions' },
+        benefitResumeTitle: { Chinese: 'AI 生成简历', English: 'AI Resume Builder' },
+        benefitResumeSub: { Chinese: '针对不同岗位，智能生成高匹配度简历', English: 'High-match resumes for any job' },
+        benefitApplyTitle: { Chinese: '一键投递简历', English: 'One-Click Apply' },
+        benefitApplySub: { Chinese: '极速直达招聘方，解决网络投递难题', English: 'Reach recruiters directly' },
+        qrHint: { Chinese: '（长按识别二维码或保存图片）', English: '(Long press to scan or save image)' },
     },
     resume: {
         title: { Chinese: '简历资料', English: 'Resume Profile' },
@@ -125,6 +158,26 @@ const dict = {
             Chinese: ['在校生', '职场人'],
             English: ['Student', 'Professional']
         },
+        assetCount: { Chinese: '份简历资产', English: 'Resume assets' },
+        syncingAssets: { Chinese: '正在同步 AI 资产...', English: 'Syncing AI assets...' },
+        statusApplied: { Chinese: '已投递', English: 'Applied' },
+        statusFailed: { Chinese: '失败', English: 'Failed' },
+        generalResume: { Chinese: '通用简历', English: 'General Resume' },
+        view: { Chinese: '查看', English: 'View' },
+        aiProcessing: { Chinese: 'AI 正在努力生成中，请稍候', English: 'AI is generating, please wait' },
+        generateFailed: { Chinese: '生成失败', English: 'Generation failed' },
+        tryAgain: { Chinese: '请尝试重新生成', English: 'Please try regenerating' },
+        appliedAt: { Chinese: '投递时间：', English: 'Applied at: ' },
+        unknownJob: { Chinese: '未知岗位', English: 'Unknown Position' },
+        pending: { Chinese: '待处理', English: 'Pending' },
+        processing: { Chinese: '处理中', English: 'Processing' },
+        completed: { Chinese: '已完成', English: 'Completed' },
+        emptyTitle: { Chinese: '还没有 AI 为你定制的简历', English: 'No AI-tailored resumes yet' },
+        emptySubtitle: { Chinese: '快去探索岗位，让 AI 帮你写简历吧', English: 'Explore jobs and let AI help you write a resume' },
+        goJobs: { Chinese: '去看看岗位', English: 'Check out jobs' },
+        year: { Chinese: '年', English: 'Year' },
+        month: { Chinese: '月', English: 'Month' },
+        totalPrefix: { Chinese: '共 ', English: 'Total ' },
     },
     community: {
         title: { Chinese: '社区', English: 'Community' },
@@ -135,22 +188,20 @@ const dict = {
         statusActive: { Chinese: '报名中', English: 'Open' },
         statusEnded: { Chinese: '已结束', English: 'Ended' },
         statusUpcoming: { Chinese: '即将开始', English: 'Coming Soon' },
-        statusOngoing: { Chinese: '进行中', English: 'Ongoing' },
-        langDefault: { Chinese: '默认', English: 'Default' },
-        langAIChinese: { Chinese: 'AI 全中文', English: 'AI Chinese' },
-        langAIEnglish: { Chinese: 'AI 全英文', English: 'AI English' },
         desc: { Chinese: '敬请期待', English: 'Coming soon' },
+        all: { Chinese: '全部', English: 'All' },
     },
     jobs: {
         tabPublic: { Chinese: '公开', English: 'Public' },
         tabFeatured: { Chinese: '精选', English: 'Featured' },
         tabSaved: { Chinese: '收藏', English: 'Saved' },
-        featuredSubscribeText: { Chinese: '订阅后查看精选岗位', English: 'Subscribe to view featured jobs' },
+        featuredSubscribeText: { Chinese: '订阅会员后解锁精选岗位', English: 'Subscribe to view featured jobs' },
         featuredLockedTitle: { Chinese: '精选岗位 🔒', English: 'Featured Jobs 🔒' },
         searchPlaceholder: { Chinese: '搜索职位名称..', English: 'Search job title..' },
         filterLabel: { Chinese: '筛选', English: 'Filter' },
-        regionDomestic: { Chinese: '国内 ', English: 'China' },
-        regionAbroad: { Chinese: '国外 ', English: 'Intl' },
+        regionAll: { Chinese: '全部', English: 'All' },
+        regionDomestic: { Chinese: '国内', English: 'Domestic' },
+        regionOverseas: { Chinese: '海外', English: 'Overseas' },
         regionWeb3: { Chinese: 'Web3', English: 'Web3' },
         saveMenuLabel: { Chinese: '功能', English: 'Func' },
         collectAllLabel: { Chinese: '一键收藏当前列表', English: 'Collect All Jobs' },
@@ -184,6 +235,16 @@ const dict = {
         saveSuccess: { Chinese: '收藏成功', English: 'Saved successfully' },
         unsaveSuccess: { Chinese: '已取消收藏', English: 'Unsaved successfully' },
         operationFailed: { Chinese: '操作失败', English: 'Operation failed' },
+        unknownCompany: { Chinese: '未知公司', English: 'Unknown Company' },
+        confirmClearTitle: { Chinese: '确认清空', English: 'Confirm Clear' },
+        confirmClearContent: { Chinese: '确定要删除所有保存的搜索条件吗？', English: 'Are you sure you want to delete all saved search conditions?' },
+        unlockFeaturedTitle: { Chinese: '解锁精选岗位 💎', English: 'Unlock Featured Jobs 💎' },
+        unlockFeaturedContent: { Chinese: '当前为“试用会员”或“非会员”状态。订阅会员后，即可无限制查看所有海外/Web3高薪远程机会，并解锁 AI 简历优化等全部特权。', English: 'Subscribe to unlock unlimited access to Overseas/Web3 jobs and AI features.' },
+        goSubscribe: { Chinese: '去订阅', English: 'Subscribe' },
+        thinkAgain: { Chinese: '再想想', English: 'Later' },
+        cleared: { Chinese: '已清空', English: 'Cleared' },
+        clearFailed: { Chinese: '清空失败', English: 'Clear failed' },
+        deleteFailed: { Chinese: '删除失败', English: 'Delete failed' },
     },
     drawer: {
         salary: { Chinese: '薪资', English: 'Salary' },
@@ -195,6 +256,7 @@ const dict = {
     },
     app: {
         navTitle: { Chinese: '🌍 远程工作机会', English: '🌍 Remote Jobs', AIChinese: '🌍 远程工作机会' },
+        maintenanceMsg: { Chinese: '为了给您提供更好的服务，系统正在维护升级中，请稍后再试。', English: 'To provide better service, the system is under maintenance. Please try again later.' },
     },
 } as const
 
@@ -207,7 +269,6 @@ export type I18nKey =
     | 'me.languageEntry'
     | 'me.langChinese'
     | 'me.langChineseDesc'
-    | 'me.langEnglish'
     | 'me.langEnglishDesc'
     | 'me.langAIChinese'
     | 'me.langAIChineseDesc'
@@ -221,8 +282,6 @@ export type I18nKey =
     | 'me.loadFavoritesFailed'
     | 'me.emptyFavorites'
     | 'me.generateResumeEntry'
-    | 'me.publishSkillEntry'
-    | 'me.aiTranslateEntry'
     | 'me.language'
     | 'me.inviteCodeEntry'
     | 'me.myInviteCode'
@@ -238,11 +297,7 @@ export type I18nKey =
     | 'community.statusActive'
     | 'community.statusEnded'
     | 'community.statusUpcoming'
-    | 'community.statusOngoing'
-    | 'me.langDefault'
     | 'me.langEnglish'
-    | 'me.aiTranslateDefault'
-    | 'me.langAI'
     | 'me.memberBadge'
     | 'me.uploadAvatar'
     | 'me.editNickname'
@@ -260,8 +315,9 @@ export type I18nKey =
     | 'jobs.featuredLockedTitle'
     | 'jobs.searchPlaceholder'
     | 'jobs.filterLabel'
+    | 'jobs.regionAll'
     | 'jobs.regionDomestic'
-    | 'jobs.regionAbroad'
+    | 'jobs.regionOverseas'
     | 'jobs.regionWeb3'
     | 'jobs.saveMenuLabel'
     | 'jobs.collectAllLabel'
@@ -357,8 +413,39 @@ export type I18nKey =
     | 'resume.studyTypes'
     | 'resume.genderOptions'
     | 'resume.identityOptions'
+    | 'resume.assetCount'
+    | 'resume.syncingAssets'
+    | 'resume.statusApplied'
+    | 'resume.statusFailed'
+    | 'resume.generalResume'
+    | 'resume.view'
+    | 'resume.aiProcessing'
+    | 'resume.generateFailed'
+    | 'resume.tryAgain'
+    | 'resume.appliedAt'
+    | 'resume.unknownJob'
+    | 'resume.pending'
+    | 'resume.processing'
+    | 'resume.completed'
+    | 'resume.emptyTitle'
+    | 'resume.emptySubtitle'
+    | 'resume.goJobs'
+    | 'resume.year'
+    | 'resume.month'
+    | 'jobs.unknownCompany'
+    | 'jobs.confirmClearTitle'
+    | 'jobs.confirmClearContent'
+    | 'jobs.unlockFeaturedTitle'
+    | 'jobs.unlockFeaturedContent'
+    | 'jobs.goSubscribe'
+    | 'jobs.thinkAgain'
+    | 'jobs.cleared'
+    | 'jobs.clearFailed'
+    | 'jobs.deleteFailed'
+    | 'me.qrHint'
     | 'tab.jobs'
     | 'app.navTitle'
+    | 'app.maintenanceMsg'
 
 function getByPath(obj: any, path: string) {
     return path.split('.').reduce((acc, k) => (acc ? acc[k] : undefined), obj)

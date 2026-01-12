@@ -66,13 +66,14 @@
     <view class="bottom-sheet restore-sheet {{restoreSheetOpen ? 'bottom-sheet-open' : ''}}">
       <!-- Header with buttons -->
       <view class="bottom-sheet-header restore-sheet-header">
-        <view class="restore-sheet-header-left">
-          <view wx:if="{{isRestoreEditing}}" class="restore-header-btn" bindtap="onClearAllRestoreConditions">
+        <view class="bottom-sheet-header-left restore-sheet-header-left">
+          <view wx:if="{{isRestoreEditing}}" class="bottom-sheet-header-btn" bindtap="onClearAllRestoreConditions">
             <text class="restore-header-btn-text">{{ui.clearAllLabel}}</text>
           </view>
         </view>
-        <view class="restore-sheet-header-right">
-          <view class="restore-header-btn" bindtap="toggleRestoreEdit">
+        <text class="bottom-sheet-title">{{ui.restoreSearchLabel}}</text>
+        <view class="bottom-sheet-header-right restore-sheet-header-right">
+          <view class="bottom-sheet-header-btn" bindtap="toggleRestoreEdit">
             <text class="restore-header-btn-text">{{isRestoreEditing ? ui.doneLabel : ui.editLabel}}</text>
           </view>
         </view>

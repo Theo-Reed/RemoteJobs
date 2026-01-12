@@ -530,37 +530,43 @@ job-list {
 /* 只保留特定样式 */
 
 .restore-sheet-header {
-  justify-content: space-between;
+  /* 使用公共样式 bottom-sheet-header */
 }
 
 .restore-sheet-header-left {
-  flex: 1;
+  /* 使用公共样式 bottom-sheet-header-left */
 }
 
 .restore-sheet-header-right {
-  flex: 1;
-  display: flex;
-  justify-content: flex-end;
+  /* 使用公共样式 bottom-sheet-header-right */
 }
 
 .restore-header-btn {
-  padding: 8rpx 16rpx;
+  /* 使用公共样式 bottom-sheet-header-btn */
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #2e5fe9;
+  padding: 8rpx 12rpx;
   background: transparent;
-  border-radius: 8rpx;
-  transition: background-color 0.2s ease;
+  border-radius: 12rpx;
+  line-height: 1;
 }
 
 .restore-header-btn:active {
-  background: #f3f4f6;
+  background: #f1f5f9;
 }
 
 .restore-header-btn-text {
-  font-size: 26rpx;
-  color: #1d4ed8;
-  font-weight: 500;
+  /* 供旧代码兼容 */
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #2e5fe9;
 }
 
 /* restore-sheet-content 使用公共样式 bottom-sheet-content */
+.restore-sheet-content {
+  padding: 0 0 calc(32rpx + env(safe-area-inset-bottom));
+}
 
 .empty-restore {
   padding: 120rpx 0;
@@ -574,12 +580,12 @@ job-list {
 
 .restore-item {
   position: relative;
-  padding: 24rpx;
-  margin-bottom: 16rpx;
-  background: #f5f7fb;
-  border-radius: 18rpx;
-  border: 1rpx solid transparent;
-  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), margin-bottom 0.2s cubic-bezier(0.4, 0, 0.2, 1), padding 0.2s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 32rpx;
+  margin-bottom: 2rpx;
+  background: #ffffff;
+  border-bottom: 1rpx solid #f1f5f9;
+  border-radius: 0;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
   will-change: transform, opacity;
   backface-visibility: hidden;
@@ -665,4 +671,20 @@ job-list {
   font-size: 26rpx;
   color: #6b7280;
   line-height: 1.5;
+}
+
+/* --- Restore Sheet Header Adjustment --- */
+.restore-sheet-header {
+    justify-content: space-between !important;
+    position: relative;
+    height: 88rpx;
+    box-sizing: border-box;
+    padding: 0 32rpx !important;
+}
+
+.restore-sheet-header-center {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
 }

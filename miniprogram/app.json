@@ -22,6 +22,9 @@
     "navigationBarTitleText": "",
     "navigationBarBackgroundColor": "#ffffff"
   },
+  "usingComponents": {
+    "ui-feedback": "/components/ui-feedback/index"
+  },
   "tabBar": {
     "color": "#6b7280",
     "selectedColor": "#1d4ed8",

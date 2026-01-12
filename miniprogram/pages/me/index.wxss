@@ -9,7 +9,7 @@
 /* --- 1. Hero Section --- */
 .hero-section {
     position: relative;
-    padding: 100rpx 40rpx 60rpx;
+    padding: 15rpx 40rpx 60rpx;
     background: #ffffff;
     overflow: hidden;
 }
@@ -42,6 +42,17 @@
     border-radius: 50%;
     border: 6rpx solid #ffffff;
     box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.08);
+    transition: border-color 0.3s ease;
+}
+
+.member-color-3 .avatar-large {
+    border-color: #1d4ed8;
+    box-shadow: 0 0 20rpx rgba(29, 78, 216, 0.15);
+}
+
+.member-color-1 .avatar-large,
+.member-color-2 .avatar-large {
+    border-color: #5182f6;
 }
 
 .avatar-placeholder-large {
@@ -54,12 +65,24 @@
     bottom: 0;
     width: 44rpx;
     height: 44rpx;
-    background: #2e5fe9;
+    background: #5182f6;
     border-radius: 50%;
     border: 4rpx solid #ffffff;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: background-color 0.3s ease;
+}
+
+.member-color-3 .edit-badge {
+    background: #1d4ed8;
+}
+
+.edit-badge-icon {
+    width: 50%;
+    height: 50%;
+    background: #ffffff;
+    border-radius: 50%;
 }
 
 .user-info-main {
@@ -72,11 +95,6 @@
     font-weight: 700;
     color: #0f172a;
     line-height: 1.2;
-}
-
-.avatar-premium {
-    border-color: #3b82f6 !important;
-    box-shadow: 0 0 15rpx rgba(59, 130, 246, 0.3) !important;
 }
 
 .user-subtext-wrapper {
@@ -326,11 +344,22 @@
 
 .vip-card-bg-icon {
     position: absolute;
-    right: -20rpx;
-    bottom: -20rpx;
-    font-size: 120rpx;
+    right: -40rpx;
+    bottom: -40rpx;
+    width: 240rpx;
+    height: 240rpx;
     opacity: 0.05;
+    background: #5182f6;
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z' fill='currentColor'/%3E%3C/svg%3E");
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
     transform: rotate(-15deg);
+}
+
+.member-color-3.vip-card-bg-icon {
+    background: #1d4ed8;
+    opacity: 0.08;
 }
 
 /* --- 3. Action List Group --- */
@@ -479,8 +508,6 @@
 }
 
 /* --- Bottom Sheet Custom Styles (Inherited from original) --- */
-.sheet-title-row { padding: 32rpx 32rpx 16rpx; }
-.sheet-title { font-size: 34rpx; font-weight: 600; color: #111827; }
 .mode-section-title { font-size: 24rpx; color: #6b7280; padding: 24rpx 32rpx 12rpx; font-weight: 500; }
 .mode-section-title-vip { display: flex; align-items: center; gap: 12rpx; margin-top: 12rpx; }
 .vip-tag-mini {
@@ -515,33 +542,9 @@
 }
 .mode-check { margin-left: 20rpx; }
 
-/* Invite Sheet & Others */
-.invite-sheet-content { display: flex; flex-direction: column; gap: 32rpx; }
-.invite-section { display: flex; flex-direction: column; gap: 16rpx; }
-.invite-section-title { font-size: 30rpx; font-weight: 600; color: #1f2933; }
-.invite-code-display { display: flex; align-items: center; justify-content: space-between; padding: 16rpx 20rpx; background: #f3f4f6; border-radius: 12rpx; min-height: 60rpx; }
-.invite-code-text { font-size: 28rpx; font-weight: 600; color: #1d4ed8; font-family: 'Courier New', monospace; flex: 1; }
-.invite-code-copy { font-size: 26rpx; color: #6b7280; margin-left: 16rpx; }
-.invite-code-input { padding: 16rpx 20rpx; background: #f3f4f6; border-radius: 12rpx; font-size: 28rpx; border: none; outline: none; min-height: 60rpx; }
-.invite-apply-btn {
-    margin-top: 16rpx;
-    padding: 16rpx 24rpx;
-    background: #1d4ed8;
-    color: #ffffff;
-    border-radius: 12rpx;
-    font-size: 28rpx;
-    font-weight: 600;
-    border: none;
-    outline: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 60rpx;
-}
-
 /* --- 5. Member Hub Sheet --- */
 .member-hub-content {
-    padding: 40rpx 32rpx 60rpx;
+    padding: 0;
     background: #ffffff;
     border-radius: 40rpx 40rpx 0 0;
 }
@@ -551,6 +554,7 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 40rpx;
+    padding: 10rpx 32rpx 0;
 }
 
 .hub-user-info {
@@ -578,7 +582,7 @@
     background: #f8fafc;
     border-radius: 32rpx;
     padding: 32rpx;
-    margin-bottom: 40rpx;
+    margin: 0 32rpx 40rpx;
     border: 1rpx solid #f1f5f9;
 }
 
@@ -648,7 +652,7 @@
     display: flex;
     flex-direction: column;
     gap: 32rpx;
-    margin-bottom: 60rpx;
+    margin: 0 32rpx 60rpx;
     padding: 0 8rpx;
 }
 
@@ -681,10 +685,166 @@
     margin-top: 4rpx;
 }
 
+/* --- Invite Sheet Redesign --- */
+.invite-sheet-content {
+    padding: 20rpx 0 0 !important;
+}
+
+.invite-header-row {
+    margin-bottom: 40rpx;
+    padding: 32rpx 40rpx 0;
+}
+
+.invite-sheet-title {
+    font-size: 34rpx;
+    font-weight: 800;
+    color: #1e293b;
+}
+
+.invite-card {
+    background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
+    border-radius: 24rpx;
+    padding: 32rpx;
+    border: 1rpx solid rgba(46, 95, 233, 0.1);
+    margin: 0 40rpx 40rpx;
+}
+
+.invite-card-info {
+    margin-bottom: 24rpx;
+}
+
+.invite-card-label {
+    font-size: 24rpx;
+    color: #64748b;
+    font-weight: 600;
+    display: block;
+}
+
+.invite-card-tips {
+    font-size: 22rpx;
+    color: #94a3b8;
+    margin-top: 4rpx;
+    display: block;
+}
+
+.invite-code-wrapper {
+    background: #ffffff;
+    border-radius: 16rpx;
+    padding: 24rpx;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.03);
+}
+
+.invite-code-value {
+    font-family: monospace;
+    font-size: 40rpx;
+    font-weight: 800;
+    color: #1e293b;
+    letter-spacing: 2rpx;
+}
+
+.copy-pill {
+    background: #2e5fe9;
+    color: #ffffff;
+    font-size: 22rpx;
+    font-weight: 700;
+    padding: 8rpx 24rpx;
+    border-radius: 100rpx;
+}
+
+.invite-input-section {
+    display: flex;
+    align-items: center;
+    gap: 16rpx;
+    margin: 0 40rpx 48rpx;
+}
+
+.invite-modern-input {
+    flex: 1;
+    height: 70rpx;
+    background: #f8fafc;
+    border-radius: 20rpx;
+    padding: 0 24rpx;
+    font-size: 28rpx;
+    border: 1rpx solid #e2e8f0;
+}
+
+.invite-modern-btn {
+    width: 150rpx !important;
+    height: 60rpx;
+    background: #1e293b;
+    color: #ffffff;
+    border-radius: 20rpx;
+    font-size: 28rpx;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 !important;
+}
+
+/* Contact Author Section */
+.contact-author-section {
+    background: #ffffff;
+    border-radius: 24rpx;
+    padding: 32rpx;
+    border: 1rpx solid #f1f5f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s;
+}
+
+.contact-author-section:active {
+    background: #f8fafc;
+}
+
+.contact-left {
+    display: flex;
+    align-items: center;
+    gap: 20rpx;
+}
+
+.contact-icon-box {
+    width: 72rpx;
+    height: 72rpx;
+    background: #f0f7ff;
+    border-radius: 20rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36rpx;
+}
+
+.contact-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.contact-title {
+    font-size: 28rpx;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.contact-subtitle {
+    font-size: 22rpx;
+    color: #64748b;
+    margin-top: 2rpx;
+}
+
+.contact-right .row-arrow {
+    color: #cbd5e1;
+    font-size: 24rpx;
+}
+
 /* Hub Action Bar */
 .hub-action-bar {
     display: flex;
     gap: 20rpx;
+    margin: 0 32rpx calc(48rpx + env(safe-area-inset-bottom));
 }
 
 .hub-action-left, .hub-action-right {
@@ -733,3 +893,104 @@
 }
 
 @import "./profile-sheet.wxss";
+
+/* --- 6. Author Contact Card --- */
+.author-contact-card {
+    background: #ffffff;
+    border-radius: 28rpx;
+    padding: 32rpx;
+    box-shadow: 0 8rpx 20rpx rgba(0, 0, 0, 0.03);
+    border: 1rpx solid rgba(226, 232, 240, 0.6);
+    margin-bottom: 40rpx;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.author-header {
+    text-align: center;
+    margin-bottom: 26rpx;
+}
+
+.author-title {
+    font-size: 30rpx;
+    font-weight: 700;
+    color: #1e293b;
+    display: block;
+    margin-bottom: 2rpx;
+}
+
+.author-slogan {
+    font-size: 24rpx;
+    color: #64748b;
+    line-height: 1.5;
+    display: block;
+    padding: 0 5rpx;
+}
+
+.qr-code-container {
+    width: 300rpx;
+    height: 400rpx; /* 4:3 ratio: Height:Width = 400:300 = 4:3 */
+    background: #f8fafc;
+    border-radius: 16rpx;
+    overflow: hidden;
+    border: 1rpx solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.qr-code-image {
+    width: 100%;
+    height: 100%;
+}
+
+/* --- 7. Contact Author Sheet --- */
+.author-sheet-content {
+    background: #ffffff;
+    border-radius: 40rpx 40rpx 0 0;
+    padding: 0;
+}
+
+.author-sheet-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10rpx 0 15rpx;
+}
+
+.author-sheet-body .author-slogan {
+    font-size: 28rpx;
+    color: #64748b;
+    margin-bottom: 10rpx;
+    text-align: center;
+    line-height: 1.6;
+    padding: 0 40rpx; /* Slogan still needs some side padding for readability */
+}
+
+.qr-code-container-sheet {
+    width: 600rpx; /* Increased size since we have more room */
+    background: #ffffff;
+    border-radius: 0; /* Fully square/zero rounded if preferred, but let's keep some or zero as requested */
+    padding: 0; /* Zero padding as requested */
+    border: none;
+    box-shadow: none;
+    overflow: hidden;
+}
+
+.qr-code-image-sheet {
+    width: 100%;
+    display: block;
+}
+
+.qr-hint {
+    margin-top: 0rpx;
+    font-size: 24rpx;
+    color: #94a3b8;
+}
+
+.sheet-close {
+    font-size: 32rpx;
+    color: #cbd5e1;
+    padding: 10rpx;
+}

@@ -73,9 +73,8 @@ Component({
     noMoreVisible: false,
     _prevLoading: true,
     _prevHasMore: true,
-    isAIEnglish: false, // 是否为 AIEnglish 语言
-    loadingText: '加载中...',
-    allDataLoadedText: '已加载全部数据',
+    isAIEnglish: false,
+    ui: {} as any,
   },
 
   lifetimes: {
@@ -85,8 +84,11 @@ Component({
         const lang = normalizeLanguage(app?.globalData?.language)
         this.setData({ 
           isAIEnglish: lang === 'AIEnglish',
-          loadingText: t('jobs.loading', lang),
-          allDataLoadedText: t('jobs.allDataLoaded', lang),
+          ui: {
+            loading: t('jobs.loading', lang),
+            allDataLoaded: t('jobs.allDataLoaded', lang),
+            unknownCompany: t('jobs.unknownCompany', lang),
+          }
         })
       }
       
