@@ -79,8 +79,8 @@
 }
 
 .edit-badge-icon {
-    width: 50%;
-    height: 50%;
+    width: 47%;
+    height: 47%;
     background: #ffffff;
     border-radius: 50%;
 }
