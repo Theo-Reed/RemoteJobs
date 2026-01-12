@@ -1,7 +1,20 @@
 .page {
-  min-height: 100vh;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
   background: #f8fafc;
-  padding-bottom: 40rpx;
+  overflow: hidden;
+}
+
+.main-content {
+  flex: 1;
+  overflow: hidden;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.main-content::-webkit-scrollbar {
+  display: none;
 }
 
 /* --- 1. Category Nav --- */
@@ -9,10 +22,15 @@
   white-space: nowrap;
   background: #ffffff;
   padding: 20rpx 0;
-  position: sticky;
-  top: 0;
   z-index: 100;
   box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.03);
+  flex-shrink: 0;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.category-nav::-webkit-scrollbar {
+  display: none;
 }
 
 .nav-item {
@@ -43,6 +61,7 @@
 
 .community-container {
   padding: 32rpx;
+  padding-bottom: 30rpx;
 }
 
 /* --- 2. Hero Section --- */
@@ -109,6 +128,10 @@
   margin-bottom: 48rpx;
 }
 
+.section-group:last-child {
+  margin-bottom: 0;
+}
+
 .section-header {
   display: flex;
   justify-content: space-between;
@@ -131,7 +154,7 @@
 .article-grid {
   display: flex;
   flex-direction: column;
-  gap: 32rpx;
+  gap: 25rpx;
 }
 
 .modern-card {

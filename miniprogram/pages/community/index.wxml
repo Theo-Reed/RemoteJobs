@@ -1,6 +1,13 @@
 <view class="page">
   <!-- 1. Category Navigation (Horizontal Scroll) -->
-  <scroll-view scroll-x class="category-nav" scroll-with-animation>
+  <scroll-view 
+    scroll-x 
+    class="category-nav" 
+    scroll-with-animation 
+    bounces="{{false}}" 
+    enhanced="{{true}}" 
+    show-scrollbar="{{false}}"
+  >
     <view 
       class="nav-item {{activeCategoryId === 'all' ? 'nav-item-active' : ''}}" 
       bindtap="onCategoryTap" 
@@ -15,8 +22,15 @@
     >{{item.title}}</view>
   </scroll-view>
 
-  <view class="community-container">
-    <view wx:if="{{loading}}" class="loading-box">
+  <scroll-view 
+    class="main-content" 
+    scroll-y 
+    enhanced="{{true}}" 
+    show-scrollbar="{{false}}" 
+    bounces="{{false}}"
+  >
+    <view class="community-container">
+      <view wx:if="{{loading}}" class="loading-box">
       <view class="loading-spinner"></view>
       <text>{{ui.loading}}</text>
     </view>
@@ -72,4 +86,5 @@
       </view>
     </block>
   </view>
+</scroll-view>
 </view>
