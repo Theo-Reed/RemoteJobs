@@ -2,6 +2,7 @@
 import { normalizeLanguage, t } from '../../utils/i18n'
 import { attachLanguageAware } from '../../utils/languageAware'
 import { ui } from '../../utils/ui'
+import { buildPageUI } from './ui.config'
 
 Page({
   data: {
@@ -25,6 +26,8 @@ Page({
     // 教育经历（可以有多个）
     educations: [] as Array<{ 
       school: string; 
+      school_en?: string;
+      school_cn?: string;
       degree: string; 
       major: string; 
       startDate: string; 
@@ -157,99 +160,30 @@ Page({
   updateLanguage() {
     const app = getApp<IAppOption>() as any
     const lang = normalizeLanguage(app?.globalData?.language)
-    const { currentLang } = this.data
     
-    const ui = {
-      title: t('resume.title', lang),
-      tabCn: t('resume.tabCn', lang),
-      tabEn: t('resume.tabEn', lang),
-      universityPlaceholder: t('resume.universityPlaceholder', lang),
-      whatsapp: t('resume.whatsapp', lang),
-      telegram: t('resume.telegram', lang),
-      linkedin: t('resume.linkedin', lang),
-      personalInfo: t('resume.personalInfo', lang),
-      contactInfo: t('resume.contactInfo', lang),
-      name: t('resume.name', lang), // "个人信息"
-      nameLabel: currentLang === 'English' ? t('resume.nameEn', lang) : t('resume.realName', lang), // "姓名" or "英文名"
-      photo: t('resume.photo', lang),
-      gender: t('resume.gender', lang),
-      birthday: t('resume.birthday', lang),
-      identity: t('resume.identity', lang),
-      location: t('resume.location', lang),
-      wechat: t('resume.wechat', lang),
-      email: t('resume.email', lang),
-      phone: t('resume.phone', lang),
-      phoneEn: t('resume.phoneEn', lang),
-      whatsapp: t('resume.whatsapp', lang),
-      telegram: t('resume.telegram', lang),
-      linkedin: t('resume.linkedin', lang),
-      personalWebsite: t('resume.personalWebsite', lang),
-      education: t('resume.education', lang),
-      certificates: t('resume.certificates', lang),
-      degree: t('resume.degree', lang),
-      major: t('resume.major', lang),
-      startDate: t('resume.startDate', lang),
-      endDate: t('resume.endDate', lang),
-      graduationDate: t('resume.graduationDate', lang),
-      timePeriod: t('resume.timePeriod', lang),
-      schoolPlaceholder: t('resume.schoolPlaceholder', lang),
-      majorPlaceholder: t('resume.majorPlaceholder', lang),
-      degreePlaceholder: t('resume.degreePlaceholder', lang),
-      genderPlaceholder: t('resume.genderPlaceholder', lang),
-      identityPlaceholder: t('resume.identityPlaceholder', lang),
-      birthdayPlaceholder: t('resume.birthdayPlaceholder', lang),
-      namePlaceholder: currentLang === 'English' ? t('resume.nameEn', lang) : t('resume.namePlaceholder', lang),
-      description: t('resume.description', lang),
-      descriptionPlaceholder: t('resume.descriptionPlaceholder', lang),
-      optional: t('resume.optional', lang),
-      addEducation: t('resume.addEducation', lang),
-      skills: t('resume.skills', lang),
-      addSkill: t('resume.addSkill', lang),
-      skillPlaceholder: t('resume.skillPlaceholder', lang),
-      addCertificate: t('resume.addCertificate', lang),
-      noData: t('resume.noData', lang),
-      save: t('resume.save', lang),
-      cancel: t('resume.cancel', lang),
-      delete: t('resume.delete', lang),
-      toPresent: t('resume.toPresent', lang),
-      workExperience: t('resume.workExperience', lang),
-      aiMessageLabel: t('resume.aiMessageLabel', lang),
-      aiMessageDefault: t('resume.aiMessageDefault', lang),
-      company: t('resume.company', lang),
-      companyPlaceholder: t('resume.companyPlaceholder', lang),
-      jobTitle: t('resume.jobTitle', lang),
-      jobTitlePlaceholder: t('resume.jobTitlePlaceholder', lang),
-      businessDirection: t('resume.businessDirection', lang),
-      businessDirectionPlaceholder: t('resume.businessDirectionPlaceholder', lang),
-      addWorkExperience: t('resume.addWorkExperience', lang),
-      year: t('resume.year', lang),
-      month: t('resume.month', lang),
-    }
+    const uiStrings = buildPageUI(lang, this.data)
 
     const degreeOptions = t<string[]>('resume.degreeOptions', lang)
     const studyTypes = t<string[]>('resume.studyTypes', lang)
     const genderOptions = t<string[]>('resume.genderOptions', lang)
     const identityOptions = t<string[]>('resume.identityOptions', lang)
 
-    this.setData({ ui, degreeOptions, studyTypes, genderOptions, identityOptions, interfaceLang: lang })
+    this.setData({ 
+      ui: uiStrings, 
+      degreeOptions, 
+      studyTypes, 
+      genderOptions, 
+      identityOptions, 
+      interfaceLang: lang 
+    })
   },
 
   updateTips() {
-    const { completeness_cn, completeness_en, currentLang } = this.data
     const app = getApp<IAppOption>() as any
     const lang = normalizeLanguage(app?.globalData?.language)
 
-    const completeness = currentLang === 'English' ? completeness_en : completeness_cn
-
-    let tips = t('resume.tips', lang)
-    if (completeness === 1) {
-      tips = t('resume.tipsComplete', lang)
-    } else if (completeness === 2) {
-      tips = t('resume.tipsPerfect', lang)
-    }
-
     this.setData({
-      'ui.tips': tips
+      ['ui.tips']: buildPageUI(lang, this.data).tips
     })
   },
 
@@ -279,7 +213,9 @@ Page({
       const educations = profile.educations || []
       const certificates = profile.certificates || []
       const workExperiences = profile.workExperiences || []
-      const aiMessage = profile.aiMessage !== undefined ? profile.aiMessage : t('resume.aiMessageDefault', normalizeLanguage(app?.globalData?.language))
+      
+      const uiStrings = this.data.ui || {}
+      const aiMessage = profile.aiMessage !== undefined ? profile.aiMessage : uiStrings.aiMessageDefault || ''
 
       // 计算完整度 (各自计算各自 shared 的基础信息)
       const isSharedBasicComplete = !!(photo && gender && birthday && identity)
@@ -332,8 +268,9 @@ Page({
   },
 
   async saveResumeProfile(data: any) {
+    const { ui: uiStrings } = this.data
     try {
-      ui.showLoading('保存中...')
+      ui.showLoading(uiStrings.saving)
 
       // 合并现有数据计算新的完整度
       const app = getApp<IAppOption>() as any
@@ -375,26 +312,27 @@ Page({
         app.globalData.user = res.result.user
         this.loadResumeData()
         ui.hideLoading()
-        ui.showSuccess('保存成功')
+        ui.showSuccess(uiStrings.saveSuccess)
       } else {
         throw new Error('保存失败')
       }
     } catch (err) {
       console.error(err)
       ui.hideLoading()
-      ui.showError('保存失败')
+      ui.showError(uiStrings.saveFailed)
     }
   },
 
   // UI Event Handlers
   onEditPhoto() {
+    const { ui: uiStrings } = this.data
     wx.chooseImage({
       count: 1,
       sizeType: ['compressed'],
       sourceType: ['album', 'camera'],
       success: async (res) => {
         const tempFilePath = res.tempFilePaths[0]
-        wx.showLoading({ title: '上传中...' })
+        wx.showLoading({ title: uiStrings.uploading })
         try {
           const cloudPath = `resume_photos/${Date.now()}-${Math.floor(Math.random() * 1000)}.jpg`
           const uploadRes = await wx.cloud.uploadFile({
@@ -403,7 +341,7 @@ Page({
           })
           await this.saveResumeProfile({ photo: uploadRes.fileID })
         } catch (e) {
-          wx.showToast({ title: '上传失败', icon: 'none' })
+          wx.showToast({ title: uiStrings.uploadFailed, icon: 'none' })
         } finally {
           wx.hideLoading()
         }
@@ -739,7 +677,7 @@ Page({
       ).limit(5).get()
       
       this.setData({
-        universitySuggestions: res.data,
+        universitySuggestions: res.data as any,
         showUniversitySuggestions: res.data.length > 0
       })
     } catch (e) {

@@ -9,11 +9,9 @@
     
     <view class="lang-switcher">
       <view class="lang-tab {{currentLang === 'Chinese' ? 'active' : ''}}" bindtap="onSwitchLang" data-lang="Chinese">
-        <view class="completeness-dot {{completeness_cn >= 1 ? 'complete' : ''}}"></view>
         <text>{{ui.tabCn}}</text>
       </view>
       <view class="lang-tab {{currentLang === 'English' ? 'active' : ''}}" bindtap="onSwitchLang" data-lang="English">
-        <view class="completeness-dot {{completeness_en >= 1 ? 'complete' : ''}}"></view>
         <text>{{ui.tabEn}}</text>
       </view>
     </view>
@@ -36,12 +34,14 @@
           <view class="list-item photo-item" bindtap="onEditPhoto">
             <view class="item-label">{{ui.photo}}</view>
             <view class="item-value">
-              <block wx:if="{{photo}}">
-                <image class="avatar-img" src="{{photo}}" mode="aspectFill"></image>
-              </block>
-              <block wx:else>
-                <view class="avatar-placeholder"></view>
-              </block>
+              <view class="avatar-progress-container" style="background-image: conic-gradient(#3b82f6 {{(currentLang === 'English' ? completeness_en : completeness_cn) === 2 ? 100 : ((currentLang === 'English' ? completeness_en : completeness_cn) === 1 ? 66 : 15)}}%, #e2e8f0 0)">
+                <block wx:if="{{photo}}">
+                  <image class="avatar-img shadow-none" src="{{photo}}" mode="aspectFill"></image>
+                </block>
+                <block wx:else>
+                  <view class="avatar-placeholder shadow-none"></view>
+                </block>
+              </view>
               <view class="arrow-icon"></view>
             </view>
           </view>

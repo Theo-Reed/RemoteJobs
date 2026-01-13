@@ -132,8 +132,8 @@ const dict = {
     },
     resume: {
         title: { Chinese: '简历资料', English: 'Resume Profile' },
-        tabCn: { Chinese: '中文版 (CN)', English: 'Chinese (CN)' },
-        tabEn: { Chinese: '英文版 (EN)', English: 'English (EN)' },
+        tabCn: { Chinese: '中文版', English: 'Chinese' },
+        tabEn: { Chinese: '英文版', English: 'English' },
         syncFromCn: { Chinese: '与中文版同步', English: 'Sync from CN' },
         universityPlaceholder: { Chinese: '选择或输入学校', English: 'Select or enter university' },
         whatsapp: { Chinese: 'WhatsApp', English: 'WhatsApp' },
@@ -192,6 +192,8 @@ const dict = {
         addCertificate: { Chinese: '添加证书', English: 'Add Certificate' },
         noData: { Chinese: '暂无数据', English: 'No data' },
         save: { Chinese: '保存', English: 'Save' },
+        saveSuccess: { Chinese: '保存成功', English: 'Saved successfully' },
+        saveFailed: { Chinese: '保存失败', English: 'Save failed' },
         cancel: { Chinese: '取消', English: 'Cancel' },
         delete: { Chinese: '删除', English: 'Delete' },
         toPresent: { Chinese: '至今', English: 'Present' },
@@ -411,12 +413,24 @@ export type I18nKey =
     | 'drawer.clear'
     | 'drawer.confirm'
     | 'resume.title'
+    | 'resume.tabCn'
+    | 'resume.tabEn'
+    | 'resume.syncFromCn'
+    | 'resume.universityPlaceholder'
+    | 'resume.whatsapp'
+    | 'resume.telegram'
+    | 'resume.linkedin'
     | 'resume.tips'
     | 'resume.tipsComplete'
     | 'resume.tipsPerfect'
     | 'resume.personalInfo'
     | 'resume.contactInfo'
     | 'resume.name'
+    | 'resume.realName'
+    | 'resume.nameEn'
+    | 'resume.location'
+    | 'resume.phoneEn'
+    | 'resume.personalWebsite'
     | 'resume.gender'
     | 'resume.birthday'
     | 'resume.identity'
@@ -459,6 +473,8 @@ export type I18nKey =
     | 'resume.addCertificate'
     | 'resume.noData'
     | 'resume.save'
+    | 'resume.saveSuccess'
+    | 'resume.saveFailed'
     | 'resume.cancel'
     | 'resume.delete'
     | 'resume.toPresent'
