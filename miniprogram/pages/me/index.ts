@@ -7,7 +7,7 @@ import {toDateMs} from '../../utils/time'
 import {getPhoneNumberFromAuth, updatePhoneNumber} from '../../utils/phoneAuth'
 import {request, callApi, formatFileUrl} from '../../utils/request'
 import {ui} from '../../utils/ui'
-import {buildPageUI} from './ui.config'
+import * as UIConfig from './ui.config'
 
 
 Page({
@@ -256,7 +256,7 @@ Page({
         const app = getApp<IAppOption>() as any
         const lang = normalizeLanguage(app?.globalData?.language)
 
-        const uiStrings = buildPageUI(lang, this.data)
+        const uiStrings = UIConfig.buildPageUI(lang, this.data)
 
         this.setData({
             appLanguage: lang,
@@ -306,7 +306,7 @@ Page({
 
                 this.setData({ 
                     memberBadgeText,
-                    ['ui.memberRenewContent']: buildPageUI(this.data.appLanguage as any, { ...this.data, memberBadgeText }).memberRenewContent
+                    ['ui.memberRenewContent']: UIConfig.buildPageUI(this.data.appLanguage as any, { ...this.data, memberBadgeText }).memberRenewContent
                 })
 
                 // 计算升级差价
@@ -317,7 +317,7 @@ Page({
                         const amount = diff > 0 ? diff : 0
                         this.setData({ 
                             upgradeAmount: amount,
-                            ['ui.upgradeGuide']: buildPageUI(this.data.appLanguage as any, { ...this.data, upgradeAmount: amount }).upgradeGuide
+                            ['ui.upgradeGuide']: UIConfig.buildPageUI(this.data.appLanguage as any, { ...this.data, upgradeAmount: amount }).upgradeGuide
                         })
                     }
                 } else if (memberLevel === 2) {
@@ -327,7 +327,7 @@ Page({
                         const amount = diff > 0 ? diff : 0
                         this.setData({ 
                             upgradeAmount: amount,
-                            ['ui.upgradeGuide']: buildPageUI(this.data.appLanguage as any, { ...this.data, upgradeAmount: amount }).upgradeGuide
+                            ['ui.upgradeGuide']: UIConfig.buildPageUI(this.data.appLanguage as any, { ...this.data, upgradeAmount: amount }).upgradeGuide
                         })
                     }
                 }

@@ -203,29 +203,41 @@
     <view class="bottom-sheet {{inviteSheetOpen ? 'bottom-sheet-open' : ''}}">
       <view class="bottom-sheet-header">
         <view class="bottom-sheet-header-left"></view>
-        <text class="bottom-sheet-title">{{ui.inviteCodeEntry}}</text>
+        <text class="bottom-sheet-title">邀请好友计划</text>
         <view class="bottom-sheet-header-right">
           <view class="bottom-sheet-header-btn" bindtap="closeInviteSheet">{{ui.confirm}}</view>
         </view>
       </view>
-      <view class="bottom-sheet-content invite-sheet-content">
-        <!-- Referral Card -->
-        <view class="invite-card referral-card">
-          <view class="invite-card-info">
-            <text class="invite-card-label">{{ui.myInviteCode}}</text>
-            <text class="invite-card-tips">{{ui.shareDesc}}</text>
-          </view>
-          <view class="invite-code-wrapper" bindtap="onCopyInviteCode">
-            <text class="invite-code-value">{{myInviteCode}}</text>
-            <view class="copy-pill">{{ui.copy}}</view>
-          </view>
+      <view class="bottom-sheet-content invite-sheet-content-v2">
+        <!-- Hero Section -->
+        <view class="invite-hero">
+          <text class="invite-hero-sub">{{ui.inviteRewardDesc}}</text>
         </view>
 
-        <!-- Redemption Section -->
-        <view class="invite-input-section">
-          <input class="invite-modern-input" type="text" placeholder="{{ui.inputInviteCodePlaceholder}}" 
-                 value="{{inputInviteCode}}" bindinput="onInviteCodeInput" />
-          <button class="invite-modern-btn" bindtap="onApplyInviteCode">{{ui.apply}}</button>
+        <!-- My Code Section -->
+        <view class="code-display-card" bindtap="onCopyInviteCode">
+          <text class="code-label">{{ui.myInviteCode}}</text>
+          <view class="code-main-row">
+            <text class="code-text">{{myInviteCode}}</text>
+          </view>
+          <text class="code-hint">{{ui.clickToCopy}}</text>
+        </view>
+
+        <!-- Redemption Input -->
+        <view class="redeem-container">
+          <text class="redeem-title">{{ui.iHaveInviteCode}}</text>
+          <view class="redeem-input-group {{inputInviteCode.length > 0 ? 'has-value' : ''}}">
+            <input class="redeem-input" 
+                   type="text" 
+                   placeholder="{{ui.inputInviteCodePlaceholder}}" 
+                   placeholder-class="redeem-placeholder"
+                   value="{{inputInviteCode}}" 
+                   bindinput="onInviteCodeInput"
+                   maxlength="8" />
+            <view class="redeem-action-btn" bindtap="onApplyInviteCode">
+              <text class="redeem-btn-text">{{ui.redeem}}</text>
+            </view>
+          </view>
         </view>
       </view>
     </view>

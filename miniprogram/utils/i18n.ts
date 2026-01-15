@@ -38,6 +38,11 @@ const dict = {
         inviteCodeCopied: { Chinese: '邀请码已复制', English: 'Invite code copied' },
         inviteCodeInvalid: { Chinese: '邀请码格式不正确', English: 'Invalid invite code format' },
         inviteCodeApplied: { Chinese: '邀请码已应用', English: 'Invite code applied successfully' },
+        inviteFriendPlan: { Chinese: '邀请好友计划', English: 'Referral Program' },
+        inviteRewardDesc: { Chinese: '双方获赠3天会员(非会员送体验/会员享延期) 和 5点算力', English: 'Both get 3 days (Trial or Extension) + 5 pts' },
+        iHaveInviteCode: { Chinese: '我有邀请码', English: 'I have an invite code' },
+        clickToCopy: { Chinese: '点击复制邀请码', English: 'Click to copy code' },
+        redeem: { Chinese: '兑换', English: 'Redeem' },
         memberBadge: { Chinese: '丈月尺会员', English: 'Subscribed' },
         uploadAvatar: { Chinese: '上传头像', English: 'Upload Avatar' },
         editNickname: { Chinese: '用户名', English: 'Username' },
@@ -344,6 +349,11 @@ export type I18nKey =
     | 'me.inviteCodeCopied'
     | 'me.inviteCodeInvalid'
     | 'me.inviteCodeApplied'
+    | 'me.inviteFriendPlan'
+    | 'me.inviteRewardDesc'
+    | 'me.iHaveInviteCode'
+    | 'me.clickToCopy'
+    | 'me.redeem'
     | 'me.langEnglish'
     | 'me.memberBadge'
     | 'me.uploadAvatar'

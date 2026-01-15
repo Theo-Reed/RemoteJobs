@@ -356,26 +356,49 @@ Page({
       const comp_cn = user?.resume_completeness || 0
       const comp_en = user?.resume_completeness_en || 0
 
-      // 只要有一方达到 60% (1) 或 100% (2) 就可以生成
-      if (comp_cn >= 1 || comp_en >= 1) {
+      // Manual check for basic completeness (fallback if backend flag is outdated)
+      const p_zh = profile.zh || {}
+      const p_en = profile.en || {}
+      
+      // CN: Require Name + (Email/Phone/Wechat) + Edu + Work
+      const hasBasicZh = !!p_zh.name && (!!p_zh.email || !!p_zh.phone || !!p_zh.wechat) && (p_zh.educations?.length > 0) && (p_zh.workExperiences?.length > 0)
+      
+      // EN: Require Name + (Email/PhoneEn/Whatsapp/Telegram/Linkedin/Website) + Edu + Work (Location is optional but good)
+      const hasBasicEn = !!p_en.name && (!!p_en.email || !!p_en.phone_en || !!p_en.whatsapp || !!p_en.telegram || !!p_en.linkedin || !!p_en.personal_website) && (p_en.educations?.length > 0) && (p_en.workExperiences?.length > 0)
+
+      // Determine language context
+      const lang = normalizeLanguage(app?.globalData?.language)
+      const isChineseEnv = (lang === 'Chinese' || lang === 'AIChinese')
+      
+      let isReady = false
+      if (isChineseEnv) {
+        // In Chinese env, check Chinese resume
+        isReady = (comp_cn >= 1 || hasBasicZh)
+      } else {
+        // In English env, check English resume
+        isReady = (comp_en >= 1 || hasBasicEn)
+      }
+
+      // Check Readiness
+      if (isReady) {
         // 简历完整，调用云托管接口
         try {
-          // 这里的 aiProfile 为了兼容后端，可能需要选取其中一方，或者全部传过去
-          // 考虑到目前大部分是海外岗位，优先采用英文侧数据，但同时附带中文侧作为参考
+          // Prepare Profile based on context
           let aiProfile: any = {}
-          if (comp_en >= 1) {
-            aiProfile = { ...profile.en }
-            aiProfile.zh = profile.zh // 附带中文作为辅助参考
-          } else {
+          if (isChineseEnv) {
             aiProfile = { ...profile.zh }
             aiProfile.en = profile.en
+          } else {
+            aiProfile = { ...profile.en }
+            aiProfile.zh = profile.zh
           }
           
           const res: any = await callApi('generate', {
             jobId: this.data.job?._id, // 岗位 ID
             userId: user.openid,      // 用户 ID (OpenID)
             resume_profile: aiProfile, // 传处理后的资料
-            job_data: this.data.job    // 传完整的岗位 JSON
+            job_data: this.data.job,    // 传完整的岗位 JSON
+            language: lang.toLowerCase() // Pass language field (lowercase for backend compatibility)
           })
 
           ui.hideLoading()
@@ -386,10 +409,12 @@ Page({
             
             // 提示用户任务已提交
             wx.showModal({
-              title: '生成请求已提交',
-              content: 'AI 正在为你深度定制简历，大约需要 30 秒。完成后将在“我的简历”中展示，你可以继续浏览其他岗位。',
-              confirmText: '去看看',
-              cancelText: '留在本页',
+              title: isChineseEnv ? '生成请求已提交' : 'Request Submitted',
+              content: isChineseEnv 
+                ? 'AI 正在为你深度定制简历，大约需要 30 秒。完成后将在“我的简历”中展示，你可以继续浏览其他岗位。'
+                : 'AI is customizing your resume, usually takes 30s. Check "Generated Resumes" later.',
+              confirmText: isChineseEnv ? '去看看' : 'Check',
+              cancelText: isChineseEnv ? '留在本页' : 'Stay',
               success: (modalRes) => {
                 if (modalRes.confirm) {
                   wx.navigateTo({
@@ -411,10 +436,12 @@ Page({
           // 如果是配额不足
           if (isQuotaError) {
              wx.showModal({
-                 title: 'Quota Exhausted',
-                 content: 'Your resume generation quota has been used up. Please upgrade your plan or top-up points.',
-                 confirmText: 'Upgrade',
-                 cancelText: 'Cancel',
+                 title: isChineseEnv ? '生成额度已用完' : 'Quota Exhausted',
+                 content: isChineseEnv 
+                    ? '您的简历生成额度已用完。请升级会员或购买积分。' 
+                    : 'Your resume generation quota has been used up. Please upgrade your plan or top-up points.',
+                 confirmText: isChineseEnv ? '去升级' : 'Upgrade',
+                 cancelText: isChineseEnv ? '取消' : 'Cancel',
                  success: (res) => {
                      if (res.confirm) {
                          wx.switchTab({
@@ -432,8 +459,8 @@ Page({
           }
 
           wx.showModal({
-            title: 'Generate Failed',
-            content: err?.data?.message || err?.message || 'System busy, please try again later.',
+            title: isChineseEnv ? '生成失败' : 'Generate Failed',
+            content: err?.data?.message || err?.message || (isChineseEnv ? '系统繁忙，请稍后再试' : 'System busy, please try again later.'),
             showCancel: false
           })
         }
@@ -441,29 +468,32 @@ Page({
         ui.hideLoading()
         this.setData({ isGenerating: false })
         
-        // 检查具体缺什么（以中文侧或英文侧均可作为基础）
-        const p_zh = profile.zh || {}
-        const p_en = profile.en || {}
-        
-        const hasBasicZh = p_zh.name && (p_zh.email || p_zh.phone || p_zh.wechat) && (p_zh.educations?.length > 0) && (p_zh.workExperiences?.length > 0)
-        const hasBasicEn = p_en.name && (p_en.email || p_en.phone || p_en.wechat) && (p_en.educations?.length > 0) && (p_en.workExperiences?.length > 0)
-
+        // Construct localized error message
         const missing = []
-        if (!p_zh.name && !p_en.name) missing.push(this.data.isStandardChinese || this.data.isAIChinese ? '姓名' : 'Name')
-        if (!(p_zh.email || p_zh.phone || p_zh.wechat || p_en.email || p_en.phone || p_en.wechat)) missing.push(this.data.isStandardChinese || this.data.isAIChinese ? '联系方式' : 'Contact')
-        if (!(p_zh.educations?.length > 0 || p_en.educations?.length > 0)) missing.push(this.data.isStandardChinese || this.data.isAIChinese ? '教育经历' : 'Education')
-        if (!(p_zh.workExperiences?.length > 0 || p_en.workExperiences?.length > 0)) missing.push(this.data.isStandardChinese || this.data.isAIChinese ? '工作经历' : 'Experience')
+        
+        if (isChineseEnv) {
+           if (!p_zh.name) missing.push('姓名')
+           if (!(p_zh.email || p_zh.phone || p_zh.wechat)) missing.push('联系方式')
+           if (!(p_zh.educations?.length > 0)) missing.push('教育经历')
+           if (!(p_zh.workExperiences?.length > 0)) missing.push('工作经历')
+        } else {
+           if (!p_en.name) missing.push('Name')
+           const hasContact = p_en.email || p_en.phone_en || p_en.whatsapp || p_en.telegram || p_en.linkedin || p_en.personal_website
+           if (!hasContact) missing.push('Contact')
+           if (!(p_en.educations?.length > 0)) missing.push('Education')
+           if (!(p_en.workExperiences?.length > 0)) missing.push('Experience')
+        }
         
         const content = missing.length > 0 
-          ? `${this.data.isStandardChinese || this.data.isAIChinese ? '为了生成效果，请至少补全一份简历的' : 'To generate resume, please complete at least'}: ${missing.join('、')}`
-          : (this.data.isStandardChinese || this.data.isAIChinese ? '请先完善简历资料（需包含姓名、联系方式、教育及工作经历）' : 'Please complete your profile (Name, Contact, Education, and Work)')
+          ? `${isChineseEnv ? '为了生成效果，请至少补全当前语言简历的' : 'Please complete your current language profile'}: ${missing.join('、')}`
+          : (isChineseEnv ? '请先完善简历资料' : 'Please complete your profile')
 
         // 简历不完整，跳转到简历资料页
         wx.showModal({
-          title: '简历信息不完整',
+          title: isChineseEnv ? '简历信息不完整' : 'Profile Incomplete',
           content: content,
-          confirmText: '去完善',
-          cancelText: '取消',
+          confirmText: isChineseEnv ? '去完善' : 'Edit Profile',
+          cancelText: isChineseEnv ? '取消' : 'Cancel',
           success: (res) => {
             if (res.confirm) {
               wx.navigateTo({

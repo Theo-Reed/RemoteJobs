@@ -7,35 +7,64 @@
   bottom: 0;
   background: rgba(0, 0, 0, 0.4);
   z-index: 1000;
+  
   opacity: 0;
-  transition: opacity 0.3s ease;
+  visibility: hidden;
   pointer-events: none;
+  
+  /* Close: Fade out, then hide visibility at the END */
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s step-end;
+  /* Hardware acceleration fix */
+  backface-visibility: hidden;
+  perspective: 1000;
 }
 
 .drawer-mask-open {
   opacity: 1;
+  visibility: visible;
   pointer-events: auto;
+  
+  /* Open: Show visibility INSTANTLY, then fade in */
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s step-start;
 }
 
 .drawer-content {
   position: fixed;
   top: 0;
-  right: 0;
   bottom: 0;
-  width: 85%;
+  
+  /* Reset to Standard Right Anchor */
+  right: 0;
+  left: auto;
+  width: 85vw;
+  height: 100%;
+  
   background: #ffffff;
   z-index: 1001;
-  transform: translateX(100%);
-  transition: transform 0.3s ease;
+  
+  /* Restored: 100% Translation (Standard) */
+  transform: translate3d(100%, 0, 0);
+  
+  /* Close: Slide out, then hide visibility at the END */
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s step-end;
+  visibility: hidden;
   display: flex;
   flex-direction: column;
   box-shadow: -10rpx 0 30rpx rgba(0, 0, 0, 0.05);
   border-top-left-radius: 32rpx;
   border-bottom-left-radius: 32rpx;
+  will-change: transform;
+  backface-visibility: hidden;
+  perspective: 1000;
 }
 
 .drawer-open {
-  transform: translateX(0);
+  /* Active State: No translation (at right: 0) */
+  transform: translate3d(0, 0, 0); 
+  
+  visibility: visible;
+  /* Open: Show visibility INSTANTLY, then slide in */
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s step-start;
 }
 
 .drawer-header {

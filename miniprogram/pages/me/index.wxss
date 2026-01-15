@@ -773,108 +773,156 @@
     margin-top: 4rpx;
 }
 
-/* --- Invite Sheet Redesign --- */
-.invite-sheet-content {
-    padding: 20rpx 0 0 !important;
+/* --- Modern Invite Sheet (Hybrid Style) --- */
+.invite-sheet-content-v2 {
+    padding: 10rpx 48rpx 30rpx !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
+    width: 100%;
 }
 
-.invite-header-row {
+.invite-hero {
+    text-align: center;
     margin-bottom: 40rpx;
-    padding: 32rpx 40rpx 0;
 }
 
-.invite-sheet-title {
-    font-size: 34rpx;
+.invite-hero-title {
+    font-size: 36rpx;
     font-weight: 800;
-    color: #1e293b;
+    color: #0f172a;
+    display: block;
+    margin-bottom: 8rpx;
+    letter-spacing: -0.5rpx;
 }
 
-.invite-card {
-    background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
-    border-radius: 24rpx;
-    padding: 32rpx;
-    border: 1rpx solid rgba(46, 95, 233, 0.1);
-    margin: 0 40rpx 40rpx;
-}
-
-.invite-card-info {
-    margin-bottom: 24rpx;
-}
-
-.invite-card-label {
+.invite-hero-sub {
     font-size: 24rpx;
     color: #64748b;
-    font-weight: 600;
-    display: block;
+    font-weight: 500;
 }
 
-.invite-card-tips {
-    font-size: 22rpx;
-    color: #94a3b8;
-    margin-top: 4rpx;
-    display: block;
-}
-
-.invite-code-wrapper {
-    background: #ffffff;
-    border-radius: 16rpx;
-    padding: 24rpx;
+/* Code Display Card */
+.code-display-card {
+    width: 100%;
+    background: linear-gradient(90deg, #ffffff 0%, #f0f7ff 100%);
+    border-radius: 32rpx;
+    padding: 40rpx 0;
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
     align-items: center;
-    box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.03);
-}
-
-.invite-code-value {
-    font-family: monospace;
-    font-size: 40rpx;
-    font-weight: 800;
-    color: #1e293b;
-    letter-spacing: 2rpx;
-}
-
-.copy-pill {
-    background: #2e5fe9;
-    color: #ffffff;
-    font-size: 22rpx;
-    font-weight: 700;
-    padding: 8rpx 24rpx;
-    border-radius: 100rpx;
-}
-
-.invite-input-section {
-    display: flex;
-    align-items: center;
-    gap: 16rpx;
-    margin: 0 40rpx 48rpx;
-}
-
-.invite-modern-input {
-    flex: 1;
-    height: 70rpx;
-    background: #f8fafc;
-    border-radius: 20rpx;
-    padding: 0 24rpx;
-    font-size: 28rpx;
-    border: 1rpx solid #e2e8f0;
+    margin-bottom: 40rpx;
+    border: 2rpx solid rgba(46, 95, 233, 0.12);
+    box-shadow: 0 4rpx 24rpx rgba(46, 95, 233, 0.06);
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
     box-sizing: border-box;
 }
 
-.invite-modern-btn {
-    width: 160rpx !important;
-    height: 60rpx !important;
-    background: #2e5fe9;
-    color: #ffffff;
-    border-radius: 20rpx;
+.code-display-card:active {
+    transform: scale(0.98);
+    background: linear-gradient(90deg, #f5faff 0%, #e6f0ff 100%);
+}
+
+.code-label {
+    font-size: 22rpx;
+    color: #64748b;
+    font-weight: 600;
+    margin-bottom: 12rpx;
+}
+
+.code-main-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12rpx;
+    width: 100%;
+}
+
+.code-text {
+    font-family: -apple-system-monospace, 'SF Mono', 'Roboto Mono', monospace;
+    font-size: 60rpx;
+    font-weight: 800;
+    color: #1e293b;
+    letter-spacing: 4rpx;
+}
+
+.code-hint {
+    font-size: 22rpx;
+    color: #3b82f6;
+    font-weight: 600;
+    opacity: 0.8;
+}
+
+/* Redemption Section */
+.redeem-container {
+    width: 100%;
+}
+
+.redeem-title {
     font-size: 28rpx;
     font-weight: 700;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    min-height: 0 !important;
-    line-height: 1 !important;
+    color: #0f172a;
+    margin-bottom: 20rpx;
+    display: block;
+    margin-left: 8rpx;
+}
+
+.redeem-input-group {
+    background: #ffffff;
+    border: 2rpx solid #e2e8f0;
+    border-radius: 24rpx;
+    height: 100rpx;
+    display: flex;
+    align-items: center;
+    padding: 0 16rpx 0 32rpx;
+    transition: all 0.3s ease;
+    box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.02);
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.redeem-input-group:focus-within {
+    border-color: #2e5fe9;
+    box-shadow: 0 4rpx 16rpx rgba(46, 95, 233, 0.1);
+}
+
+.redeem-input {
+    flex: 1;
+    height: 100%;
+    font-size: 30rpx;
+    color: #0f172a;
+    font-weight: 600;
+}
+
+.redeem-placeholder {
+    color: #cbd5e1;
+    font-weight: 400;
+}
+
+.redeem-action-btn {
+    background: #e2e8f0;
+    color: #94a3b8;
+    padding: 16rpx 40rpx;
+    border-radius: 100rpx;
+    font-size: 26rpx;
+    font-weight: 700;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Active State for Button */
+.redeem-input-group.has-value .redeem-action-btn {
+    background: linear-gradient(135deg, #4979fc 0%, #2e5fe9 100%);
+    color: #ffffff;
+    box-shadow: 0 4rpx 12rpx rgba(46, 95, 233, 0.25);
+    transform: scale(1.02);
+}
+
+.redeem-input-group.has-value .redeem-action-btn:active {
+    transform: scale(0.96);
+    opacity: 0.9;
 }
 
 /* Contact Author Section */

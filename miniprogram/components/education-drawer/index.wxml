@@ -1,8 +1,7 @@
 <!--miniprogram/components/education-drawer/index.wxml-->
-<view wx:if="{{show}}" class="drawer-mask {{show ? 'drawer-mask-open' : ''}}" bindtap="onClose"></view>
+<view class="drawer-mask {{show ? 'drawer-mask-open' : ''}}" bindtap="onClose"></view>
 
 <view 
-  wx:if="{{show}}"
   class="drawer-content {{show ? 'drawer-open' : ''}}"
   catchtap="stopPropagation"
 >

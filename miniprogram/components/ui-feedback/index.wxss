@@ -32,11 +32,16 @@
   min-width: 300rpx;
   max-width: 85%;
   transform: translateY(40rpx) scale(0.9);
-  transition: all 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+  
+  /* Exit transition: reset transform AFTER opacity fade (0.3s) acts */
+  /* This prevents the "flying out" movement when hiding */
+  transition: transform 0s 0.3s;
 }
 
 .ui-visible .ui-content {
   transform: translateY(0) scale(1);
+  /* Enter transition: pop in effect */
+  transition: transform 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
 }
 
 /* --- Spinner Styles --- */

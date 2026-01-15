@@ -432,7 +432,7 @@
         </view>
       </view>
 
-      <view class="form-item">
+      <view class="form-item" wx:if="{{currentLang === 'Chinese'}}">
         <text class="form-label">{{ui.birthday}}</text>
         <view class="picker-value {{basicInfoForm.birthday ? '' : 'placeholder-text'}}" bindtap="openBirthdayPicker">
           {{basicInfoForm.birthday || ui.birthdayPlaceholder}}
@@ -532,6 +532,7 @@
       <textarea 
         class="ai-message-textarea" 
         placeholder="{{ui.aiMessageDefault}}" 
+        placeholder-style="line-height: 1.6;"
         value="{{aiMessageForm}}" 
         bindinput="onAiMessageInput"
         maxlength="500"

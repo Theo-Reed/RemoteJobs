@@ -3,6 +3,7 @@ import { normalizeLanguage, t } from '../../utils/i18n'
 import { attachLanguageAware } from '../../utils/languageAware'
 import { ui } from '../../utils/ui'
 import { callApi, formatFileUrl } from '../../utils/request'
+import * as UIConfig from './ui.config'
 const { serverUrl } = require('../../env.js')
 
 Page({
@@ -184,9 +185,9 @@ Page({
           
           // 排除基本信息，保持独立性
           delete syncData.name;
-          delete syncData.gender;
-          delete syncData.birthday;
-          delete syncData.photo;
+          // delete syncData.gender;
+          // delete syncData.birthday;
+          // delete syncData.photo; // Keeps photo synced
 
           // 特殊处理 1：教育经历中的 school_en/major_en 需要转正
           if (syncData.educations) {
@@ -295,7 +296,7 @@ Page({
     const app = getApp<IAppOption>() as any
     const lang = normalizeLanguage(app?.globalData?.language)
     
-    const uiStrings = buildPageUI(lang, this.data)
+    const uiStrings = UIConfig.buildPageUI(lang, this.data)
 
     const degreeOptions = t<string[]>('resume.degreeOptions', lang)
     const studyTypes = t<string[]>('resume.studyTypes', lang)
@@ -315,7 +316,7 @@ Page({
     const lang = normalizeLanguage(app?.globalData?.language)
 
     this.setData({
-      ['ui.tips']: buildPageUI(lang, this.data).tips
+      ['ui.tips']: UIConfig.buildPageUI(lang, this.data).tips
     })
   },
 
@@ -366,10 +367,10 @@ Page({
     }
   },
 
-  async saveResumeProfile(data: any) {
+  async saveResumeProfile(data: any, showSuccessToast = true, showMask = false) {
     const { ui: uiStrings, currentLang, zh, en } = this.data
     try {
-      ui.showLoading(uiStrings.saving)
+      ui.showLoading(uiStrings.saving, showMask)
 
       const isChinese = currentLang === 'Chinese'
       const updates: any = {}
@@ -407,8 +408,11 @@ Page({
         const app = getApp<IAppOption>() as any
         app.globalData.user = res.result.user
         this.loadResumeData()
-        ui.hideLoading()
-        ui.showSuccess(uiStrings.saveSuccess)
+        // ui.hideLoading() // Removed: Allow transition to Success directly
+        if (showSuccessToast) {
+          ui.showSuccess(uiStrings.saveSuccess)
+        }
+        return true
       } else {
         throw new Error('保存失败')
       }
@@ -416,6 +420,7 @@ Page({
       console.error(err)
       ui.hideLoading()
       ui.showError(uiStrings.saveFailed)
+      return false
     }
   },
 
@@ -502,19 +507,32 @@ Page({
   },
   async onSaveContactInfo() {
     const { contactInfoForm, currentLang } = this.data
-    const payload: any = {
-      wechat: contactInfoForm.wechat,
-      email: contactInfoForm.email,
-      phone: contactInfoForm.phone,
-      phone_en: contactInfoForm.phone_en,
-      whatsapp: contactInfoForm.whatsapp,
-      telegram: contactInfoForm.telegram,
-      linkedin: contactInfoForm.linkedin,
-      personal_website: contactInfoForm.personal_website,
+    
+    let payload: any = {}
+    if (currentLang === 'Chinese') {
+      // Chinese fields only
+      payload = {
+        wechat: contactInfoForm.wechat,
+        email: contactInfoForm.email,
+        phone: contactInfoForm.phone
+      }
+    } else {
+      // English fields only
+      payload = {
+        email: contactInfoForm.email,
+        phone_en: contactInfoForm.phone_en,
+        whatsapp: contactInfoForm.whatsapp,
+        telegram: contactInfoForm.telegram,
+        linkedin: contactInfoForm.linkedin,
+        personal_website: contactInfoForm.personal_website,
+      }
     }
 
-    await this.saveResumeProfile(payload)
-    this.closeContactInfoDrawer()
+    const success = await this.saveResumeProfile(payload, false)
+    if (success) {
+      ui.showSuccess(this.data.ui.saveSuccess)
+      this.closeContactInfoDrawer()
+    }
   },
   onBasicNameInput(e: any) {
     this.setData({ 'basicInfoForm.name': e.detail.value })
@@ -553,11 +571,11 @@ Page({
     })
   },
   async onSaveBasicInfo() {
-    const { basicInfoForm, ui, currentLang } = this.data
+    const { basicInfoForm, ui: uiStrings, currentLang } = this.data
     const isEnglish = currentLang === 'English'
 
     if (!basicInfoForm.name.trim()) {
-      wx.showToast({ title: ui.namePlaceholder, icon: 'none' })
+      wx.showToast({ title: uiStrings.namePlaceholder, icon: 'none' })
       return
     }
 
@@ -572,7 +590,8 @@ Page({
       dataToUpdate.location = basicInfoForm.location
     }
 
-    await this.saveResumeProfile(dataToUpdate)
+    await this.saveResumeProfile(dataToUpdate, false)
+    ui.showSuccess(this.data.ui.saveSuccess)
     this.closeBasicInfoDrawer()
   },
 
@@ -957,14 +976,14 @@ Page({
     this.setData({ 'workForm.businessDirection': e.detail.value })
   },
   async onSaveWorkExperience() {
-    const { workForm, editingWorkIndex, workExperiences, ui, currentLang } = this.data
+    const { workForm, editingWorkIndex, workExperiences, ui: uiStrings, currentLang } = this.data
     
     if (!workForm.company.trim()) {
-      wx.showToast({ title: ui.companyPlaceholder || '请输入公司名称', icon: 'none' })
+      wx.showToast({ title: uiStrings.companyPlaceholder || '请输入公司名称', icon: 'none' })
       return
     }
     if (!workForm.jobTitle.trim()) {
-      wx.showToast({ title: ui.jobTitlePlaceholder || '请输入职位名称', icon: 'none' })
+      wx.showToast({ title: uiStrings.jobTitlePlaceholder || '请输入职位名称', icon: 'none' })
       return
     }
     if (!workForm.startDate) {
@@ -976,7 +995,7 @@ Page({
       return
     }
 
-    if (workForm.startDate && workForm.endDate && workForm.startDate !== ui.toPresent && workForm.endDate !== ui.toPresent) {
+    if (workForm.startDate && workForm.endDate && workForm.startDate !== uiStrings.toPresent && workForm.endDate !== uiStrings.toPresent) {
       if (workForm.startDate > workForm.endDate) {
         wx.showToast({ title: '开始时间不能晚于结束时间', icon: 'none' })
         return
@@ -998,8 +1017,11 @@ Page({
       payload._en_sync = { workExperiences: newWorks }
     }
 
-    await this.saveResumeProfile(payload)
-    this.closeWorkDrawer()
+    const success = await this.saveResumeProfile(payload, false)
+    if (success) {
+      ui.showSuccess(this.data.ui.saveSuccess)
+      this.closeWorkDrawer()
+    }
   },
   async onDeleteWorkExperience() {
     const { editingWorkIndex, workExperiences } = this.data
@@ -1018,27 +1040,30 @@ Page({
             payload._en_sync = { workExperiences: newWorks }
           }
           
-          await this.saveResumeProfile(payload)
-          this.closeWorkDrawer()
+          const success = await this.saveResumeProfile(payload, false)
+          if (success) {
+            ui.showSuccess(this.data.ui.saveSuccess)
+            this.closeWorkDrawer()
+          }
         }
       }
     })
   },
 
   async onSaveEducation() {
-    const { eduForm, editingEduIndex, educations, ui, currentLang, en } = this.data
+    const { eduForm, editingEduIndex, educations, ui: uiStrings, currentLang, en } = this.data
     
     // 全字段校验
     if (!eduForm.school.trim()) {
-      wx.showToast({ title: ui.schoolPlaceholder || '请输入学校', icon: 'none' })
+      wx.showToast({ title: uiStrings.schoolPlaceholder || '请输入学校', icon: 'none' })
       return
     }
     if (!eduForm.degree) {
-      wx.showToast({ title: ui.degreePlaceholder || '请选择学历', icon: 'none' })
+      wx.showToast({ title: uiStrings.degreePlaceholder || '请选择学历', icon: 'none' })
       return
     }
     if (!eduForm.major.trim()) {
-      wx.showToast({ title: ui.majorPlaceholder || '请输入专业', icon: 'none' })
+      wx.showToast({ title: uiStrings.majorPlaceholder || '请输入专业', icon: 'none' })
       return
     }
     if (!eduForm.startDate) {
@@ -1051,7 +1076,7 @@ Page({
     }
 
     // 时间逻辑校验
-    if (eduForm.startDate && eduForm.endDate && eduForm.startDate !== ui.toPresent && eduForm.endDate !== ui.toPresent) {
+    if (eduForm.startDate && eduForm.endDate && eduForm.startDate !== uiStrings.toPresent && eduForm.endDate !== uiStrings.toPresent) {
       if (eduForm.startDate > eduForm.endDate) {
         wx.showToast({ title: '开始时间不能晚于结束时间', icon: 'none' })
         return
@@ -1108,8 +1133,11 @@ Page({
         updatePayload.educations = newEducations
     }
 
-    await this.saveResumeProfile(updatePayload)
-    this.closeEduDrawer()
+    const success = await this.saveResumeProfile(updatePayload, false)
+    if (success) {
+      ui.showSuccess(this.data.ui.saveSuccess)
+      this.closeEduDrawer()
+    }
   },
 
   // 技能相关逻辑
@@ -1157,8 +1185,11 @@ Page({
       payload._en_sync = { skills: newSkills }
     }
     
-    await this.saveResumeProfile(payload)
-    this.closeSkillsDrawer()
+    const success = await this.saveResumeProfile(payload, false)
+    if (success) {
+      ui.showSuccess(this.data.ui.saveSuccess)
+      this.closeSkillsDrawer()
+    }
   },
 
   async onDeleteEducation() {
@@ -1178,8 +1209,11 @@ Page({
             payload._en_sync = { educations: newEducations }
           }
           
-          await this.saveResumeProfile(payload)
-          this.closeEduDrawer()
+          const success = await this.saveResumeProfile(payload, false)
+          if (success) {
+            ui.showSuccess(this.data.ui.saveSuccess)
+            this.closeEduDrawer()
+          }
         }
       }
     })
@@ -1230,8 +1264,11 @@ Page({
       payload._en_sync = { certificates: newCertificates }
     }
     
-    await this.saveResumeProfile(payload)
-    this.closeCertificatesDrawer()
+    const success = await this.saveResumeProfile(payload, false)
+    if (success) {
+      ui.showSuccess(this.data.ui.saveSuccess)
+      this.closeCertificatesDrawer()
+    }
   },
 
   onEditAiMessage() {
@@ -1251,8 +1288,11 @@ Page({
 
   async onSaveAiMessageSheet() {
     const payload: any = { aiMessage: this.data.aiMessageForm || '' }
-    await this.saveResumeProfile(payload)
-    this.closeAiMessageSheet()
+    const success = await this.saveResumeProfile(payload, false)
+    if (success) {
+      ui.showSuccess(this.data.ui.saveSuccess)
+      this.closeAiMessageSheet()
+    }
   },
 })
 

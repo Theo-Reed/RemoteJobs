@@ -152,6 +152,11 @@ const UI_MAP = {
     inputInviteCodePlaceholder: 'me.inputInviteCodePlaceholder',
     /** 分享描述文案 */
     shareDesc: 'me.shareDesc',
+    inviteFriendPlan: 'me.inviteFriendPlan',
+    inviteRewardDesc: 'me.inviteRewardDesc',
+    iHaveInviteCode: 'me.iHaveInviteCode',
+    clickToCopy: 'me.clickToCopy',
+    redeem: 'me.redeem',
 
     // --- 联系作者 ---
     /** 联系作者行标题 */
