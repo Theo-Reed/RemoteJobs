@@ -493,6 +493,11 @@
         <input class="form-input" placeholder="{{ui.phone}}" value="{{contactInfoForm.phone}}" bindinput="onContactInput" data-field="phone" />
       </view>
 
+      <view class="form-item" wx:if="{{currentLang === 'Chinese'}}">
+        <text class="form-label">{{ui.personalWebsite}}</text>
+        <input class="form-input" placeholder="{{ui.personalWebsite}}" value="{{contactInfoForm.personal_website}}" bindinput="onContactInput" data-field="personal_website" />
+      </view>
+
       <block wx:if="{{currentLang === 'English'}}">
         <view class="form-item">
           <text class="form-label">{{ui.phoneEn}}</text>

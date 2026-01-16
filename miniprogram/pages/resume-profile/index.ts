@@ -559,7 +559,8 @@ Page({
       payload = {
         wechat: contactInfoForm.wechat,
         email: contactInfoForm.email,
-        phone: contactInfoForm.phone
+        phone: contactInfoForm.phone,
+        personal_website: contactInfoForm.personal_website
       }
     } else {
       // English fields only
