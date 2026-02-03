@@ -408,7 +408,7 @@ Page({
           
           const res: any = await callApi('generate', {
             jobId: this.data.job?._id, // 岗位 ID
-            userId: user.openid,      // 用户 ID (OpenID)
+            openid: user.openid,      // Standardized OpenID
             resume_profile: aiProfile, // 传处理后的资料
             job_data: this.data.job,    // 传完整的岗位 JSON
             language: isChineseEnv ? 'chinese' : 'english' // Strictly normalize to 'chinese' or 'english'
