@@ -195,38 +195,12 @@ Page({
 
           // 特殊处理 1：教育经历中的 school_en/major_en 需要转正
           if (syncData.educations) {
-            const degreeMap: Record<string, string> = {
-              '大专': 'Associate',
-              '本科': 'Bachelor',
-              '硕士': 'Master',
-              '博士': 'PhD',
-              '其他': 'Other'
-            }
-            const studyTypeMap: Record<string, string> = {
-              '全日制': 'Full-time',
-              '非全日制': 'Part-time'
-            }
-
             syncData.educations = syncData.educations.map((e: any) => {
-              let newDegree = e.degree
-              // Parse "Degree (Type)"
-              const match = e.degree ? e.degree.match(/^(.+?)\s*\((.+?)\)$/) : null
-              
-              if (match) {
-                const cnDegree = match[1]
-                const cnType = match[2]
-                const enDegree = degreeMap[cnDegree] || cnDegree
-                // English resume: just degree, no study type
-                newDegree = enDegree
-              } else {
-                newDegree = degreeMap[e.degree] || e.degree
-              }
-              
               return {
                 ...e,
                 school: e.school_en || e.school,
                 major: e.major_en || e.major,
-                degree: newDegree
+                degree: this.translateDegreeToEn(e.degree)
               }
             })
           }
@@ -1033,7 +1007,7 @@ Page({
     this.setData({ 'workForm.workContent': e.detail.value })
   },
   async onSaveWorkExperience() {
-    const { workForm, editingWorkIndex, workExperiences, ui: uiStrings, currentLang } = this.data
+    const { workForm, editingWorkIndex, workExperiences, ui: uiStrings, currentLang, en } = this.data
     
     if (!workForm.company.trim()) {
       wx.showToast({ title: uiStrings.companyPlaceholder || '请输入公司名称', icon: 'none' })
@@ -1069,10 +1043,6 @@ Page({
     }
 
     const payload: any = { workExperiences: newWorks }
-    if (currentLang === 'Chinese') {
-      // 一并同步到英文版
-      payload._en_sync = { workExperiences: newWorks }
-    }
 
     const success = await this.saveResumeProfile(payload, false)
     if (success) {
@@ -1093,9 +1063,6 @@ Page({
           newWorks.splice(editingWorkIndex, 1)
           
           const payload: any = { workExperiences: newWorks }
-          if (this.data.currentLang === 'Chinese') {
-            payload._en_sync = { workExperiences: newWorks }
-          }
           
           const success = await this.saveResumeProfile(payload, false)
           if (success) {
@@ -1105,6 +1072,24 @@ Page({
         }
       }
     })
+  },
+
+  translateDegreeToEn(cnDegree: string) {
+    if (!cnDegree) return ''
+    const degreeMap: Record<string, string> = {
+      '大专': 'Associate',
+      '本科': 'Bachelor',
+      '硕士': 'Master',
+      '博士': 'PhD',
+      '其他': 'Other'
+    }
+    // Parse "Degree (Type)" such as "本科 (全日制)"
+    const match = cnDegree.match(/^(.+?)\s*\((.+?)\)$/)
+    if (match) {
+      const pureCnDegree = match[1]
+      return degreeMap[pureCnDegree] || pureCnDegree
+    }
+    return degreeMap[cnDegree] || cnDegree
   },
 
   async onSaveEducation() {
@@ -1146,49 +1131,12 @@ Page({
     // 准备更新的对象
     const updatePayload: any = {}
 
-    if (currentLang === 'Chinese') {
-        // 如果是中文模式，正常更新中文列表
-        const finalEdu = { ...eduData }
-        
-        if (editingEduIndex === -1) {
-          newEducations.push(finalEdu)
-        } else {
-          newEducations[editingEduIndex] = finalEdu
-        }
-        updatePayload.educations = newEducations
-
-        // 同步逻辑：如果有英文选项，同步到英文简历
-        // 只有当有明确的英文名称（来自建议）时才同步，或者第一次创建时顺带同步基础结构
-        if (eduForm.school_en || eduForm.major_en || editingEduIndex === -1) {
-          const newEnEducations = [...(en.educations || [])]
-          const enEduEntry = {
-            ...(editingEduIndex !== -1 && newEnEducations[editingEduIndex] ? newEnEducations[editingEduIndex] : {}),
-            school: eduForm.school_en || eduForm.school, // 优先用英文名，没有则用当前输入的
-            major: eduForm.major_en || eduForm.major,
-            degree: eduForm.degree,
-            startDate: eduForm.startDate,
-            endDate: eduForm.endDate,
-            description: eduForm.description,
-            country_chinese: eduForm.country_chinese,
-            country_english: eduForm.country_english
-          }
-
-          if (editingEduIndex === -1) {
-            newEnEducations.push(enEduEntry)
-          } else {
-            newEnEducations[editingEduIndex] = enEduEntry
-          }
-          updatePayload._en_sync = { educations: newEnEducations }
-        }
+    if (editingEduIndex === -1) {
+      newEducations.push(eduData)
     } else {
-        // 英文模式：仅更新英文列表，绝不影响中文
-        if (editingEduIndex === -1) {
-          newEducations.push(eduData)
-        } else {
-          newEducations[editingEduIndex] = eduData
-        }
-        updatePayload.educations = newEducations
+      newEducations[editingEduIndex] = eduData
     }
+    updatePayload.educations = newEducations
 
     const success = await this.saveResumeProfile(updatePayload, false)
     if (success) {
@@ -1238,9 +1186,6 @@ Page({
     const newSkills = skillsForm.map(s => s.trim()).filter(s => s !== '')
     
     const payload: any = { skills: newSkills }
-    if (currentLang === 'Chinese') {
-      payload._en_sync = { skills: newSkills }
-    }
     
     const success = await this.saveResumeProfile(payload, false)
     if (success) {
@@ -1262,11 +1207,8 @@ Page({
           newEducations.splice(editingEduIndex, 1)
           
           const payload: any = { educations: newEducations }
-          if (this.data.currentLang === 'Chinese') {
-            payload._en_sync = { educations: newEducations }
-          }
           
-          const success = await this.saveResumeProfile(payload, false)
+          const success = await this.saveResumeProfile(updatePayload, false)
           if (success) {
             ui.showSuccess(this.data.ui.saveSuccess)
             this.closeEduDrawer()
@@ -1317,9 +1259,6 @@ Page({
     const newCertificates = certificatesForm.map(c => c.trim()).filter(c => c !== '')
     
     const payload: any = { certificates: newCertificates }
-    if (currentLang === 'Chinese') {
-      payload._en_sync = { certificates: newCertificates }
-    }
     
     const success = await this.saveResumeProfile(payload, false)
     if (success) {
