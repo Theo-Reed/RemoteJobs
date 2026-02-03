@@ -104,10 +104,7 @@ page::-webkit-scrollbar {
 /* mask for dropdown */
 .filter-mask {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   z-index: 999;
   background-color: transparent;
   opacity: 0;
@@ -135,11 +132,11 @@ page::-webkit-scrollbar {
   width: auto;
   min-width: 160rpx;
   z-index: 1000;
-  background-color: #ffffff;
+  background-color: #fff;
   border-radius: 12rpx;
   padding: 6rpx;
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1), 0 2rpx 8rpx rgba(0, 0, 0, 0.08);
-  border: 1rpx solid rgba(29, 78, 216, 0.1);
+  box-shadow: 0 4rpx 16rpx rgb(0 0 0 / 10%), 0 2rpx 8rpx rgb(0 0 0 / 8%);
+  border: 1rpx solid rgb(29 78 216 / 10%);
 }
 
 .filter-option {
@@ -159,7 +156,7 @@ page::-webkit-scrollbar {
   left: 24rpx; /* Horizontal padding */
   right: 24rpx; /* Horizontal padding */
   height: 1rpx;
-  background-color: rgba(29, 78, 216, 0.1); /* Light blue separator */
+  background-color: rgb(29 78 216 / 10%); /* Light blue separator */
 }
 
 .filter-option:active {
@@ -174,10 +171,7 @@ page::-webkit-scrollbar {
 /* Save Menu Dropdown (similar to filter-dropdown) */
 .save-menu-mask {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   z-index: 999;
   background-color: transparent;
   opacity: 0;
@@ -197,11 +191,11 @@ page::-webkit-scrollbar {
   width: auto;
   min-width: 200rpx;
   z-index: 1000;
-  background-color: #ffffff;
+  background-color: #fff;
   border-radius: 12rpx;
   padding: 6rpx;
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1), 0 2rpx 8rpx rgba(0, 0, 0, 0.08);
-  border: 1rpx solid rgba(29, 78, 216, 0.1);
+  box-shadow: 0 4rpx 16rpx rgb(0 0 0 / 10%), 0 2rpx 8rpx rgb(0 0 0 / 8%);
+  border: 1rpx solid rgb(29 78 216 / 10%);
 }
 
 .save-menu-option {
@@ -221,7 +215,7 @@ page::-webkit-scrollbar {
   left: 24rpx;
   right: 24rpx;
   height: 1rpx;
-  background-color: rgba(29, 78, 216, 0.1);
+  background-color: rgb(29 78 216 / 10%);
 }
 
 .save-menu-option:active {
@@ -248,10 +242,10 @@ page::-webkit-scrollbar {
 
 .jobs-tabs {
   display: flex;
-  background: #ffffff;
+  background: #fff;
   border-radius: 12rpx;
   padding: 8rpx;
-  margin: -22rpx 0 17rpx 0;
+  margin: -22rpx 0 17rpx;
   gap: 8rpx;
   position: relative;
 }
@@ -269,7 +263,7 @@ page::-webkit-scrollbar {
   /* Enable hardware acceleration for smooth tab switching */
   will-change: transform;
   transform: translate3d(0, 0, 0);
-  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
 }
 
 .tab-slider-0 {
@@ -306,7 +300,7 @@ page::-webkit-scrollbar {
   /* Enable hardware acceleration for smooth swiper animation */
   will-change: transform;
   transform: translate3d(0, 0, 0);
-  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
 }
 
 /* Ensure swiper and its items fill remaining vertical space so inner scroll works */
@@ -320,7 +314,7 @@ job-list {
   /* Enable hardware acceleration for smooth transitions */
   will-change: transform;
   transform: translate3d(0, 0, 0);
-  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
 }
 
 .search-input {
@@ -356,11 +350,8 @@ job-list {
 
 .favorites-drawer-mask {
   position: fixed;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.35);
+  inset: 0;
+  background: rgb(0 0 0 / 35%);
   z-index: 2499;
   opacity: 0;
   transition: opacity 0.25s ease;
@@ -381,7 +372,7 @@ job-list {
   transition: right 0.3s ease;
   display: flex;
   flex-direction: column;
-  box-shadow: -2rpx 0 10rpx rgba(0, 0, 0, 0.1);
+  box-shadow: -2rpx 0 10rpx rgb(0 0 0 / 10%);
 }
 
 .favorites-drawer-open {
@@ -394,7 +385,7 @@ job-list {
   display: flex;
   align-items: center;
   position: relative;
-  background: #ffffff;
+  background: #fff;
 }
 
 /* Reuse the same back-hit/back-button idiom as detail page */
@@ -461,34 +452,31 @@ job-list {
 /* Overlay covers search-bar + job-list area */
 .featured-overlay {
   position: absolute;
-  top: 0;
-  left: 0%;
-  right: 0%;
-  bottom: 0;
+  inset: 0 0%;
   background:
       linear-gradient(to right,
-      rgba(245, 247, 251, 0) 0%,
-      rgba(245, 247, 251, 0) 10%,
-      rgba(245, 247, 251, 0) 30%,
-      rgba(245, 247, 251, 0.1) 50%,
-      rgba(245, 247, 251, 0) 70%,
-      rgba(245, 247, 251, 0) 90%,
-      rgba(245, 247, 251, 0) 100%
+      rgb(245 247 251 / 0%) 0%,
+      rgb(245 247 251 / 0%) 10%,
+      rgb(245 247 251 / 0%) 30%,
+      rgb(245 247 251 / 10%) 50%,
+      rgb(245 247 251 / 0%) 70%,
+      rgb(245 247 251 / 0%) 90%,
+      rgb(245 247 251 / 0%) 100%
     ),
     linear-gradient(to bottom,
-      rgba(245, 247, 251, 0) 0%,
-      rgba(245, 247, 251, 0.5) 5%,
-      rgba(245, 247, 251, 0.6) 30%,
-      rgba(245, 247, 251, 0.73) 50%,
-      rgba(245, 247, 251, 0.6) 70%,
-      rgba(245, 247, 251, 0.5) 95%,
-      rgba(245, 247, 251, 0) 100%
+      rgb(245 247 251 / 0%) 0%,
+      rgb(245 247 251 / 50%) 5%,
+      rgb(245 247 251 / 60%) 30%,
+      rgb(245 247 251 / 73%) 50%,
+      rgb(245 247 251 / 60%) 70%,
+      rgb(245 247 251 / 50%) 95%,
+      rgb(245 247 251 / 0%) 100%
     );
   mask-image: linear-gradient(to right,
     transparent 0%,
     transparent 5%,
-    rgba(0, 0, 0, 1) 10%,
-    rgba(0, 0, 0, 1) 90%,
+    rgb(0 0 0 / 100%) 10%,
+    rgb(0 0 0 / 100%) 90%,
     transparent 95%,
     transparent 100%
   );
@@ -504,9 +492,9 @@ job-list {
   color: #1d4ed8;
   font-weight: 600;
   padding: 16rpx 32rpx;
-  background: #ffffff;
+  background: #fff;
   border-radius: 24rpx;
-  box-shadow: 0 4rpx 12rpx rgba(29, 78, 216, 0.2);
+  box-shadow: 0 4rpx 12rpx rgb(29 78 216 / 20%);
   pointer-events: auto;
 }
 
@@ -582,21 +570,21 @@ job-list {
   position: relative;
   padding: 32rpx;
   margin-bottom: 2rpx;
-  background: #ffffff;
+  background: #fff;
   border-bottom: 1rpx solid #f1f5f9;
   border-radius: 0;
   transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
   will-change: transform, opacity;
   backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
   transform: translate3d(0, 0, 0);
-  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
 }
 
 .restore-item.restore-item-deleting {
   transform: translate3d(-100%, 0, 0);
-  -webkit-transform: translate3d(-100%, 0, 0);
+  transform: translate3d(-100%, 0, 0);
   opacity: 0;
 }
 
@@ -634,7 +622,7 @@ job-list {
   top: 50%;
   right: 20rpx;
   transform: translate3d(0, -50%, 0);
-  -webkit-transform: translate3d(0, -50%, 0);
+  transform: translate3d(0, -50%, 0);
   width: 48rpx;
   height: 48rpx;
   min-height: 0;
@@ -646,13 +634,13 @@ job-list {
   transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform;
   backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
   z-index: 10;
 }
 
 .restore-item-delete:active {
   transform: translate3d(0, -50%, 0) scale3d(0.95, 0.95, 1);
-  -webkit-transform: translate3d(0, -50%, 0) scale3d(0.95, 0.95, 1);
+  transform: translate3d(0, -50%, 0) scale3d(0.95, 0.95, 1);
 }
 
 .restore-item-delete-icon {

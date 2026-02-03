@@ -1,7 +1,7 @@
 /* miniprogram/pages/filter/index.wxss */
 .page {
   height: 100vh;
-  background-color: #ffffff;
+  background-color: #fff;
   display: flex;
   flex-direction: column;
 }
@@ -16,7 +16,7 @@
 
 .filter-nav {
   width: 176rpx;
-  background-color: #ffffff;
+  background-color: #fff;
   border-right: 1rpx solid #eef2f7;
   display: flex;
   flex-direction: column;
@@ -39,7 +39,7 @@
   z-index: 0;
   will-change: transform;
   transform: translate3d(0, 0, 0);
-  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
   box-sizing: border-box;
 }
 
@@ -140,7 +140,7 @@
 .filter-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 18rpx 18rpx;
+  gap: 18rpx;
 }
 
 .filter-grid-source {
@@ -176,7 +176,7 @@
 .filter-footer {
   padding: 16rpx 24rpx;
   padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
-  background: #ffffff;
+  background: #fff;
   border-top: 1rpx solid #eef2f7;
   display: flex;
   gap: 16rpx;

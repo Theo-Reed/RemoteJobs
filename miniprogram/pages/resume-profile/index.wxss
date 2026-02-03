@@ -9,7 +9,7 @@
 /* Header Section */
 .header-section {
   padding: 40rpx 40rpx 20rpx;
-  background-color: #ffffff;
+  background-color: #fff;
 }
 
 .page-title {
@@ -79,10 +79,10 @@
 
 /* Card Styling */
 .card {
-  background-color: #ffffff;
+  background-color: #fff;
   border-radius: 28rpx;
   padding: 0 32rpx;
-  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.03);
+  box-shadow: 0 4rpx 20rpx rgb(0 0 0 / 3%);
 }
 
 /* List Item Styling */
@@ -155,7 +155,7 @@
   width: 100rpx;
   height: 100rpx;
   border-radius: 50%;
-  background-color: #ffffff; /* Fallback */
+  background-color: #fff; /* Fallback */
 }
 
 .avatar-placeholder {
@@ -272,7 +272,7 @@
 .empty-tags {
   width: 100%;
   padding: 40rpx 0;
-  background-color: #ffffff;
+  background-color: #fff;
   border-radius: 28rpx;
   display: flex;
   justify-content: center;
@@ -328,7 +328,7 @@
 .ai-message-input-content {
   flex: 1;
   padding: 32rpx 40rpx;
-  background-color:rgb(255, 255, 255);
+  background-color:rgb(255 255 255);
 }
 
 .ai-message-textarea {
@@ -381,11 +381,8 @@
 /* Drawer Styles */
 .drawer-mask {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.4);
+  inset: 0;
+  background-color: rgb(0 0 0 / 40%);
   z-index: 1000;
   
   opacity: 0;
@@ -410,16 +407,13 @@
 
 .drawer {
   position: fixed;
-  top: 0;
-  bottom: 0;
+  inset: 0 0 0 auto;
   
   /* Reset to Standard Right Anchor */
-  right: 0;
-  left: auto;
   width: 85vw;
   height: 100%;
   
-  background-color: #ffffff;
+  background-color: #fff;
   z-index: 1001;
   
   /* Initial State: Moved 100% to the right (offscreen) */
@@ -431,7 +425,7 @@
   pointer-events: none;
   display: flex;
   flex-direction: column;
-  box-shadow: -10rpx 0 30rpx rgba(0, 0, 0, 0.05);
+  box-shadow: -10rpx 0 30rpx rgb(0 0 0 / 5%);
   /* Use transform only to be safe */
   will-change: transform;
   backface-visibility: hidden;
@@ -630,11 +624,8 @@
 /* Bottom Sheet Styles */
 .bottom-sheet-mask {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.4);
+  inset: 0;
+  background-color: rgb(0 0 0 / 40%);
   z-index: 2000;
   visibility: hidden;
   opacity: 0;
@@ -652,7 +643,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #ffffff;
+  background-color: #fff;
   z-index: 2001;
   border-top-left-radius: 40rpx;
   border-top-right-radius: 40rpx;
@@ -782,7 +773,7 @@
   background: #fff;
   color: #0f172a;
   font-weight: 600;
-  box-shadow: 0 2rpx 4rpx rgba(0,0,0,0.05);
+  box-shadow: 0 2rpx 4rpx rgb(0 0 0 / 5%);
 }
 
 /* Suggestions Dropdown */
@@ -796,7 +787,7 @@
   right: 0;
   background: #fff;
   border-radius: 20rpx;
-  box-shadow: 0 8rpx 32rpx rgba(0,0,0,0.12);
+  box-shadow: 0 8rpx 32rpx rgb(0 0 0 / 12%);
   max-height: 480rpx;
   z-index: 2000;
   margin-top: 12rpx;

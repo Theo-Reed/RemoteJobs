@@ -13,8 +13,10 @@ Page({
   data: {
     jdText: '', // Deprecated, keep for now if needed or remove
     showJdDrawer: false,
+    drawerTitle: '文字生成简历',
     targetJob: {
       title: '',
+      company: '',
       content: '',
       experience: ''
     },
@@ -22,7 +24,16 @@ Page({
   },
 
   openJdDrawer() {
-    this.setData({ showJdDrawer: true })
+    this.setData({ 
+      showJdDrawer: true,
+      drawerTitle: '文字生成简历',
+      targetJob: {
+        title: '',
+        company: '',
+        content: '',
+        experience: ''
+      }
+    })
   },
 
   closeJdDrawer() {
@@ -43,9 +54,14 @@ Page({
   },
 
   checkSubmitStatus() {
-    const { title, content, experience } = this.data.targetJob
+    const { title, company, content, experience } = this.data.targetJob
     // Simple validation: all fields must have some content
-    const isValid = !!(title && title.trim() && content && content.trim() && experience && experience.trim())
+    const isValid = !!(
+      title && title.trim() && 
+      company && company.trim() && 
+      content && content.trim() && 
+      experience && experience.trim()
+    )
     
     if (this.data.canSubmit !== isValid) {
       this.setData({ canSubmit: isValid })
@@ -54,17 +70,51 @@ Page({
 
   // 1. 截图生成简历
   async onUploadScreenshot() {
-    wx.chooseImage({
+    wx.chooseMedia({
       count: 1,
-      sizeType: ['compressed'],
+      mediaType: ['image'],
       sourceType: ['album', 'camera'],
       success: async (res) => {
+        const filePath = res.tempFiles[0].tempFilePath
         ui.showLoading('AI 正在深度解析截图...')
-        // Placeholder for cloud function logic
-        setTimeout(() => {
-          ui.hideLoading()
-          ui.showToast('功能开发中', 'none')
-        }, 1500)
+        
+        wx.uploadFile({
+          url: 'https://feiwan.online/api/ocr',
+          filePath: filePath,
+          name: 'file',
+          header: {
+            'x-openid': wx.getStorageSync('user_openid') || ''
+          },
+          success: (uploadRes) => {
+            ui.hideLoading()
+            try {
+              const result = JSON.parse(uploadRes.data)
+              if (result.success && result.result) {
+                const { title, company, experience, content } = result.result
+                this.setData({
+                  drawerTitle: '确认识别结果',
+                  targetJob: {
+                    title: title || '',
+                    company: company || '',
+                    experience: experience || '',
+                    content: content || ''
+                  },
+                  showJdDrawer: true
+                }, () => {
+                  this.checkSubmitStatus()
+                })
+              } else {
+                ui.showToast(result.message || '解析失败', 'none')
+              }
+            } catch (e) {
+              ui.showToast('数据解析异常', 'none')
+            }
+          },
+          fail: (err) => {
+            ui.hideLoading()
+            ui.showToast('上传失败，请重试', 'none')
+          }
+        })
       },
       fail: () => {
         // User cancelled
@@ -80,7 +130,7 @@ Page({
   async onOptimizeKeywords() {
     if (!this.data.canSubmit) return
 
-    const { title, content, experience } = this.data.targetJob
+    const { title, company, content, experience } = this.data.targetJob
     const app = getApp<IAppOption>()
     
     try {
@@ -89,6 +139,7 @@ Page({
       // 1. 保存自定义岗位
       const saveRes: any = await callApi('saveCustomJob', {
         title,
+        company,
         content,
         experience
       })

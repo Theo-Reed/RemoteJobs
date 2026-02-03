@@ -18,7 +18,7 @@ Page({
     email: '',
     phone: '',
     phone_en: '',
-    personal_website: '',
+    website: '',
     whatsapp: '',
     telegram: '',
     linkedin: '',
@@ -113,7 +113,7 @@ Page({
       whatsapp: '',
       telegram: '',
       linkedin: '',
-      personal_website: '',
+      website: '',
     },
     degreeOptions: [] as string[],
     genderOptions: [] as string[],
@@ -246,7 +246,7 @@ Page({
       email: profile.email || '',
       phone: profile.phone || '',
       phone_en: profile.phone_en || profile.phone || '',
-      personal_website: profile.personal_website || '',
+      website: profile.website || '',
       whatsapp: profile.whatsapp || '',
       telegram: profile.telegram || '',
       linkedin: profile.linkedin || '',
@@ -511,7 +511,7 @@ Page({
         whatsapp: this.data.whatsapp,
         telegram: this.data.telegram,
         linkedin: this.data.linkedin,
-        personal_website: this.data.personal_website,
+        website: this.data.website,
       }
     })
   },
@@ -534,7 +534,7 @@ Page({
         wechat: contactInfoForm.wechat,
         email: contactInfoForm.email,
         phone: contactInfoForm.phone,
-        personal_website: contactInfoForm.personal_website
+        website: contactInfoForm.website
       }
     } else {
       // English fields only
@@ -544,7 +544,7 @@ Page({
         whatsapp: contactInfoForm.whatsapp,
         telegram: contactInfoForm.telegram,
         linkedin: contactInfoForm.linkedin,
-        personal_website: contactInfoForm.personal_website,
+        website: contactInfoForm.website,
       }
     }
 

@@ -34,7 +34,7 @@
 .hero-section {
     position: relative;
     padding: 40rpx 40rpx 60rpx;
-    background: #ffffff;
+    background: #fff;
     overflow: hidden;
 }
 
@@ -44,7 +44,7 @@
     left: -100rpx;
     width: 600rpx;
     height: 600rpx;
-    background: radial-gradient(circle, rgba(46, 95, 233, 0.15) 0%, transparent 70%); /* Stronger Blue */
+    background: radial-gradient(circle, rgb(46 95 233 / 15%) 0%, transparent 70%); /* Stronger Blue */
     pointer-events: none;
 }
 
@@ -65,15 +65,15 @@
     width: 140rpx;
     height: 140rpx;
     border-radius: 50%;
-    border: 6rpx solid #ffffff;
-    box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.08);
+    border: 6rpx solid #fff;
+    box-shadow: 0 8rpx 24rpx rgb(15 23 42 / 8%);
     transition: border-color 0.3s ease;
 }
 
 .member-color-3 .avatar-large,
 .member-color-4 .avatar-large {
     border-color: #1d4ed8;
-    box-shadow: 0 0 20rpx rgba(29, 78, 216, 0.15);
+    box-shadow: 0 0 20rpx rgb(29 78 216 / 15%);
 }
 
 .member-color-1 .avatar-large,
@@ -93,7 +93,7 @@
     height: 44rpx;
     background: #5182f6;
     border-radius: 50%;
-    border: 4rpx solid #ffffff;
+    border: 4rpx solid #fff;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -107,7 +107,7 @@
 .edit-badge-icon {
     width: 47%;
     height: 47%;
-    background: #ffffff;
+    background: #fff;
     border-radius: 50%;
 }
 
@@ -151,35 +151,35 @@
 
 /* --- 2. VIP Card --- */
 .vip-benefit-card {
-    background: #ffffff;
+    background: #fff;
     border-radius: 28rpx;
     padding: 32rpx;
-    box-shadow: 0 12rpx 30rpx rgba(0, 0, 0, 0.04);
+    box-shadow: 0 12rpx 30rpx rgb(0 0 0 / 4%);
     position: relative;
     overflow: hidden;
     margin-bottom: 32rpx;
-    border: 1rpx solid rgba(226, 232, 240, 0.6);
+    border: 1rpx solid rgb(226 232 240 / 60%);
 }
 
 /* Level Specific Card Backgrounds */
 .vip-level-1.vip-active {
-    background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%);
-    border: 1rpx solid rgba(46, 95, 233, 0.1);
+    background: linear-gradient(135deg, #fff 0%, #f0f7ff 100%);
+    border: 1rpx solid rgb(46 95 233 / 10%);
 }
 
 .vip-level-2.vip-active {
-    background: linear-gradient(135deg, #ffffff 0%, #ebf4ff 100%);
-    border: 1rpx solid rgba(46, 95, 233, 0.15);
+    background: linear-gradient(135deg, #fff 0%, #ebf4ff 100%);
+    border: 1rpx solid rgb(46 95 233 / 15%);
 }
 
 .vip-level-3.vip-active {
-    background: linear-gradient(135deg, #ffffff 0%, #f5f9ff 100%);
+    background: linear-gradient(135deg, #fff 0%, #f5f9ff 100%);
     /* Layered Shadows: Soft ambient + crisp directional */
     box-shadow: 
-        0 20rpx 40rpx rgba(46, 95, 233, 0.08),
-        0 8rpx 16rpx rgba(0, 0, 0, 0.02);
+        0 20rpx 40rpx rgb(46 95 233 / 8%),
+        0 8rpx 16rpx rgb(0 0 0 / 2%);
     /* High-end subtle border */
-    border: 1rpx solid rgba(46, 95, 233, 0.12);
+    border: 1rpx solid rgb(46 95 233 / 12%);
     /* Floating effect */
     transform: translateY(-4rpx);
 }
@@ -218,18 +218,18 @@
 .vip-info-row {
     display: flex;
     align-items: center;
-    background: rgba(255, 255, 255, 0.15);
+    background: rgb(255 255 255 / 15%);
     padding: 10rpx 20rpx;
     border-radius: 12rpx;
     width: fit-content;
-    border: 1rpx solid rgba(255, 255, 255, 0.1);
+    border: 1rpx solid rgb(255 255 255 / 10%);
 }
 
 /* 适配普通用户或低等级会员 */
 .vip-benefit-card.vip-level-0 .vip-info-row,
 .vip-benefit-card.vip-level-1 .vip-info-row {
-    background: rgba(46, 95, 233, 0.05);
-    border-color: rgba(46, 95, 233, 0.1);
+    background: rgb(46 95 233 / 5%);
+    border-color: rgb(46 95 233 / 10%);
 }
 
 .info-item {
@@ -241,18 +241,18 @@
 .info-sep {
     width: 1rpx;
     height: 32rpx;
-    background: rgba(255, 255, 255, 0.3);
+    background: rgb(255 255 255 / 30%);
     margin: 0 20rpx;
 }
 
 .vip-benefit-card.vip-level-0 .info-sep,
 .vip-benefit-card.vip-level-1 .info-sep {
-    background: rgba(46, 95, 233, 0.2);
+    background: rgb(46 95 233 / 20%);
 }
 
 .info-label {
     font-size: 18rpx;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgb(255 255 255 / 70%);
     font-weight: 500;
     margin-bottom: 2rpx;
 }
@@ -264,7 +264,7 @@
 
 .info-value {
     font-size: 24rpx;
-    color: #ffffff;
+    color: #fff;
     font-weight: 800;
 }
 
@@ -314,10 +314,10 @@
 }
 
 .upgrade-guide-box {
-    background: rgba(46, 95, 233, 0.06);
+    background: rgb(46 95 233 / 6%);
     padding: 12rpx 20rpx;
     border-radius: 12rpx;
-    border: 1rpx dashed rgba(46, 95, 233, 0.3);
+    border: 1rpx dashed rgb(46 95 233 / 30%);
 }
 
 .upgrade-text {
@@ -343,10 +343,10 @@
     height: 36rpx;
     margin-left: 12rpx;
     display: block;
-    -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z' fill='currentColor'/%3E%3C/svg%3E");
-    -webkit-mask-size: contain;
-    -webkit-mask-repeat: no-repeat;
-    -webkit-mask-position: center;
+    mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z' fill='currentColor'/%3E%3C/svg%3E");
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
 }
 
 /* 1. Trial Star: Solid Theme Blue */
@@ -362,13 +362,13 @@
 /* 3. Premium Star: Dazzling Blue Gradient + Glow */
 .badge-level-3 {
     background: linear-gradient(135deg, #3b82f6 0%, #2e5fe9 45%, #1d4ed8 100%);
-    box-shadow: 0 0 12rpx rgba(46, 95, 233, 0.4);
+    box-shadow: 0 0 12rpx rgb(46 95 233 / 40%);
 }
 
 .vip-status-tag {
     font-size: 18rpx;
     font-weight: 800;
-    color: #ffffff;
+    color: #fff;
     padding: 4rpx 12rpx;
     border-radius: 8rpx;
     letter-spacing: 1rpx;
@@ -388,19 +388,19 @@
 .vip-btn {
     font-size: 24rpx;
     font-weight: 600;
-    color: #ffffff;
+    color: #fff;
     background: #2e5fe9;
     padding: 16rpx 32rpx;
     border-radius: 100rpx;
-    box-shadow: 0 4rpx 12rpx rgba(46, 95, 233, 0.2);
+    box-shadow: 0 4rpx 12rpx rgb(46 95 233 / 20%);
 }
 
-.btn-level-1 { background: #2e5fe9; box-shadow: 0 4rpx 10rpx rgba(46, 95, 233, 0.15); }
-.btn-level-2 { background: linear-gradient(135deg, #60a5fa 0%, #2e5fe9 100%); box-shadow: 0 4rpx 12rpx rgba(46, 95, 233, 0.2); }
-.btn-level-3 { background: linear-gradient(135deg, #3b82f6 0%, #2e5fe9 45%, #1d4ed8 100%); box-shadow: 0 4rpx 15rpx rgba(29, 78, 216, 0.3); }
+.btn-level-1 { background: #2e5fe9; box-shadow: 0 4rpx 10rpx rgb(46 95 233 / 15%); }
+.btn-level-2 { background: linear-gradient(135deg, #60a5fa 0%, #2e5fe9 100%); box-shadow: 0 4rpx 12rpx rgb(46 95 233 / 20%); }
+.btn-level-3 { background: linear-gradient(135deg, #3b82f6 0%, #2e5fe9 45%, #1d4ed8 100%); box-shadow: 0 4rpx 15rpx rgb(29 78 216 / 30%); }
 
 .vip-active .vip-btn {
-    background: rgba(0, 0, 0, 0.05);
+    background: rgb(0 0 0 / 5%);
     color: #64748b;
     box-shadow: none;
 }
@@ -414,9 +414,9 @@
     background: linear-gradient(
         to right, 
         transparent 0%, 
-        rgba(46, 95, 233, 0.03) 40%, 
-        rgba(46, 95, 233, 0.12) 50%, 
-        rgba(46, 95, 233, 0.03) 60%, 
+        rgb(46 95 233 / 3%) 40%, 
+        rgb(46 95 233 / 12%) 50%, 
+        rgb(46 95 233 / 3%) 60%, 
         transparent 100%
     );
     transform: skewX(-25deg);
@@ -438,10 +438,10 @@
     height: 240rpx;
     opacity: 0.05;
     background: #5182f6;
-    -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z' fill='currentColor'/%3E%3C/svg%3E");
-    -webkit-mask-size: contain;
-    -webkit-mask-repeat: no-repeat;
-    -webkit-mask-position: center;
+    mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z' fill='currentColor'/%3E%3C/svg%3E");
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
     transform: rotate(-15deg);
 }
 
@@ -452,11 +452,11 @@
 
 /* --- 3. Action List Group --- */
 .action-list-group {
-    background: #ffffff;
+    background: #fff;
     border-radius: 28rpx;
     padding: 8rpx 0;
-    box-shadow: 0 8rpx 20rpx rgba(0, 0, 0, 0.03);
-    border: 1rpx solid rgba(226, 232, 240, 0.6);
+    box-shadow: 0 8rpx 20rpx rgb(0 0 0 / 3%);
+    border: 1rpx solid rgb(226 232 240 / 60%);
     margin-bottom: 32rpx;
 }
 
@@ -494,7 +494,7 @@
     font-size: 36rpx;
     margin-right: 24rpx;
     background: #f0f7ff; /* Consistent Light Blue Base */
-    border: 1rpx solid rgba(46, 95, 233, 0.08); /* Faint blue border */
+    border: 1rpx solid rgb(46 95 233 / 8%); /* Faint blue border */
 }
 
 /* Unified Brand Blue tint for all list icons */
@@ -536,11 +536,11 @@
 
 /* --- 4. Settings List --- */
 .settings-group {
-    background: #ffffff;
+    background: #fff;
     border-radius: 28rpx;
     padding: 8rpx 0;
-    box-shadow: 0 8rpx 20rpx rgba(0, 0, 0, 0.03);
-    border: 1rpx solid rgba(226, 232, 240, 0.6);
+    box-shadow: 0 8rpx 20rpx rgb(0 0 0 / 3%);
+    border: 1rpx solid rgb(226 232 240 / 60%);
 }
 
 .setting-row {
@@ -601,13 +601,13 @@
 .mode-section-title { font-size: 24rpx; color: #6b7280; padding: 24rpx 32rpx 12rpx; font-weight: 500; }
 .mode-section-title-vip { display: flex; align-items: center; gap: 12rpx; margin-top: 12rpx; }
 .vip-tag-mini {
-    background: linear-gradient(135deg,rgb(77, 140, 243) 0%,rgb(46, 95, 233) 100%);
-    color: #ffffff;
+    background: linear-gradient(135deg,rgb(77 140 243) 0%,rgb(46 95 233) 100%);
+    color: #fff;
     font-size: 18rpx;
     font-weight: bold;
     padding: 4rpx 10rpx;
     border-radius: 6rpx;
-    box-shadow: 0 2rpx 8rpx rgba(29, 78, 216, 0.3);
+    box-shadow: 0 2rpx 8rpx rgb(29 78 216 / 30%);
 }
 .mode-card {
     margin: 12rpx 32rpx;
@@ -619,23 +619,23 @@
     border: 3rpx solid transparent;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.mode-card-active { background: rgba(29, 78, 216, 0.04); border-color: #1d4ed8; }
-.mode-card-icon { font-size: 36rpx; margin-right: 20rpx; filter: drop-shadow(0 0 2rpx rgba(59, 130, 246, 0.4)); }
+.mode-card-active { background: rgb(29 78 216 / 4%); border-color: #1d4ed8; }
+.mode-card-icon { font-size: 36rpx; margin-right: 20rpx; filter: drop-shadow(0 0 2rpx rgb(59 130 246 / 40%)); }
 .mode-card-main { flex: 1; display: flex; flex-direction: column; }
 .mode-name { font-size: 28rpx; font-weight: 600; color: #111827; }
 .mode-desc { font-size: 22rpx; color: #6b7280; margin-top: 4rpx; }
-.mode-card-vip { background: linear-gradient(to right, #ffffff, #f8fbff); border: 1px solid #e5e7eb; }
+.mode-card-vip { background: linear-gradient(to right, #fff, #f8fbff); border: 1px solid #e5e7eb; }
 .mode-card-vip.mode-card-active {
     border: 3rpx solid #3b82f6;
     background: linear-gradient(to right, #f0f7ff, #eef2ff);
-    box-shadow: 0 4rpx 12rpx rgba(59, 130, 246, 0.12);
+    box-shadow: 0 4rpx 12rpx rgb(59 130 246 / 12%);
 }
 .mode-check { margin-left: 20rpx; }
 
 /* --- 5. Member Hub Sheet --- */
 .member-hub-content {
     padding: 0;
-    background: #ffffff;
+    background: #fff;
     border-radius: 40rpx 40rpx 0 0;
 }
 
@@ -693,7 +693,7 @@
     font-size: 18rpx;
     font-weight: 800;
     color: #2e5fe9;
-    background: rgba(46, 95, 233, 0.1);
+    background: rgb(46 95 233 / 10%);
     padding: 4rpx 12rpx;
     border-radius: 6rpx;
     letter-spacing: 1rpx;
@@ -808,15 +808,15 @@
 /* Code Display Card */
 .code-display-card {
     width: 100%;
-    background: linear-gradient(90deg, #ffffff 0%, #f0f7ff 100%);
+    background: linear-gradient(90deg, #fff 0%, #f0f7ff 100%);
     border-radius: 32rpx;
     padding: 40rpx 0;
     display: flex;
     flex-direction: column;
     align-items: center;
     margin-bottom: 40rpx;
-    border: 2rpx solid rgba(46, 95, 233, 0.12);
-    box-shadow: 0 4rpx 24rpx rgba(46, 95, 233, 0.06);
+    border: 2rpx solid rgb(46 95 233 / 12%);
+    box-shadow: 0 4rpx 24rpx rgb(46 95 233 / 6%);
     transition: all 0.2s ease;
     position: relative;
     overflow: hidden;
@@ -873,7 +873,7 @@
 }
 
 .redeem-input-group {
-    background: #ffffff;
+    background: #fff;
     border: 2rpx solid #e2e8f0;
     border-radius: 24rpx;
     height: 100rpx;
@@ -881,14 +881,14 @@
     align-items: center;
     padding: 0 16rpx 0 32rpx;
     transition: all 0.3s ease;
-    box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.02);
+    box-shadow: 0 4rpx 12rpx rgb(0 0 0 / 2%);
     box-sizing: border-box;
     width: 100%;
 }
 
 .redeem-input-group:focus-within {
     border-color: #2e5fe9;
-    box-shadow: 0 4rpx 16rpx rgba(46, 95, 233, 0.1);
+    box-shadow: 0 4rpx 16rpx rgb(46 95 233 / 10%);
 }
 
 .redeem-input {
@@ -917,8 +917,8 @@
 /* Active State for Button */
 .redeem-input-group.has-value .redeem-action-btn {
     background: linear-gradient(135deg, #4979fc 0%, #2e5fe9 100%);
-    color: #ffffff;
-    box-shadow: 0 4rpx 12rpx rgba(46, 95, 233, 0.25);
+    color: #fff;
+    box-shadow: 0 4rpx 12rpx rgb(46 95 233 / 25%);
     transform: scale(1.02);
 }
 
@@ -929,7 +929,7 @@
 
 /* Contact Author Section */
 .contact-author-section {
-    background: #ffffff;
+    background: #fff;
     border-radius: 24rpx;
     padding: 32rpx;
     border: 1rpx solid #f1f5f9;
@@ -1005,7 +1005,7 @@
 
 .hub-action-right {
     background: #2e5fe9;
-    box-shadow: 0 8rpx 20rpx rgba(46, 95, 233, 0.2);
+    box-shadow: 0 8rpx 20rpx rgb(46 95 233 / 20%);
 }
 
 .hub-action-left.full-width {
@@ -1022,7 +1022,7 @@
 }
 
 .action-btn-text.primary {
-    color: #ffffff;
+    color: #fff;
 }
 
 .hub-action-left:active, .hub-action-right:active {
@@ -1034,7 +1034,7 @@
     50% { transform: translateY(-6rpx); }
 }
 
-@import "./profile-sheet.wxss";
+@import url("./profile-sheet.wxss");
 
 /* --- 8. Professional Member Hub V2 --- */
 .member-hub-content.v2-design {
@@ -1046,9 +1046,9 @@
   margin: 24rpx 32rpx;
   padding: 40rpx;
   border-radius: 40rpx;
-  background: #ffffff;
-  box-shadow: 0 20rpx 50rpx rgba(15, 23, 42, 0.05);
-  border: 1rpx solid rgba(226, 232, 240, 0.5);
+  background: #fff;
+  box-shadow: 0 20rpx 50rpx rgb(15 23 42 / 5%);
+  border: 1rpx solid rgb(226 232 240 / 50%);
   position: relative;
   overflow: hidden;
 }
@@ -1096,7 +1096,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  background: rgba(46, 95, 233, 0.05);
+  background: rgb(46 95 233 / 5%);
   padding: 8rpx 20rpx;
   border-radius: 20rpx;
 }
@@ -1141,7 +1141,7 @@
   font-size: 18rpx;
   font-weight: 800;
   background: #2e5fe9;
-  color: #ffffff;
+  color: #fff;
   padding: 4rpx 12rpx;
   border-radius: 8rpx;
 }
@@ -1224,7 +1224,7 @@
 }
 
 .privilege-card {
-  background: #ffffff;
+  background: #fff;
   border: 1rpx solid #f1f5f9;
   border-radius: 32rpx;
   padding: 24rpx;
@@ -1306,8 +1306,8 @@
 
 .action-btn-v2.primary {
   background: #2e5fe9;
-  color: #ffffff;
-  box-shadow: 0 12rpx 24rpx rgba(46, 95, 233, 0.25);
+  color: #fff;
+  box-shadow: 0 12rpx 24rpx rgb(46 95 233 / 25%);
 }
 
 .action-btn-v2:active {
@@ -1322,11 +1322,11 @@
 
 /* --- 6. Author Contact Card --- */
 .author-contact-card {
-    background: #ffffff;
+    background: #fff;
     border-radius: 28rpx;
     padding: 32rpx;
-    box-shadow: 0 8rpx 20rpx rgba(0, 0, 0, 0.03);
-    border: 1rpx solid rgba(226, 232, 240, 0.6);
+    box-shadow: 0 8rpx 20rpx rgb(0 0 0 / 3%);
+    border: 1rpx solid rgb(226 232 240 / 60%);
     margin-bottom: 40rpx;
     display: flex;
     flex-direction: column;
@@ -1373,7 +1373,7 @@
 
 /* --- 7. Contact Author Sheet --- */
 .author-sheet-content {
-    background: #ffffff;
+    background: #fff;
     border-radius: 40rpx 40rpx 0 0;
     padding: 0;
 }
@@ -1396,7 +1396,7 @@
 
 .qr-code-container-sheet {
     width: 600rpx; /* Increased size since we have more room */
-    background: #ffffff;
+    background: #fff;
     border-radius: 0; /* Fully square/zero rounded if preferred, but let's keep some or zero as requested */
     padding: 0; /* Zero padding as requested */
     border: none;
@@ -1440,7 +1440,7 @@
     flex-direction: column;
     width: 260rpx;
     height: 320rpx;
-    background: #ffffff;
+    background: #fff;
     border: 2rpx solid #e2e8f0;
     border-radius: 28rpx;
     padding: 32rpx 24rpx;
@@ -1453,7 +1453,7 @@
 .product-card.selected {
     border-color: #2e5fe9;
     background: #eff6ff;
-    box-shadow: 0 12rpx 32rpx rgba(46, 95, 233, 0.15);
+    box-shadow: 0 12rpx 32rpx rgb(46 95 233 / 15%);
     transform: translateY(-4rpx);
 }
 
@@ -1464,7 +1464,7 @@
 .product-card.is-topup.selected {
     border-color: #eab308;
     background: #fef9c3;
-    box-shadow: 0 12rpx 32rpx rgba(234, 179, 8, 0.15);
+    box-shadow: 0 12rpx 32rpx rgb(234 179 8 / 15%);
 }
 
 .product-tag {
@@ -1533,9 +1533,9 @@
     position: relative;
     overflow: hidden;
     /* Default: Clean White to match other cards */
-    background: #ffffff;
-    box-shadow: 0 10rpx 30rpx rgba(46, 95, 233, 0.08); /* Blue-tinted shadow */
-    border: 1rpx solid rgba(46, 95, 233, 0.12); /* Branded blue border */
+    background: #fff;
+    box-shadow: 0 10rpx 30rpx rgb(46 95 233 / 8%); /* Blue-tinted shadow */
+    border: 1rpx solid rgb(46 95 233 / 12%); /* Branded blue border */
     color: #0f172a; /* Same as nickname color */
     transition: transform 0.1s;
 }
@@ -1549,7 +1549,7 @@
 .vip-card-v3.level-2,
 .vip-card-v3.level-3,
 .vip-card-v3.level-4 { 
-    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); 
+    background: linear-gradient(135deg, #fff 0%, #f8fafc 100%); 
     color: #0f172a;
 }
 
@@ -1560,12 +1560,12 @@
     width: 350rpx;
     height: 350rpx;
     /* Match hero-bg color wash */
-    background: radial-gradient(circle, rgba(46, 95, 233, 0.05) 0%, transparent 70%); 
+    background: radial-gradient(circle, rgb(46 95 233 / 5%) 0%, transparent 70%); 
     pointer-events: none;
     filter: blur(50rpx);
 }
 .level-3 .card-glow,
-.level-4 .card-glow { background: radial-gradient(circle, rgba(46, 95, 233, 0.06) 0%, transparent 70%); }
+.level-4 .card-glow { background: radial-gradient(circle, rgb(46 95 233 / 6%) 0%, transparent 70%); }
 
 .card-content {
     position: relative;
@@ -1588,10 +1588,10 @@
     display: flex;
     align-items: center;
     gap: 12rpx;
-    background: rgba(241, 245, 249, 0.8); /* Refined background, less glassy */
+    background: rgb(241 245 249 / 80%); /* Refined background, less glassy */
     padding: 8rpx 24rpx;
     border-radius: 100rpx;
-    border: 1rpx solid rgba(226, 232, 240, 0.5);
+    border: 1rpx solid rgb(226 232 240 / 50%);
 }
 
 .vip-name {
@@ -1636,7 +1636,7 @@
     height: 100%;
     background: linear-gradient(90deg, #2e5fe9, #3b82f6);
     border-radius: 100rpx;
-    box-shadow: 0 0 12rpx rgba(46, 95, 233, 0.3);
+    box-shadow: 0 0 12rpx rgb(46 95 233 / 30%);
     transition: width 0.8s ease-out;
 }
 
@@ -1691,7 +1691,7 @@
     border-radius: 36rpx;
     background: #fff;
     border: 1rpx solid #e2e8f0;
-    box-shadow: 0 10rpx 30rpx rgba(148, 163, 184, 0.1);
+    box-shadow: 0 10rpx 30rpx rgb(148 163 184 / 10%);
 }
 
 .dash-row-top {
@@ -1775,7 +1775,7 @@
     box-sizing: border-box;
     position: relative;
     border: 3rpx solid transparent; /* Prepare for border */
-    box-shadow: 0 8rpx 20rpx rgba(148, 163, 184, 0.05);
+    box-shadow: 0 8rpx 20rpx rgb(148 163 184 / 5%);
     flex-shrink: 0;
     margin-right: 8rpx;
 }
@@ -1785,7 +1785,7 @@
 .type-plan.selected {
     background: #eff6ff;
     border-color: #2e5fe9;
-    box-shadow: 0 12rpx 32rpx rgba(46, 95, 233, 0.2);
+    box-shadow: 0 12rpx 32rpx rgb(46 95 233 / 20%);
 }
 
 /* Topup Styles (Light Blue Theme) */
@@ -1793,7 +1793,7 @@
 .type-topup.selected {
     background: #eff6ff; /* Blue 50 */
     border-color: #3b82f6; /* Blue 500 */
-    box-shadow: 0 12rpx 32rpx rgba(59, 130, 246, 0.15);
+    box-shadow: 0 12rpx 32rpx rgb(59 130 246 / 15%);
 }
 
 .prod-tag {
@@ -1890,7 +1890,7 @@
 
 .sheet-footer-v3 {
     background: #fff;
-    box-shadow: 0 -10rpx 40rpx rgba(0,0,0,0.05);
+    box-shadow: 0 -10rpx 40rpx rgb(0 0 0 / 5%);
     padding: 23rpx 32rpx 19rpx 40rpx;
     display: flex;
     justify-content: space-between;
@@ -1928,6 +1928,6 @@
     font-weight: 700;
     padding: 16rpx 50rpx;
     border-radius: 100rpx;
-    box-shadow: 0 8rpx 20rpx rgba(46, 95, 233, 0.25);
+    box-shadow: 0 8rpx 20rpx rgb(46 95 233 / 25%);
 }
 .pay-btn-v3:active { transform: scale(0.96); }

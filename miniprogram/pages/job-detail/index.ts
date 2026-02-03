@@ -363,7 +363,7 @@ Page({
       const hasBasicZh = !!p_zh.name && (!!p_zh.email || !!p_zh.phone || !!p_zh.wechat) && (p_zh.educations?.length > 0) && (p_zh.workExperiences?.length > 0)
       
       // EN: Require Name + (Email/PhoneEn/Whatsapp/Telegram/Linkedin/Website) + Edu + Work (Location is optional but good)
-      const hasBasicEn = !!p_en.name && (!!p_en.email || !!p_en.phone_en || !!p_en.whatsapp || !!p_en.telegram || !!p_en.linkedin || !!p_en.personal_website) && (p_en.educations?.length > 0) && (p_en.workExperiences?.length > 0)
+      const hasBasicEn = !!p_en.name && (!!p_en.email || !!p_en.phone_en || !!p_en.whatsapp || !!p_en.telegram || !!p_en.linkedin || !!p_en.website) && (p_en.educations?.length > 0) && (p_en.workExperiences?.length > 0)
 
       // Determine language context
       const lang = normalizeLanguage(app?.globalData?.language)
@@ -505,7 +505,7 @@ Page({
            if (!(p_zh.workExperiences?.length > 0)) missing.push('工作经历')
         } else {
            if (!p_en.name) missing.push('Name')
-           const hasContact = p_en.email || p_en.phone_en || p_en.whatsapp || p_en.telegram || p_en.linkedin || p_en.personal_website
+           const hasContact = p_en.email || p_en.phone_en || p_en.whatsapp || p_en.telegram || p_en.linkedin || p_en.website
            if (!hasContact) missing.push('Contact')
            if (!(p_en.educations?.length > 0)) missing.push('Education')
            if (!(p_en.workExperiences?.length > 0)) missing.push('Experience')

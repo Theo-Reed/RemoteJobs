@@ -45,11 +45,11 @@
 
   </view>
 
-  <!-- Bottom Drawer for Text Resume Generation -->
+  <!-- Bottom Drawer for Text/Screenshot Resume Generation -->
   <view wx:if="{{showJdDrawer}}" class="drawer-mask" bindtap="closeJdDrawer"></view>
   <view class="drawer-container {{showJdDrawer ? 'drawer-show' : ''}}">
     <view class="drawer-header">
-      <text class="drawer-title">文字生成简历</text>
+      <text class="drawer-title">{{drawerTitle}}</text>
       <view class="close-btn" bindtap="closeJdDrawer">×</view>
     </view>
     
@@ -63,6 +63,18 @@
           value="{{targetJob.title}}" 
           bindinput="onJdFieldChange" 
           data-field="title"
+        />
+      </view>
+
+      <view class="form-item">
+        <text class="label">公司名称</text>
+        <input 
+          class="input" 
+          placeholder="例如：腾讯 / 字节跳动" 
+          placeholder-class="placeholder"
+          value="{{targetJob.company}}" 
+          bindinput="onJdFieldChange" 
+          data-field="company"
         />
       </view>
 

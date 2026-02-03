@@ -23,13 +23,13 @@ page {
 .icon-box {
   width: 160rpx;
   height: 160rpx;
-  background: #ffffff;
+  background: #fff;
   border-radius: 40rpx;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 48rpx;
-  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.05);
+  box-shadow: 0 8rpx 24rpx rgb(0 0 0 / 5%);
 }
 
 .maintenance-icon {

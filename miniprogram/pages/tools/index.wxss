@@ -1,6 +1,6 @@
 .page {
   padding: 32rpx;
-  background-color: #f8fafc;
+  background-color: var(--bg-page);
   min-height: 100vh;
 }
 
@@ -11,14 +11,14 @@
 .title {
   font-size: 48rpx;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--text-main);
   display: block;
   margin-bottom: 8rpx;
 }
 
 .subtitle {
   font-size: 28rpx;
-  color: #64748b;
+  color: var(--text-sub);
 }
 
 .tools-grid {
@@ -28,18 +28,18 @@
 }
 
 .tool-card {
-  background: #ffffff;
-  border-radius: 24rpx;
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
   padding: 32rpx;
   display: flex;
   align-items: center;
-  box-shadow: 0 4rpx 6rpx -1rpx rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-sm);
   transition: all 0.2s;
 }
 
 .tool-card:active {
   transform: scale(0.98);
-  background: #f1f5f9;
+  background: var(--border);
 }
 
 .icon-box {
@@ -52,7 +52,7 @@
   margin-right: 24rpx;
 }
 
-.icon-box.blue { background: #eff6ff; }
+.icon-box.blue { background: var(--primary-light); }
 .icon-box.purple { background: #f3e8ff; }
 .icon-box.green { background: #f0fdf4; }
 
@@ -72,29 +72,26 @@
 .tool-name {
   font-size: 32rpx;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--text-main);
   display: block;
   margin-bottom: 4rpx;
 }
 
 .tool-desc {
   font-size: 24rpx;
-  color: #64748b;
+  color: var(--text-sub);
 }
 
 .arrow {
-  color: #cbd5e1;
+  color: var(--text-holder);
   font-weight: 600;
 }
 
 /* Drawer Styles */
 .drawer-mask {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  inset: 0;
+  background: rgb(0 0 0 / 50%);
   z-index: 1000;
 }
 
@@ -103,8 +100,8 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: #ffffff;
-  border-radius: 24rpx 24rpx 0 0;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   padding-bottom: 35rpx;
   z-index: 1001;
   transform: translateY(100%);
@@ -123,18 +120,18 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 2rpx solid #f1f5f9;
+  border-bottom: 2rpx solid var(--border);
 }
 
 .drawer-title {
   font-size: 34rpx;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--text-main);
 }
 
 .close-btn {
   font-size: 40rpx;
-  color: #94a3b8;
+  color: var(--text-holder);
   padding: 10rpx;
   line-height: 1;
 }
@@ -152,20 +149,20 @@
   display: block;
   font-size: 28rpx;
   font-weight: 600;
-  color: #475569;
+  color: var(--text-sub);
   margin-bottom: 16rpx;
 }
 
 .input, .textarea {
   width: 100%;
-  background: #f8fafc;
-  border: 2rpx solid #e2e8f0;
-  border-radius: 16rpx;
+  background: var(--bg-page);
+  border: 2rpx solid var(--divider);
+  border-radius: var(--radius-sm);
   padding: 0 24rpx;
   box-sizing: border-box;
   font-size: 28rpx;
   line-height: 48rpx;
-  color: #0f172a;
+  color: var(--text-main);
 }
 
 .input {
@@ -180,12 +177,12 @@
 .placeholder {
   font-size: 28rpx;
   line-height: 48rpx;
-  color: #94a3b8;
+  color: var(--text-holder);
 }
 
 .submit-btn {
-  background: #e2e8f0;
-  color: #94a3b8;
+  background: var(--divider);
+  color: var(--text-holder);
   border-radius: 100rpx;
   font-size: 30rpx;
   font-weight: 700;
@@ -197,12 +194,16 @@
 }
 
 .submit-btn.active {
-  background: linear-gradient(135deg, #4979fc 0%, #2e5fe9 100%);
-  color: #ffffff;
-  box-shadow: 0 8rpx 20rpx rgba(46, 95, 233, 0.3);
+  background: linear-gradient(135deg, #4979fc 0%, var(--primary) 100%);
+  color: #fff;
+  box-shadow: var(--shadow-md);
 }
 
 .submit-btn.active:active {
   transform: scale(0.96);
   opacity: 0.9;
+}
+
+.ocr-review-drawer .bottom-sheet-content {
+  background-color: var(--bg-page);
 }

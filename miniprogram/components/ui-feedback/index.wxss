@@ -1,6 +1,6 @@
 .ui-feedback {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -15,20 +15,20 @@
 }
 
 .ui-mask {
-  background: rgba(255, 255, 255, 0.4);
+  background: rgb(255 255 255 / 40%);
   backdrop-filter: blur(15rpx);
-  -webkit-backdrop-filter: blur(15rpx);
+  backdrop-filter: blur(15rpx);
   pointer-events: auto;
 }
 
 .ui-content {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgb(255 255 255 / 95%);
   padding: 48rpx 64rpx;
   border-radius: 48rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
-  box-shadow: 0 40rpx 100rpx rgba(0, 0, 0, 0.08);
+  box-shadow: 0 40rpx 100rpx rgb(0 0 0 / 8%);
   min-width: 300rpx;
   max-width: 85%;
   transform: translateY(40rpx) scale(0.9);

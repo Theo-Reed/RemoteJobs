@@ -1,11 +1,8 @@
 /* miniprogram/components/education-drawer/index.wxss */
 .drawer-mask {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.4);
+  inset: 0;
+  background: rgb(0 0 0 / 40%);
   z-index: 1000;
   
   opacity: 0;
@@ -30,16 +27,13 @@
 
 .drawer-content {
   position: fixed;
-  top: 0;
-  bottom: 0;
+  inset: 0 0 0 auto;
   
   /* Reset to Standard Right Anchor */
-  right: 0;
-  left: auto;
   width: 85vw;
   height: 100%;
   
-  background: #ffffff;
+  background: #fff;
   z-index: 1001;
   
   /* Restored: 100% Translation (Standard) */
@@ -50,7 +44,7 @@
   visibility: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: -10rpx 0 30rpx rgba(0, 0, 0, 0.05);
+  box-shadow: -10rpx 0 30rpx rgb(0 0 0 / 5%);
   border-top-left-radius: 32rpx;
   border-bottom-left-radius: 32rpx;
   will-change: transform;
@@ -194,7 +188,7 @@
   flex: 1;
   height: 96rpx;
   background: #3B82F6;
-  color: #ffffff;
+  color: #fff;
   border-radius: 20rpx;
   display: flex;
   align-items: center;
