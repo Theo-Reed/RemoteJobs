@@ -252,6 +252,37 @@ Page({
          });
          if (downloadRes.statusCode === 200) {
              tempFilePath = downloadRes.tempFilePath;
+         } else if (downloadRes.statusCode === 404) {
+              // 物理文件由于 24 小时过期已被系统回收，触发免 AI 重新渲染恢复
+              ui.hideLoading();
+              wx.showLoading({ title: '过期文件恢复中...', mask: true });
+              
+              try {
+                 const restoreRes = await callApi('restoreResume', {
+                     resumeId: item._id
+                 });
+                 
+                 if (restoreRes.success) {
+                     // 启动轮询，这样列表会自动更新显示 "Processing"
+                     this.startPolling();
+                     // 提示用户稍等
+                     setTimeout(() => {
+                         wx.hideLoading();
+                         wx.showToast({ 
+                             title: '文件已在云端重新渲染中，请稍候', 
+                             icon: 'none', 
+                             duration: 4000 
+                         });
+                     }, 500);
+                 } else {
+                     throw new Error(restoreRes.message || 'Restoration failed');
+                 }
+                 return; // 退出，等待轮询
+              } catch (restoreErr: any) {
+                  console.error('Restore failed:', restoreErr);
+                  ui.showError(restoreErr.message || '文件已过期且无法恢复');
+                  return;
+              }
          } else {
              throw new Error('Download failed status ' + downloadRes.statusCode);
          }
