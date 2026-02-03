@@ -54,7 +54,7 @@
 .resume-card {
   background: #ffffff;
   border-radius: 28rpx;
-  padding: 32rpx 52rpx 32rpx 32rpx;
+  padding: 32rpx 27rpx 32rpx 32rpx;
   display: flex;
   align-items: center;
   margin-bottom: 24rpx;
@@ -172,6 +172,10 @@
   border-top: 3rpx solid #2e5fe9;
   border-radius: 50%;
   animation: spin 1s linear infinite;
+}
+
+.card-right .ui-spinner {
+  margin-right: 25rpx;
 }
 
 .retry-btn {

@@ -346,7 +346,7 @@ Page({
     
     try {
       this.setData({ isGenerating: true })
-      ui.showLoading('正在连接 AI...', false)
+      // [Optimization] Removed loading as per user request to use popups/toasts for result instead
       
       // 实时请求数据库获取最新的完整度
       const user = await app.refreshUser()
@@ -431,8 +431,22 @@ Page({
           this.setData({ isGenerating: false })
           
           const isQuotaError = (err?.statusCode === 403) || (err?.data?.error === 'Quota exhausted') || (err?.message && err.message.includes('Quota'));
+          const isProcessingError = (err?.statusCode === 409) || (err?.data?.message && err.data.message.includes('生成中'));
 
-          // 如果是配额不足
+          // 1. 如果是正在生成中 (409)
+          if (isProcessingError) {
+            wx.showModal({
+                title: isChineseEnv ? '生成中' : 'Processing',
+                content: isChineseEnv 
+                  ? '该岗位的定制简历还在生成中，请耐心等待，无需重复提交。' 
+                  : 'Resume for this job is still being generated. Please wait.',
+                showCancel: false,
+                confirmText: isChineseEnv ? '知道了' : 'OK'
+            });
+            return;
+          }
+
+          // 2. 如果是配额不足 (403)
           if (isQuotaError) {
              wx.showModal({
                  title: isChineseEnv ? '生成额度已用完' : 'Quota Exhausted',

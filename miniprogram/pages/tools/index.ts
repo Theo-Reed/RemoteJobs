@@ -99,8 +99,6 @@ Page({
 
       const { jobId, jobData } = saveRes.result
       
-      ui.showLoading('准备 AI 生成...')
-      
       // 2. 获取用户资料
       const user = await app.refreshUser()
       if (!user) {
@@ -124,7 +122,7 @@ Page({
       }
 
       // 3. 调用生成接口
-      ui.showLoading('正在连接 AI...', false)
+      // [Optimization] Removed clunky loading before API call
       const genRes: any = await callApi('generate', {
         jobId: jobId,
         userId: user.openid,
@@ -135,9 +133,24 @@ Page({
 
       if (genRes.success) {
         ui.hideLoading()
-        ui.showSuccess('任务已提交')
         
-        // 成功后关闭弹窗并清空
+        wx.showModal({
+          title: isChineseEnv ? '生成任务已提交' : 'Task Submitted',
+          content: isChineseEnv 
+            ? 'AI 正在为你深度定制简历，预计需要 30 秒。完成后可在“生成记录”中查看。'
+            : 'AI is customizing your resume. Check "Generated Resumes" in a few moments.',
+          confirmText: isChineseEnv ? '去看看' : 'Check',
+          cancelText: isChineseEnv ? '稍后再说' : 'Close',
+          success: (modalRes) => {
+            if (modalRes.confirm) {
+              wx.navigateTo({
+                url: '/pages/generated-resumes/index'
+              })
+            }
+          }
+        })
+        
+        // 成功后关闭当前抽屉并清空
         this.closeJdDrawer()
         this.setData({
           targetJob: { title: '', content: '', experience: '' },
@@ -157,6 +170,23 @@ Page({
     } catch (err: any) {
       ui.hideLoading()
       console.error('生成任务异常:', err)
+
+      // Handle 409 Processing Error
+      const isProcessingError = (err?.statusCode === 409) || (err?.data?.message && err.data.message.includes('生成中'));
+      if (isProcessingError) {
+        const lang = normalizeLanguage(getApp<IAppOption>().globalData.language)
+        const isChineseEnv = (lang === 'Chinese' || lang === 'AIChinese')
+        wx.showModal({
+            title: isChineseEnv ? '生成中' : 'Processing',
+            content: isChineseEnv 
+              ? '定制简历还在生成中，请耐心等待，无需重复提交。' 
+              : 'Resume is still being generated. Please wait.',
+            showCancel: false,
+            confirmText: isChineseEnv ? '知道了' : 'OK'
+        });
+        return;
+      }
+
       ui.showError(err.message || '服务异常，请重试')
     }
   },

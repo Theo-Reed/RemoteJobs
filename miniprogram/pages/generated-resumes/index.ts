@@ -42,19 +42,21 @@ Page({
     const { item } = e.currentTarget.dataset
     if (!item || !item._id) return
 
-    ui.showLoading('Retrying...')
+    // NO Loading as per user request for minimal UI interference
     try {
         const res = await callApi('retryGenerateResume', {
             resumeId: item._id
         })
         
-        ui.hideLoading()
-        
         if (res.success) {
-            ui.showSuccess('Started')
-            // Refresh list immediately to show "Processing" status
-            this.fetchResumes()
+            ui.showSuccess(this.data.currentLang === 'English' ? 'Retrying...' : '已开始重试')
+            
+            // Start polling first to ensure we don't miss the window
             this.startPolling()
+            
+            // Then refresh to show "Processing" status immediately
+            // Await it so we are sure the list reflects the new state
+            await this.fetchResumes(true)
         } else {
             wx.showModal({
                 title: 'Retry Failed',
@@ -63,7 +65,6 @@ Page({
             })
         }
     } catch (err: any) {
-        ui.hideLoading()
         console.error('Retry failed', err)
         ui.showError('Error')
     }
