@@ -50,11 +50,16 @@ Component({
     bootStatus: 'loading',
     errorMsg: '',
     errorDesc: '',
-    _flowStarted: false
+    _flowStarted: false,
+    
+    // Auth Animation States
+    authState: 'idle' as 'idle' | 'loading' | 'success' | 'fail',
+    authButtonText: '一键授权手机号登录'
   },
 
   methods: {
     _lottieAni: null as any,
+    _authMinTimerPromise: null as Promise<void> | null,
 
     async startFlow() {
       if (this.data._flowStarted) return;
@@ -138,60 +143,61 @@ Component({
 
       if (!detail.code) {
         console.log('[LoginWall] User cancelled phone auth');
+        // 用户取消授权，不执行任何动画改变
         return;
       }
 
-      wx.showLoading({ title: '安全登录中' });
+      // 1. 开始动画：元素淡出，星星移位
+      this.setData({ authState: 'loading' });
+
+      // 2. 启动最低 2.5 秒的定时器
+      const minTimerPromise = new Promise(resolve => setTimeout(resolve, 2500));
 
       try {
         const openid = wx.getStorageSync('user_openid');
         
-        // 1. 调用 getPhoneNumber 接口获取并绑定手机号
-        // 这里的后端需要支持：如果是新用户则创建，并返回 token
-        const res: any = await callApi('getPhoneNumber', { 
-            code: detail.code,
-            openid 
+        // 3. 并行执行业务逻辑
+        const apiCall = callApi('getPhoneNumber', { code: detail.code, openid });
+        
+        // 等待业务完成
+        const res: any = await apiCall;
+        
+        // 等待最低计时器完成
+        await minTimerPromise;
+
+        if (res && res.success && res.data && res.data.token) {
+          // 登录成功
+          wx.setStorageSync('token', res.data.token);
+          app.globalData.user = res.data.user;
+          app.globalData.bootStatus = 'success';
+
+          this.setData({ authState: 'success' });
+
+          // 整个淡出
+          setTimeout(() => {
+             this.setData({ internalPhase: 'hidden', visible: false, _flowStarted: false });
+             this.triggerEvent('loginSuccess', app.globalData.user);
+          }, 600);
+        } else {
+           throw new Error(res?.message || '登录失败');
+        }
+
+      } catch (err: any) {
+        console.error('[LoginWall] Auth error:', err);
+        
+        // 等待最低计时器完成（防止接口报错太快动画没走完）
+        await minTimerPromise;
+
+        // 1. 首先改变按钮文字 (此时内容仍处于淡出隐藏状态，用户看不见文字改变，从而实现“无感”和“不闪烁”)
+        this.setData({ 
+            authButtonText: '请重新授权手机号'
         });
 
-        if (res && res.success) {
-          // 如果后端已经返回了 token 和 user (通常为了流程丝滑会直接返回)
-          if (res.data && res.data.token) {
-              wx.setStorageSync('token', res.data.token);
-              app.globalData.user = res.data.user;
-          } else {
-              // 如果后端没返回，则再尝试一次 loginByOpenid 静默登录
-              const authRes: any = await callApi('loginByOpenid', { openid });
-              if (authRes && authRes.success && authRes.data) {
-                  wx.setStorageSync('token', authRes.data.token);
-                  app.globalData.user = authRes.data.user;
-              } else {
-                  throw new Error('登录失败，请重试');
-              }
-          }
-          
-          wx.hideLoading();
-          wx.showToast({ title: '登录成功', icon: 'success' });
-          
-          // 触发父页面刷新或状态更新
-          this.triggerEvent('loginSuccess', app.globalData.user);
-          
-          // 重置组件状态并消失
-          this.setData({ internalPhase: 'hidden' });
-          
-          // 全局刷新用户状态
-          app.refreshUser().catch(() => {});
-          
-        } else {
-          wx.hideLoading();
-          wx.showToast({ 
-            title: res.message || '获取手机号失败', 
-            icon: 'none' 
-          });
-        }
-      } catch (err: any) {
-        wx.hideLoading();
-        console.error('[LoginWall] Auth Error:', err);
-        wx.showToast({ title: '系统繁忙，请稍后再试', icon: 'none' });
+        // 2. 略微延迟，确保上一步的数据驱动渲染已生效（虽然 setData 是原子的，但为了极致保险）
+        // 然后触发 authState 回位，内容会淡入，星星会移回原位
+        setTimeout(() => {
+            this.setData({ authState: 'idle' });
+        }, 150);
       }
     }
   }

@@ -108,10 +108,25 @@
   transform: translate3d(calc(11vw + 18rpx), calc(var(--anchor-y) - 200rpx), 0);
 }
 
+/* 授权加载状态：移位到卡片中心 */
+.shared-globe.auth-loading {
+  transform: translate3d(calc(50vw - 80rpx), calc(var(--anchor-y) - 80rpx), 0) !important;
+}
+
+/* 授权过程中的呼吸动画（更律动，体现正在处理） */
+.auth-loading .ai-star {
+  animation: auth-breathing 1.5s infinite ease-in-out !important;
+}
+
+@keyframes auth-breathing {
+  0%, 100% { transform: scale(0.9); opacity: 0.85; }
+  50% { transform: scale(1.1); opacity: 1; }
+}
+
 /* State 3: Hidden (Success Fade Out) */
 .shared-globe.hidden {
   opacity: 0;
-  transform: scale(0.8);
+  transform: scale(0.8) translate3d(calc(50vw - 80rpx), calc(var(--anchor-y) - 80rpx), 0);
   pointer-events: none;
 }
 
@@ -166,6 +181,28 @@
   opacity: 1;
   transform: translate(-50%, -50%); /* 最终落位在 5/11 处 */
   pointer-events: auto;
+}
+
+/* 授权成功，整体渐渐淡出 */
+.login-card.hide-all {
+  opacity: 0 !important;
+  pointer-events: none;
+  /* 不移动，保持在原地 */
+  transform: translate(-50%, -50%) !important;
+}
+
+/* 内部内容淡出逻辑 */
+.card-inner-content {
+  opacity: 1;
+  transition: opacity 0.5s ease;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-inner-content.content-fade-out {
+  opacity: 0;
+  pointer-events: none;
 }
 
 /* Provide space for the shared lottie engine */

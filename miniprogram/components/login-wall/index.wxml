@@ -3,7 +3,7 @@
   <view class="glass-mask {{internalPhase}}"></view>
 
   <!-- Shared Animated Globe (The Engine 🎨) -->
-  <view class="shared-globe {{internalPhase}}">
+  <view class="shared-globe {{internalPhase}} {{authState === 'loading' ? 'auth-loading' : ''}} {{authState === 'success' ? 'hidden' : ''}}">
     <image class="ai-star" src="/assets/icons/ai-star.svg" mode="aspectFit" />
   </view>
   
@@ -12,38 +12,40 @@
 
   <!-- Phase 2: Login Card -->
   <!-- Note: The logo here is a placeholder space to ensure alignment -->
-  <view class="login-card {{internalPhase === 'login' ? 'show' : ''}}">
-    <view class="card-header">
-      <!-- Empty space for the moving logo to land in -->
-      <view class="logo-placeholder"></view>
-      <view class="title-group">
-        <text class="main-title">即刻登陆</text>
-        <text class="sub-title">解锁丝滑求职体验</text>
+  <view class="login-card {{internalPhase === 'login' ? 'show' : ''}} {{authState === 'success' ? 'hide-all' : ''}}">
+    <!-- Card Content Wrapper for Easy Fading -->
+    <view class="card-inner-content {{authState === 'loading' || authState === 'success' ? 'content-fade-out' : ''}}">
+      <view class="card-header">
+        <!-- Empty space for the moving logo to land in -->
+        <view class="logo-placeholder"></view>
+        <view class="title-group">
+          <text class="main-title">即刻登陆</text>
+          <text class="sub-title">解锁丝滑求职体验</text>
+        </view>
       </view>
-    </view>
 
-
-    <!-- 动态状态提示 Banner -->
-    <view class="status-banner {{bootStatus === 'no-network' || bootStatus === 'server-down' ? 'active' : ''}}">
-      <view class="banner-content">
-        <text class="banner-icon">{{ bootStatus === 'no-network' ? '📶' : '⚙️' }}</text>
-        <text class="banner-text">{{ bootStatus === 'no-network' ? '网络不可用，请检查设置' : '服务器维护中，正在尝试连接...' }}</text>
+      <!-- 动态状态提示 Banner -->
+      <view class="status-banner {{bootStatus === 'no-network' || bootStatus === 'server-down' ? 'active' : ''}}">
+        <view class="banner-content">
+          <text class="banner-icon">{{ bootStatus === 'no-network' ? '📶' : '⚙️' }}</text>
+          <text class="banner-text">{{ bootStatus === 'no-network' ? '网络不可用，请检查设置' : '服务器维护中，正在尝试连接...' }}</text>
+        </view>
       </view>
-    </view>
 
-    <view class="auth-section">
-      <button 
-        class="primary-btn phone-btn" 
-        open-type="getPhoneNumber" 
-        bindgetphonenumber="onGetPhoneNumber"
-        hover-class="btn-hover"
-      >
-        <text>一键授权手机号登录</text>
-      </button>
-    </view>
+      <view class="auth-section">
+        <button 
+          class="primary-btn phone-btn" 
+          open-type="getPhoneNumber" 
+          bindgetphonenumber="onGetPhoneNumber"
+          hover-class="btn-hover"
+        >
+          <text>{{authButtonText}}</text>
+        </button>
+      </view>
 
-    <view class="card-footer">
-      <text class="protocol">登录即视为同意《用户协议》与《隐私政策》</text>
+      <view class="card-footer">
+        <text class="protocol">登录即视为同意《用户协议》与《隐私政策》</text>
+      </view>
     </view>
   </view>
 </view>
