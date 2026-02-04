@@ -4,6 +4,7 @@ import { mapJobs, getJobFieldsByLanguage, mapJobFieldsToStandard } from '../../u
 import { normalizeLanguage, t } from '../../utils/i18n'
 import { matchSalary } from '../../utils/salary'
 import { request, callApi } from '../../utils/request'
+import { ui } from '../../utils/ui'
 
 type DrawerFilterValue = {
   salary: string
