@@ -59,7 +59,7 @@ Component({
   },
 
   data: {
-    internalPhase: 'splash' as 'splash' | 'login' | 'hidden',
+    internalPhase: 'splash' as 'splash' | 'login' | 'success' | 'login-success' | 'hidden',
     bootStatus: 'loading',
     errorMsg: '',
     errorDesc: '',
@@ -68,7 +68,8 @@ Component({
     
     // Auth Animation States
     authState: 'idle' as 'idle' | 'loading' | 'success' | 'fail',
-    authButtonText: '一键授权手机号登录'
+    authButtonText: '一键授权手机号登录',
+    successMode: '' as 'new' | 'old' | '' // Track if it was a registration or login for CSS persistence
   },
 
   methods: {
@@ -77,12 +78,21 @@ Component({
     async startFlow() {
       if (this.data._flowStarted) return;
       
-      console.log('[LoginWall] startFlow');
+      const app = getApp<any>();
+      const hasShownSplash = app.globalData._splashAnimated;
+
+      console.log('[LoginWall] startFlow', { hasShownSplash });
+
       this.setData({ 
         _flowStarted: true,
         _shouldShow: true,
-        internalPhase: 'splash'
+        internalPhase: hasShownSplash ? 'login' : 'splash'
       });
+
+      // 只要展示过一次，之后就不再展示 splash 阶段
+      if (!hasShownSplash) {
+        app.globalData._splashAnimated = true;
+      }
 
       const checkState = () => {
         const _app = getApp<any>();
@@ -101,11 +111,10 @@ Component({
         console.log('[LoginWall] Finalizing state. Status:', bootStatus);
 
         if (bootStatus === 'success') {
-          console.log('[LoginWall] SUCCESS state detected');
+          console.log('[LoginWall] SUCCESS state detected (Passive)');
           
-          setTimeout(() => {
-            this.setData({ internalPhase: 'hidden' });
-          }, 100);
+          // 如果已经是登录状态（如 Token 有效），则直接隐藏，不需要任何 Success 动画
+          this.setData({ internalPhase: 'hidden' });
           
           // 动画彻底结束后（1.5s），清理流程状态
           setTimeout(() => {
@@ -114,8 +123,7 @@ Component({
           }, 1500);
         } 
         else if (bootStatus === 'no-network' || bootStatus === 'server-down' || bootStatus === 'error') {
-          // ⚠️ Network/Server Error: Stay in splash phase and keep star centered
-          this.setData({ internalPhase: 'splash' });
+          // ⚠️ Network/Server Error: Stay in current phase
           console.log(`[LoginWall] ${bootStatus} detected. Retrying in 4s (animation cycle)...`);
           
           // Wait for one full animation cycle (4s) before retrying the request
@@ -167,43 +175,44 @@ Component({
         return;
       }
 
-      // 1. 开始动画：元素淡出，星星移位
+      // 1. 开始 Loading：卡片内容淡出，星星移至中心偏上 (s-loading 样式)
       this.setData({ authState: 'loading' });
-
-      // 2. 启动最低 1.5 秒的定时器
-      const minTimerPromise = new Promise(resolve => setTimeout(resolve, 1500));
 
       try {
         const openid = wx.getStorageSync('user_openid');
-        
-        // 3. 并行执行业务逻辑
         const apiCall = callApi('getPhoneNumber', { code: detail.code, openid });
         
-        // 等待业务完成
         const res: any = await apiCall;
-        
-        // 等待最低计时器完成
-        await minTimerPromise;
 
         if (res && res.success && res.data && res.data.token) {
-          // 登录成功
+          // 登录成功业务
           wx.setStorageSync('token', res.data.token);
           app.globalData.user = res.data.user;
           app.globalData.bootStatus = 'success';
 
-          this.setData({ authState: 'success' });
+          const isNewUser = !!res.data.isNewUser;
+          console.log('[LoginWall] Auth Success. New User:', isNewUser);
 
-          // 整个淡出过程
+          // 根据是否为新用户，展示不同的成功动画
+          this.setData({ 
+            authState: 'success',
+            successMode: isNewUser ? 'new' : 'old',
+            internalPhase: isNewUser ? 'success' : 'login-success' 
+          });
+
+          const stayTime = isNewUser ? 3000 : 1300;
+
+          // 3. 停留高潮展示时间
           setTimeout(() => {
-             // 触发淡出状态
+             // 4. 触发最终物理淡出
              this.setData({ internalPhase: 'hidden' });
              
-             // 动画持续 1.5s 后彻底释放占位
+             // 5. 1.5s 后彻底释放占位 (对应 CSS transition)
              setTimeout(() => {
                 this.setData({ _flowStarted: false, _shouldShow: false });
                 this.triggerEvent('loginSuccess', app.globalData.user);
              }, 1500);
-          }, 400); 
+          }, stayTime); 
         } else {
            throw new Error(res?.message || '登录失败');
         }
@@ -211,19 +220,15 @@ Component({
       } catch (err: any) {
         console.error('[LoginWall] Auth error:', err);
         
-        // 等待最低计时器完成（防止接口报错太快动画没走完）
-        await minTimerPromise;
-
-        // 1. 首先改变按钮文字 (此时内容仍处于淡出隐藏状态，用户看不见文字改变，从而实现“无感”和“不闪烁”)
+        // 1. 立即把文字设置好，内容还没淡入用户看不见，实现“无感”
         this.setData({ 
-            authButtonText: '请重新授权手机号'
+            authButtonText: '再次尝试授权手机号'
         });
 
-        // 2. 略微延迟，确保上一步的数据驱动渲染已生效（虽然 setData 是原子的，但为了极致保险）
-        // 然后触发 authState 回位，内容会淡入，星星会移回原位
+        // 2. 延迟回滚状态，让星星自动回到 s-login 预置位，并重新淡入其它元素
         setTimeout(() => {
             this.setData({ authState: 'idle' });
-        }, 150);
+        }, 100);
       }
     }
   }

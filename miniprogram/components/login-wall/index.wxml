@@ -1,5 +1,5 @@
 <!-- Global Container -->
-<view class="login-wall {{_shouldShow ? 'visible' : ''}} {{internalPhase === 'hidden' ? 'wall-fade-out' : ''}} s-{{internalPhase}} {{authState === 'loading' ? 's-loading' : ''}}" catchtouchmove="preventTouch">
+<view class="login-wall {{_shouldShow ? 'visible' : ''}} {{internalPhase === 'hidden' ? 'wall-fade-out' : ''}} s-{{internalPhase}} sm-{{successMode}} {{authState === 'loading' ? 's-loading' : ''}}" catchtouchmove="preventTouch">
   
   <!-- Shared Background Layer -->
   <view class="glass-mask"></view>

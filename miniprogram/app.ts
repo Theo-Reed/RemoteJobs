@@ -12,6 +12,7 @@ App<IAppOption>({
     bootStatus: 'loading' as 'loading' | 'success' | 'error' | 'no-network' | 'server-down' | 'unauthorized',
     language: 'Chinese' as AppLanguage,
     _langListeners: new Set<LangListener>(),
+    _splashAnimated: false, // 追踪当前 session 是否已展示过开屏动画
     // 页面跳转临时数据存储
     _pageData: {
       jobData: null as any,
