@@ -55,10 +55,12 @@ Component({
       const app = getApp<any>();
       const hasShownSplash = app.globalData._splashAnimated;
 
+      // 关键修复：无论是否展示过开屏，初始阶段统一设为 'splash' 或引入单独的 'loading' 场景
+      // 避免在静默登录成功前，因为 hasShownSplash 为 true 而瞬间闪现 'login' 登录墙
       this.setData({ 
         _flowStarted: true,
         _shouldShow: true,
-        internalPhase: hasShownSplash ? 'login' : 'splash'
+        internalPhase: 'splash' 
       });
 
       if (!hasShownSplash) app.globalData._splashAnimated = true;
