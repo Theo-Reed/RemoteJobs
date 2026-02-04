@@ -302,3 +302,20 @@ page {
   flex-shrink: 0;
 }
 
+/* 4. 工业级分界线 - 用于列表项之间 */
+.ui-divider {
+  position: relative;
+}
+
+.ui-divider:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: var(--divider-gap-left, 40rpx);
+  right: var(--divider-gap-right, 40rpx);
+  height: 1rpx;
+  background: var(--divider);
+  transform: scaleY(0.5);
+  transform-origin: bottom;
+}
+

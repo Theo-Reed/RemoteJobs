@@ -353,16 +353,8 @@
     padding: 32rpx;
     position: relative;
     transition: background 0.2s ease;
-}
-
-.action-row:not(:last-child)::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 132rpx;
-    right: 32rpx;
-    height: 1rpx;
-    background: #f1f5f9;
+    --divider-gap-left: 40rpx;
+    --divider-gap-right: 40rpx;
 }
 
 .action-row .row-left {
@@ -428,16 +420,8 @@
     padding: 32rpx;
     position: relative;
     transition: background 0.2s ease;
-}
-
-.setting-row:not(:last-child)::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 112rpx;
-    right: 32rpx;
-    height: 1rpx;
-    background: #f1f5f9;
+    --divider-gap-left: 40rpx;
+    --divider-gap-right: 40rpx;
 }
 
 .setting-row .row-left {

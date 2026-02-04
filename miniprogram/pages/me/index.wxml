@@ -64,7 +64,7 @@
 
     <!-- 3. 核心功能列表 Action List Group -->
     <view class="action-list-group">
-      <view class="action-row" bindtap="onResumeProfileTap" hover-class="row-hover">
+      <view class="action-row ui-divider" bindtap="onResumeProfileTap" hover-class="row-hover">
         <view class="row-left">
           <view class="icon-circle blue-bg">📄</view>
           <view class="row-text">
@@ -77,7 +77,7 @@
         </view>
       </view>
 
-      <view class="action-row" bindtap="onGeneratedResumesTap" hover-class="row-hover">
+      <view class="action-row ui-divider" bindtap="onGeneratedResumesTap" hover-class="row-hover">
         <view class="row-left">
           <view class="icon-circle green-bg">✨</view>
           <view class="row-text">
@@ -91,9 +91,9 @@
       </view>
     </view>
 
-    <!-- 4. 设置列表 Settings List (Individual Cards for better focus) -->
+    <!-- 4. 设置列表 Settings List -->
     <view class="settings-group">
-      <view class="setting-row" bindtap="onLanguageTap" hover-class="row-hover">
+      <view class="setting-row ui-divider" bindtap="onLanguageTap" hover-class="row-hover">
         <view class="row-left">
           <view class="row-icon-box"><text>🌍</text></view>
           <text class="row-label">{{ui.languageEntry}}</text>
@@ -103,10 +103,8 @@
           <text class="ui-arrow">❯</text>
         </view>
       </view>
-    </view>
 
-    <view class="settings-group" wx:if="{{isBeta}}">
-      <view class="setting-row" bindtap="onInviteTap" hover-class="row-hover">
+      <view class="setting-row ui-divider" bindtap="onInviteTap" hover-class="row-hover" wx:if="{{isBeta}}">
         <view class="row-left">
           <view class="row-icon-box"><text>✉️</text></view>
           <text class="row-label">{{ui.inviteCodeEntry}}</text>
@@ -115,10 +113,8 @@
           <text class="ui-arrow">❯</text>
         </view>
       </view>
-    </view>
 
-    <view class="settings-group">
-      <view class="setting-row" bindtap="onContactAuthor" hover-class="row-hover">
+      <view class="setting-row ui-divider" bindtap="onContactAuthor" hover-class="row-hover">
         <view class="row-left">
           <view class="row-icon-box"><text style="font-size: 28rpx;">💬</text></view>
           <text class="row-label">{{ui.contactAuthor}}</text>
