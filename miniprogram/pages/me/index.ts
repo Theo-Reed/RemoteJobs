@@ -100,12 +100,21 @@ Page({
         this.initPage()
         
         const app = getApp<IAppOption>() as any
+        
+        // --- Interceptors for Cross-Page Actions ---
         if (app.globalData && app.globalData.openMemberHubOnShow) {
              app.globalData.openMemberHubOnShow = false
              // Small delay to ensure page is ready
              setTimeout(() => {
                  this.openMemberHub()
              }, 300)
+        }
+
+        if (app.globalData && app.globalData._openProfileOnShow) {
+            app.globalData._openProfileOnShow = false
+            setTimeout(() => {
+                this.openProfileSheet()
+            }, 300)
         }
     },
 

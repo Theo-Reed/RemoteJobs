@@ -26,6 +26,7 @@ App<IAppOption>({
 
     this.applyLanguage()
 
+    // Login Wall: Attempt to login, if fail, Redirect will happen in refreshUser or here
     this.globalData.userPromise = this.refreshUser().catch(() => null)
     await this.globalData.userPromise
 
@@ -35,8 +36,11 @@ App<IAppOption>({
   },
 
   onShow() {
-    // 每次进入小程序都确保用户已在数据库中存在
-    this.refreshUser().catch(() => null)
+    // 每次进入小程序都确保用户已登录
+    const user = this.globalData.user;
+    if (user) {
+        this.refreshUser().catch(() => null)
+    }
   },
 
   async refreshSystemConfig() {
@@ -119,39 +123,67 @@ App<IAppOption>({
 
   async refreshUser() {
     try {
-      const res = await callApi('initUser', {})
+      // 1. Get Code
+      const { code } = await wx.login()
 
-      const openid = res?.result?.openid || (res as any)?.openid
-      const user = (res?.result?.user || (res as any)?.user || null) as any
-
-      const merged = user ? { ...user, openid } : (openid ? { openid } : null)
+      // 2. Exchange for OpenID
+      // Note: Backend /api/login now returns openid but DOES NOT create user
+      const loginRes: any = await callApi('login', { code })
+      const openid = loginRes?.result?.openid || loginRes?.openid
       
-      // 检查会员状态并更新
-      try {
-        const memberStatusRes = await callApi('checkMemberStatus', {})
-        
-        const result = memberStatusRes?.result || (memberStatusRes as any)
-        if (result?.success && merged) {
-          merged.membership = result.membership
-        }
-      } catch (err) {
-        // ignore
+      if (!openid) throw new Error('Failed to get OpenID');
+      wx.setStorage({ key: 'user_openid', data: openid });
+
+      // 3. Try "Silent Login" with OpenID
+      // New Auth System: Check if this openid is bound to a user
+      const authRes: any = await callApi('auth/loginByOpenid', { openid }, 'POST', true).catch(err => {
+         // suppress 404/401 here to handle below
+         return { success: false };
+      });
+
+      if (authRes && authRes.success && authRes.data && authRes.data.user) {
+          // Logged In Successfully
+          const user = authRes.data.user;
+          const token = authRes.data.token;
+          
+          wx.setStorageSync('token', token);
+          this.globalData.user = user;
+
+           // 检查会员状态并更新 (Optional, adapted from old code)
+            try {
+                const memberStatusRes: any = await callApi('checkMemberStatus', {})
+                const result = memberStatusRes?.result || memberStatusRes
+                if (result?.success && result.membership) {
+                   this.globalData.user.membership = result.membership
+                }
+            } catch (err) {}
+
+          // Normalize language
+          const lang = normalizeLanguage(user?.language)
+          this.globalData.language = lang
+          
+          return user;
+
+      } else {
+          // Not Logged In (OpenID not bound)
+          console.log('[Auth] User not found or not bound, redirecting to Login Wall');
+          throw new Error('AUTH_REQUIRED');
       }
+
+    } catch (err: any) {
+      const pages = getCurrentPages();
+      const currentRoute = pages[pages.length - 1]?.route;
       
-      this.globalData.user = merged
-
-      // Normalize database/user-provided language (handles 'english'/'chinese' etc.)
-      const lang = normalizeLanguage(merged?.language)
-      this.globalData.language = lang
-
-      return merged
-    } catch (err) {
-      // Try to fallback to what we have in storage if we can't hit server
-      const openid = wx.getStorageSync('user_openid');
-      if (openid && !this.globalData.user) {
-         this.globalData.user = { openid };
+      // If we are already on auth page, don't loop
+      if (currentRoute !== 'pages/auth/index') {
+          const openid = wx.getStorageSync('user_openid');
+          wx.reLaunch({
+              url: `/pages/auth/index?openid=${openid}`
+          });
       }
-      return this.globalData.user;
+      // Return null or throw?
+      // userPromise checks might fail.
+      return null;
     }
   },
 })

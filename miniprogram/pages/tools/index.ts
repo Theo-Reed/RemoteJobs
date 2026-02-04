@@ -23,7 +23,31 @@ Page({
     canSubmit: false
   },
 
+  // Helper to ensure phone is bound before AI actions
+  checkPhonePermission() {
+    const app = getApp<IAppOption>()
+    const user = app.globalData.user
+    
+    if (!user?.phone) {
+      wx.showModal({
+        title: '需要绑定手机号',
+        content: '为了您的简历和会员权益能够永久同步，请先绑定手机号。',
+        confirmText: '去绑定',
+        success: (res) => {
+          if (res.confirm) {
+            (app.globalData as any)._openProfileOnShow = true
+            wx.switchTab({ url: '/pages/me/index' })
+          }
+        }
+      })
+      return false
+    }
+    return true
+  },
+
   openJdDrawer() {
+    if (!this.checkPhonePermission()) return
+    
     this.setData({ 
       showJdDrawer: true,
       drawerTitle: '文字生成简历',
@@ -70,6 +94,8 @@ Page({
 
   // 1. 截图生成简历
   async onUploadScreenshot() {
+    if (!this.checkPhonePermission()) return
+
     wx.chooseMedia({
       count: 1,
       mediaType: ['image'],
@@ -238,6 +264,8 @@ Page({
 
   // 3. 解析/润色旧简历
   async onRefineOldResume() {
+    if (!this.checkPhonePermission()) return
+
     wx.chooseMessageFile({
       count: 1,
       type: 'file',

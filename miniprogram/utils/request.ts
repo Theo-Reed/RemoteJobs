@@ -21,6 +21,7 @@ export const request = <T = any>(options: wx.RequestOption): Promise<T> => {
   return new Promise((resolve, reject) => {
     // 获取本地存储的身份标识
     const openid = wx.getStorageSync('user_openid');
+    const token = wx.getStorageSync('token');
     const url = options.url.startsWith('http') ? options.url : `${BASE_URL}${options.url}`;
 
     wx.request({
@@ -30,6 +31,7 @@ export const request = <T = any>(options: wx.RequestOption): Promise<T> => {
       header: {
         'content-type': 'application/json',
         'x-openid': openid || '',
+        'Authorization': token ? `Bearer ${token}` : '',
         ...options.header,
       },
       success: (res) => {

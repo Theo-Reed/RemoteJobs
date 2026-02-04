@@ -1,0 +1,29 @@
+<view class="container">
+  <view class="header">
+    <view class="title">{{ type === 'login' ? '欢迎回来' : '创建账号' }}</view>
+    <view class="subtitle">请使用手机号{{ type === 'login' ? '登录' : '注册' }}以继续</view>
+  </view>
+
+  <view class="tabs">
+    <view class="tab {{type === 'login' ? 'active' : ''}}" bindtap="switchType" data-type="login">登录</view>
+    <view class="tab {{type === 'register' ? 'active' : ''}}" bindtap="switchType" data-type="register">注册</view>
+  </view>
+
+  <view class="form">
+    <view class="input-group">
+      <view class="label">手机号</view>
+      <input class="input" type="number" placeholder="请输入手机号" model:value="{{phone}}" />
+    </view>
+
+    <view class="input-group">
+      <view class="label">密码</view>
+      <input class="input" type="password" placeholder="请输入密码" model:value="{{password}}" />
+    </view>
+
+    <button class="submit-btn" bindtap="handleSubmit">{{ type === 'login' ? '登录' : '注册' }}</button>
+  </view>
+
+  <view class="tips">
+    <text>登录即代表您同意《用户协议》与《隐私政策》</text>
+  </view>
+</view>

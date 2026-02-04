@@ -1,6 +1,7 @@
 {
   "entryPagePath": "pages/tools/index",
   "pages": [
+    "pages/auth/index",
     "pages/index/index",
     "pages/tools/index",
     "pages/me/index",
