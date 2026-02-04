@@ -77,11 +77,18 @@ Component({
         }
 
         if (bootStatus === 'success') {
-          this.setData({ internalPhase: 'hidden' });
+          // 场景：静默登录成功，展示“不带登录墙”的仪式 (40vw 纯白渐变)
+          const config = getCeremonyConfig(false);
+          this.setData({ 
+            successMode: config.mode,
+            internalPhase: config.phase 
+          });
+          
           setTimeout(() => {
-            this.setData({ _flowStarted: false, _shouldShow: false });
-            this.triggerEvent('loginSuccess', _app.globalData.user);
-          }, TIMINGS.FADE_OUT_DURATION);
+            executeFadeOut(this, () => {
+              this.triggerEvent('loginSuccess', _app.globalData.user);
+            });
+          }, config.stayTime);
         } 
         else if (['no-network', 'server-down', 'error'].includes(bootStatus)) {
           setTimeout(() => {
@@ -109,24 +116,26 @@ Component({
 
       try {
         const app = getApp<any>();
-        const openid = wx.getStorageSync('user_openid');
-        const res: any = await callApi('getPhoneNumber', { code: detail.code, openid });
+        // 调用后端换取手机号与 Token
+        const res: any = await callApi('getPhoneNumber', { code: detail.code });
 
         if (res?.success && res.data?.token) {
           wx.setStorageSync('token', res.data.token);
-          app.globalData.user = res.data.user;
-          app.globalData.bootStatus = 'success';
+          
+          // 执行全局刷新，确保全局 globalData.user 同步
+          await app.refreshUser();
 
-          // --- 物理逻辑隔离：委派给仪式处理器 ---
-          const config = getCeremonyConfig(!!res.data.isNewUser);
+          // 手动登录路径仪式触发 (30vw + 3s hold)
+          const config = getCeremonyConfig(true); 
           
           this.setData({ 
-            authState: 'success',
             successMode: config.mode,
             internalPhase: config.phase 
           });
 
+          // 3 秒展示后同步淡出
           setTimeout(() => {
+             this.setData({ authState: 'success' }); // 触发登录墙卡片淡出
              executeFadeOut(this, () => {
                 this.triggerEvent('loginSuccess', app.globalData.user);
              });
@@ -136,8 +145,12 @@ Component({
            throw new Error(res?.message || '登录失败');
         }
       } catch (err) {
-        this.setData({ authButtonText: '再次尝试授权手机号' });
-        setTimeout(() => this.setData({ authState: 'idle' }), 100);
+        console.error('[LoginWall] Auth error:', err);
+        this.setData({ 
+          authButtonText: '再次尝试授权手机号',
+          authState: 'fail'
+        });
+        setTimeout(() => this.setData({ authState: 'idle' }), 2000);
       }
     },
 

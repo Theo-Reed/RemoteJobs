@@ -9,12 +9,13 @@
   animation-play-state: running !important;
 }
 
-/* 2. 背景蒙版：老用户路径使用实色背景，增加沉浸感 */
-.login-wall.sm-old .glass-mask,
-.login-wall.s-login-success .glass-mask {
+/* 2. 背景蒙版：老用户路径在得到结果后 (s-login-success)，强行切回纯白 */
+.login-wall.sm-old.s-login-success .glass-mask {
   background: #ffffff !important;
+  background-color: #ffffff !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
+  transition: background 1.2s cubic-bezier(0.23, 1, 0.32, 1) !important;
 }
 
 /* 3. 星星强锁定：彻底隔离，忽略所有 s-login/s-loading 的位移规则 */

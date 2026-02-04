@@ -32,15 +32,9 @@
   opacity: 1 !important;
 }
 
-/* 彻底清理：s-success 和 s-hidden 阶段强制移除所有干扰层 */
-.login-wall.s-success .login-card,
-.login-wall.s-hidden .login-card,
-.login-wall.s-success .splash-content,
-.login-wall.s-hidden .splash-content {
-  display: none !important; 
-}
+/* 移除 display: none 以便让登录墙能够分步淡出 */
 
-/* Background Layer */
+/* --- 基础蒙版属性 --- */
 .glass-mask {
   position: absolute;
   top: 0;
@@ -48,19 +42,41 @@
   width: 100%;
   height: 100%;
   z-index: 0;
-  background: transparent; /* 默认设为透明，避免遮挡 */
+  background: #ffffff; /* 确保 s-splash 默认是白色 */
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
-  transition: background 1.5s ease, backdrop-filter 1.5s ease;
+  transition: background 1.2s cubic-bezier(0.23, 1, 0.32, 1), 
+              backdrop-filter 1.2s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-/* 强制覆盖 Tabbar：确保淡出过程遮挡底部 */
+/* 核心修复：登录墙 & 加载中 阶段，背景默认进入毛玻璃态 (通透) */
+.login-wall.s-login .glass-mask,
+.login-wall.s-loading .glass-mask {
+  background: rgba(255, 255, 255, 0.2) !important;
+  backdrop-filter: blur(5px) !important;
+  -webkit-backdrop-filter: blur(5px) !important;
+}
+
+/* 引导层级：确保淡出过程中层级依然最高 */
 .login-wall.wall-fade-out {
-  opacity: 0 !important;
   pointer-events: none;
-  z-index: 999999 !important; /* 提到最高层级 */
+  z-index: 999999 !important;
+}
+
+/* 背景蒙版淡出：在 hidden 阶段启动，1.5秒线性淡出到透明 */
+.login-wall.s-hidden .glass-mask {
+  opacity: 0 !important;
   transition: opacity 1.5s cubic-bezier(0.55, 0.055, 0.675, 0.19) !important;
 }
+
+/* 授权成功，整体渐渐淡出 (手动延迟 1.5s 触发) */
+.login-card.hide-all {
+  opacity: 0 !important;
+  pointer-events: none;
+  transform: translate(-50%, -50%) !important;
+  transition: opacity 1.5s cubic-bezier(0.55, 0.055, 0.675, 0.19) !important;
+}
+
 
 .splash-content {
   position: absolute;
@@ -113,12 +129,14 @@
   pointer-events: auto;
 }
 
-/* 授权成功，整体渐渐淡出 */
+/* 授权成功，整体渐渐淡出 (3秒后配合 hidden 触发) */
 .login-card.hide-all {
   opacity: 0 !important;
   pointer-events: none;
-  /* 不移动，保持在原地 */
+  /* 保持在原位淡出，不要位移 */
   transform: translate(-50%, -50%) !important;
+  /* 确保淡出过渡平滑 */
+  transition: opacity 1.5s cubic-bezier(0.55, 0.055, 0.675, 0.19) !important;
 }
 
 /* 内部内容淡出逻辑 */

@@ -37,11 +37,28 @@
   --star-opacity: 1;
 }
 
-/* 2. 背景蒙版：新用户展示清晰的毛玻璃感 */
-.login-wall.sm-new .glass-mask,
-.login-wall.s-success .glass-mask {
+/* 2. 背景演变：纯白 -> 毛玻璃 -> 透明 */
+
+/* 初始阶段 & 开屏：纯白 (继承 index.wxss) */
+.login-wall.sm-new.s-splash .glass-mask {
+  background: #ffffff !important;
+  backdrop-filter: none !important;
+}
+
+/* 登录墙阶段：毛玻璃 */
+.login-wall.sm-new.s-login .glass-mask,
+.login-wall.sm-new.s-loading .glass-mask {
+  background: rgba(255, 255, 255, 0.4) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+
+/* 注册成功 & 最终阶段：透明 */
+.login-wall.sm-new.s-success .glass-mask,
+.login-wall.sm-new.s-hidden .glass-mask {
   background: transparent !important;
   background-color: transparent !important;
+  /* 优化：保留轻微模糊让星星在大背景上更立体，或根据需要改为 none */
   backdrop-filter: blur(4px) !important; 
   -webkit-backdrop-filter: blur(4px) !important;
 }
@@ -60,10 +77,4 @@
   height: 30vw !important;
 }
 
-/* 5. 登录输入 & Loading 阶段：半透明毛玻璃，增加卡笔对比度 */
-.login-wall.sm-new.s-login .glass-mask,
-.login-wall.sm-new.s-loading .glass-mask {
-  background: rgba(255, 255, 255, 0.4) !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-}
+/* 5. 已经移除此处 s-login/s-loading 逻辑，移动到了 index.wxss 作为共享逻辑 */

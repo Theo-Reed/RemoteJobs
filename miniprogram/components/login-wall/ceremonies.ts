@@ -7,20 +7,22 @@ export interface CeremonyResult {
 }
 
 /**
- * 获取基于用户类型的仪式配置
- * 实现了新老用户的逻辑物理隔离
+ * 获取基于参与路径的仪式配置
+ * 统一“带登录墙”与“不带登录墙”的物理逻辑
  */
-export function getCeremonyConfig(isNewUser: boolean): CeremonyResult {
-  if (isNewUser) {
+export function getCeremonyConfig(isManual: boolean): CeremonyResult {
+  if (isManual) {
+    // 场景 A: 只要调用了登录墙，无论新老用户，均展示 30vw + 透明背景仪式
     return {
-      mode: 'new',
+      mode: 'new', // 对应带有 30vw 缩放逻辑的 WXSS
       phase: 'success',
       stayTime: TIMINGS.STAY_TIME_NEW
     };
   }
 
+  // 场景 B: 没拉起登录墙 (静默登录)，展示 40vw + 纯白转透明仪式
   return {
-    mode: 'old',
+    mode: 'old', // 对应锁定 40vw 的 WXSS
     phase: 'login-success',
     stayTime: TIMINGS.STAY_TIME_OLD
   };
