@@ -1,6 +1,5 @@
 import { callApi } from '../../utils/request';
 import { getPhoneNumberFromAuth } from '../../utils/phoneAuth';
-const lottie = require('../../utils/lottie');
 
 import { StatusCode } from '../../utils/statusCodes';
 
@@ -12,33 +11,39 @@ Component({
       observer(newVal) {
         console.log('[LoginWall] Visible property changed:', newVal);
         if (newVal) {
-          wx.hideTabBar({ animated: false } as any).catch(() => {});
           this.startFlow();
         } else {
-           const app = getApp<any>();
-           // Security check: only allow hiding if bootStatus is success
-           if (app.globalData.bootStatus !== 'success') {
-               console.error('[LoginWall] BYPASS REJECTED. bootStatus is:', app.globalData.bootStatus);
-               this.setData({ visible: true });
+           // 如果已经在跑淡出流程，由内部逻辑控制 _shouldShow 的关闭
+           if (this.data._flowStarted) {
+               console.log('[LoginWall] Animation in progress, observer will not close _shouldShow');
                return;
            }
-          this.setData({ internalPhase: 'hidden', _flowStarted: false });
-          wx.showTabBar({ animated: true } as any).catch(() => {});
+           this.setData({ _shouldShow: false });
         }
+      }
+    }
+  },
+
+  observers: {
+    'internalPhase': function(phase) {
+      if (phase === 'hidden') {
+        // 既然 TabBar 会窜出来覆盖，我们就等渐变接近尾声（比如第 8 秒）再显示它
+        // 这样给用户的感觉是伴随着背景变透明，底部导航栏慢慢“沉”下去或者浮现出来
+        setTimeout(() => {
+          console.log('[LoginWall] Observer showing TabBar');
+          wx.showTabBar({ animated: true }).catch(() => {});
+        }, 8000); 
+      } else {
+        console.log('[LoginWall] Observer hiding TabBar');
+        wx.hideTabBar({ animated: false }).catch(() => {});
       }
     }
   },
 
   lifetimes: {
     attached() {
-      // 只要组件挂载，第一件事就是隐藏 TabBar，防止闪烁
-      wx.hideTabBar({ animated: false } as any).catch(() => {});
-      
-      // Removed initLottie() since we switched to SVG for better reliability and fidelity
-
-      if (this.data.visible) {
-        this.startFlow();
-      }
+      // 强制启动流程，确保 Splash 动画至少展示一次
+      this.startFlow();
     },
     detached() {
       // Cleanup
@@ -46,11 +51,12 @@ Component({
   },
 
   data: {
-    internalPhase: 'splash', // 'splash' | 'login' | 'hidden'
+    internalPhase: 'splash' as 'splash' | 'login' | 'hidden',
     bootStatus: 'loading',
     errorMsg: '',
     errorDesc: '',
     _flowStarted: false,
+    _shouldShow: false, // 真正控制 DOM 显示的开关
     
     // Auth Animation States
     authState: 'idle' as 'idle' | 'loading' | 'success' | 'fail',
@@ -58,21 +64,21 @@ Component({
   },
 
   methods: {
-    _lottieAni: null as any,
     _authMinTimerPromise: null as Promise<void> | null,
 
     async startFlow() {
       if (this.data._flowStarted) return;
-      this.setData({ _flowStarted: true });
+      
+      console.log('[LoginWall] startFlow');
+      this.setData({ 
+        _flowStarted: true,
+        _shouldShow: true,
+        internalPhase: 'splash'
+      });
 
-      const app = getApp<any>();
-      console.log('[LoginWall] Flow started. Current bootStatus:', app.globalData.bootStatus);
-      
-      // Start in Splash Mode
-      this.setData({ internalPhase: 'splash' });
-      
       const checkState = () => {
-        const { bootStatus } = app.globalData;
+        const _app = getApp<any>();
+        const { bootStatus } = _app.globalData;
         
         if (this.data.bootStatus !== bootStatus) {
             this.setData({ bootStatus });
@@ -87,11 +93,20 @@ Component({
         console.log('[LoginWall] Finalizing state. Status:', bootStatus);
 
         if (bootStatus === 'success') {
-          // Success: Fade out splash background -> Reveal App
+          console.log('[LoginWall] SUCCESS state detected');
+          
+          // 给数据渲染留一点微小的时间
           setTimeout(() => {
-             this.setData({ internalPhase: 'hidden', _flowStarted: false });
-             this.triggerEvent('loginSuccess', app.globalData.user);
-          }, 600);
+            console.log('[LoginWall] Starting 10s fade-out');
+            this.setData({ internalPhase: 'hidden' });
+          }, 100);
+          
+          // 动画彻底结束后（10s），清理流程状态
+          setTimeout(() => {
+            console.log('[LoginWall] 10s animation finished');
+            this.setData({ _flowStarted: false, _shouldShow: false });
+            this.triggerEvent('loginSuccess', _app.globalData.user);
+          }, 10000);
         } 
         else if (bootStatus === 'no-network' || bootStatus === 'server-down' || bootStatus === 'error') {
           // ⚠️ Network/Server Error: Stay in splash phase and keep star centered
@@ -101,9 +116,9 @@ Component({
           // Wait for one full animation cycle (4s) before retrying the request
           setTimeout(() => {
             // Only retry if we are still in a failure state
-            const currentStatus = getApp<any>().globalData.bootStatus;
+            const currentStatus = _app.globalData.bootStatus;
             if (currentStatus === 'no-network' || currentStatus === 'server-down' || currentStatus === 'error') {
-              app.refreshUser().then(() => {
+              _app.refreshUser().then(() => {
                 checkState();
               }).catch(() => {
                 checkState();
@@ -119,8 +134,8 @@ Component({
         }
       };
 
-      // Ensure splash shows for at least 1.5s to appreciate the globe animation
-      setTimeout(checkState, 1500);
+      // 立即检查状态，不需要人为等待，因为我们有整体 10s 的淡出
+      checkState();
     },
 
     retry() {
@@ -150,8 +165,8 @@ Component({
       // 1. 开始动画：元素淡出，星星移位
       this.setData({ authState: 'loading' });
 
-      // 2. 启动最低 2.5 秒的定时器
-      const minTimerPromise = new Promise(resolve => setTimeout(resolve, 2500));
+      // 2. 启动最低 5 秒的定时器 (调试模式)
+      const minTimerPromise = new Promise(resolve => setTimeout(resolve, 5000));
 
       try {
         const openid = wx.getStorageSync('user_openid');
@@ -173,11 +188,17 @@ Component({
 
           this.setData({ authState: 'success' });
 
-          // 整个淡出
+          // 整个淡出过程
           setTimeout(() => {
-             this.setData({ internalPhase: 'hidden', visible: false, _flowStarted: false });
-             this.triggerEvent('loginSuccess', app.globalData.user);
-          }, 600);
+             // 触发淡出状态
+             this.setData({ internalPhase: 'hidden' });
+             
+             // 动画持续 10s 后彻底释放占位
+             setTimeout(() => {
+                this.setData({ _flowStarted: false, _shouldShow: false });
+                this.triggerEvent('loginSuccess', app.globalData.user);
+             }, 10000);
+          }, 400); 
         } else {
            throw new Error(res?.message || '登录失败');
         }

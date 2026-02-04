@@ -1,9 +1,11 @@
-<view class="login-wall {{visible ? 'visible' : ''}}" catchtouchmove="preventTouch">
+<!-- Global Container -->
+<view class="login-wall {{_shouldShow ? 'visible' : ''}} {{internalPhase === 'hidden' ? 'wall-fade-out' : ''}}" catchtouchmove="preventTouch">
   <!-- Shared Background: Glass mask persists during login phase for depth -->
   <view class="glass-mask {{internalPhase}}"></view>
 
   <!-- Shared Animated Globe (The Engine 🎨) -->
-  <view class="shared-globe {{internalPhase}} {{authState === 'loading' ? 'auth-loading' : ''}} {{authState === 'success' ? 'hidden' : ''}}">
+  <!-- 彻底剥离 authState 的干扰，只听 internalPhase 的指挥 -->
+  <view class="shared-globe {{internalPhase}}">
     <image class="ai-star" src="/assets/icons/ai-star.svg" mode="aspectFit" />
   </view>
   

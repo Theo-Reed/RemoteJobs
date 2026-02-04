@@ -38,6 +38,8 @@ Page({
     }
 
     const user = app.globalData.user;
+    const isLoggedIn = !!(user && user.phoneNumber);
+
     this.setData({
       isLoggedIn: !!(user && user.phoneNumber),
       isInitializing: false

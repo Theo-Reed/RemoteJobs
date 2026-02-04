@@ -113,4 +113,7 @@
     </view>
   </ui-drawer>
   </block>
+
+  <!-- Login Wall & Splash Loader -->
+  <login-wall visible="{{!isLoggedIn}}" bind:loginSuccess="onLoginSuccess" />
 </view>

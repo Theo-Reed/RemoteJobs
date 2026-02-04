@@ -7,14 +7,25 @@
   width: 100vw;
   height: 100vh;
   z-index: 10000;
-  visibility: hidden;
-  pointer-events: none;
-  background: transparent !important;
+  
+  /* 初始不显示，但不触发 visibility: hidden，防止切断动画 */
+  display: none; 
+  opacity: 0;
+  background: #ffffff !important; /* 强制底色 */
+  transition: opacity 10s ease-in-out; 
 }
 
 .login-wall.visible {
-  visibility: visible;
+  display: block !important;
+  opacity: 1 !important;
   pointer-events: auto;
+}
+
+/* 全局整体淡出控制 */
+.login-wall.wall-fade-out {
+  opacity: 0 !important;
+  pointer-events: none;
+  /* 注意：这里千万不要设置 display: none，否则 10s 动画会立即消失 */
 }
 
 /* Background Layer - 动态背景切换 🌓 */
@@ -43,11 +54,10 @@
   -webkit-backdrop-filter: blur(5px) brightness(102%);
 }
 
-/* 隐藏/成功状态 */
+/* 隐藏状态：统一由父级 .login-wall.wall-fade-out 控制淡出时机，
+   此处不再设置重复的 opacity 1.2s，避免星星先消失而背景还在的情况 */
 .glass-mask.hidden {
-  opacity: 0;
-  backdrop-filter: blur(0px);
-  -webkit-backdrop-filter: blur(0px);
+  opacity: 1; 
 }
 
 /* --- Shared Animated Globe (The Engine 🎨) --- */
@@ -55,9 +65,9 @@
   position: fixed;
   z-index: 1001;
   /* 增加 GPU 预渲染提示 */
-  will-change: transform, opacity, width, height;
-  /* 更丝滑的弹性曲线 */
-  transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+  will-change: transform, opacity;
+  /* 更丝滑的弹性曲线 - 这里的 0.8s 仅针对位移，颜色淡出由父容器或 .hidden 属性控制 */
+  transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1), opacity 10s ease-in-out;
   pointer-events: none;
   overflow: visible !important;
   display: flex;
@@ -72,16 +82,16 @@
 .ai-star {
   width: 100%;
   height: 100%;
-  /* 呼吸动画也改为 3D 变换以保持在同一渲染层 */
+  /* 基础动画：不再使用 opacity 0.9->1，防止干扰最终淡出 */
   animation: ai-breathe 4s infinite ease-in-out;
-  will-change: transform;
+  will-change: transform, opacity;
   /* 增加主题蓝色外发光，增强质感 */
   filter: drop-shadow(0 0 15rpx rgba(46, 95, 233, 0.4));
 }
 
 @keyframes ai-breathe {
-  0%, 100% { transform: translate3d(0,0,0) scale(0.85) rotate(-2deg); opacity: 0.9; }
-  50% { transform: translate3d(0,0,0) scale(1.05) rotate(2deg); opacity: 1; }
+  0%, 100% { transform: translate3d(0,0,0) scale(0.85) rotate(-2deg); }
+  50% { transform: translate3d(0,0,0) scale(1.05) rotate(2deg); }
 }
 
 /* State 1: Splash (Centered, Large) */
@@ -125,13 +135,28 @@
 
 /* State 3: Hidden (Success Fade Out) */
 .shared-globe.hidden {
-  opacity: 0;
-  transform: scale(0.8) translate3d(calc(50vw - 80rpx), calc(var(--anchor-y) - 80rpx), 0);
+  /* 移除这里的 opacity: 0 !important，防止它抢跑 */
+  transition: transform 10s cubic-bezier(0.23, 1, 0.32, 1) !important;
+  transform: translate3d(50vw, -100vh, 0) scale(0.2) !important; 
   pointer-events: none;
 }
 
+/* 赋予星星独立的 10s 淡出，并强制同步 */
+.shared-globe .ai-star {
+  transition: opacity 10s ease-in-out !important;
+}
 
-/* --- Phase 1: Splash Content --- */
+/* 当父级进入 hidden 状态，强制让子级 ai-star 跑 10s 透明度动画 */
+.shared-globe.hidden .ai-star {
+  opacity: 0 !important;
+}
+
+/* 强制覆盖 Tabbar：确保淡出过程遮挡底部 */
+.login-wall.wall-fade-out {
+  opacity: 0 !important;
+  pointer-events: none;
+  z-index: 999999 !important; /* 提到最高层级 */
+}
 .splash-content {
   position: absolute;
   top: 0;
