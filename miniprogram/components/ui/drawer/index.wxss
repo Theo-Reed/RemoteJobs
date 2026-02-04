@@ -2,7 +2,7 @@
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
+  z-index: 9998; /* Adapt for custom tab-bar (9000) */
   opacity: 0;
   visibility: hidden;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -20,12 +20,14 @@
   right: 0;
   background: #fff;
   border-radius: 40rpx 40rpx 0 0;
-  z-index: 1001;
+  z-index: 9999; /* Adapt for custom tab-bar (9000) */
   transform: translateY(100%);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   max-height: 90vh;
   display: flex;
   flex-direction: column;
+  padding-bottom: calc(96rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
 }
 
 .ui-drawer-container.show {
@@ -131,5 +133,5 @@
   /* Fix: Override scroll-view default 100% height to allow auto-sizing */
   height: auto !important;
   /* Fix: Ensure scrolling happens when content exceeds limit, instead of stretching parent */
-  max-height: calc(90vh - 110rpx - env(safe-area-inset-bottom));
+  max-height: calc(90vh - 110rpx - 96rpx - env(safe-area-inset-bottom));
 }
