@@ -80,9 +80,9 @@
     bottom: 0;
     width: 44rpx;
     height: 44rpx;
-    background: #fff;
+    background: var(--primary); /* 改为蓝色背景 */
     border-radius: 50%;
-    border: 4rpx solid var(--primary); /* 使用项目主色蓝 */
+    border: 4rpx solid #fff; /* 改为白色边框 */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -92,7 +92,7 @@
 .edit-badge-icon {
     width: 45%;
     height: 45%;
-    background: var(--primary); /* 使用项目主色蓝 */
+    background: #fff; /* 改为白色内芯 */
     border-radius: 50%;
 }
 
