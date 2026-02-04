@@ -39,7 +39,7 @@ Component({
       if (this.data.loading) return;
 
       if (!this.properties.confirmActive) {
-        this.triggerEvent('close');
+        // Just return - consistent with disabled button behavior
         return;
       }
 

@@ -43,15 +43,15 @@
       <view class="profile-info-item">
         <view class="profile-phone-header">
           <text class="profile-phone-title">{{ui.phoneNumber}}</text>
-          <ui-button
-                  wx:if="{{!userPhone}}"
-                  type="outline"
-                  size="sm"
-                  openType="getPhoneNumber"
-                  bind:getphonenumber="onChangePhoneNumber"
+          <button
+            wx:if="{{!userPhone}}"
+            class="profile-nickname-change-btn"
+            open-type="getPhoneNumber"
+            bindgetphonenumber="onChangePhoneNumber"
+            hover-class="none"
           >
-            {{ui.setPhone}}
-          </ui-button>
+            <text class="profile-nickname-change-btn-text">设置</text>
+          </button>
         </view>
         <view class="profile-phone-content">
           <text class="profile-phone-value">{{userPhone ? maskedPhone : ui.notSet}}</text>

@@ -70,6 +70,7 @@ page {
 .avatar-wrapper {
     position: relative;
     margin-right: 32rpx;
+    flex-shrink: 0;
 }
 
 .avatar-large, .avatar-placeholder-large {
@@ -79,6 +80,7 @@ page {
     border: 6rpx solid var(--primary); /* 使用项目主色蓝 */
     box-shadow: 0 8rpx 24rpx rgb(15 23 42 / 8%);
     transition: border-color 0.3s ease;
+    flex-shrink: 0;
 }
 
 .avatar-placeholder-large {
@@ -110,6 +112,7 @@ page {
 .user-info-main {
     display: flex;
     flex-direction: column;
+    flex-shrink: 0;
 }
 
 .nickname-large {
@@ -1571,7 +1574,7 @@ page {
 }
 
 .product-scroll-spacer {
-    width: 12rpx; /* Last margin (20rpx) + 12rpx = 32rpx to match start padding */
+    width: 40rpx; /* Increased to ensure visible trailing gap */
     flex-shrink: 0;
 }
 

@@ -243,12 +243,52 @@ Page({
       type: 'file',
       extension: ['pdf', 'docx', 'doc'],
       success: async (res) => {
+        const file = res.tempFiles[0]
         ui.showLoading('简历润色中...')
-        // Placeholder for parsing logic
-        setTimeout(() => {
+        
+        try {
+          const uploadRes = await wx.uploadFile({
+            url: 'https://feiwan.online/api/refine-resume',
+            filePath: file.path,
+            name: 'file',
+            header: {
+              'Content-Type': 'multipart/form-data'
+            }
+          })
+
           ui.hideLoading()
-          ui.showToast('功能开发中', 'none')
-        }, 1500)
+          
+          if (uploadRes.statusCode === 200) {
+            const data = JSON.parse(uploadRes.data)
+            if (data.success) {
+              const { summary, polished_content } = data.result
+              wx.showModal({
+                title: '润色成功',
+                content: `${summary}\n\n建议内容已生成，点击确认查看细节`,
+                confirmText: '查看',
+                success: (modalRes) => {
+                  if (modalRes.confirm) {
+                    // 这里可以跳转到专门的结果页，或者打开一个展示长文本的 Drawer
+                    // 暂时先用弹窗展示核心润色内容
+                    wx.showModal({
+                      title: '润色建议',
+                      content: polished_content,
+                      showCancel: false
+                    })
+                  }
+                }
+              })
+            } else {
+              ui.showToast(data.message || '润色失败', 'none')
+            }
+          } else {
+            ui.showToast('服务器异常', 'none')
+          }
+        } catch (err: any) {
+          ui.hideLoading()
+          console.error('[Refine Error]', err)
+          ui.showToast('网络请求失败', 'none')
+        }
       },
       fail: () => {}
     })
