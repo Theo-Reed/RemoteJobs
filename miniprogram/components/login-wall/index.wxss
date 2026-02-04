@@ -1,5 +1,6 @@
 /* Global Container */
 .login-wall {
+  --anchor-y: 45.45vh; /* 5/11 处作为全局对齐锚点 */
   position: fixed;
   top: 0;
   left: 0;
@@ -93,19 +94,18 @@
   transform: translate3d(calc(50vw - 250rpx), calc(50vh - 250rpx), 0);
 }
 
-/* State 2: Login (Top-Left of Card, Small) */
+/* State 2: Login (与卡片锚点锁定同步) */
 .shared-globe.login {
   width: 160rpx;
   height: 160rpx;
   top: 0;
   left: 0;
   /* 
-     计算校准：
-     X: 50vw - (78vw/2) + 48rpx padding = 11vw + 48rpx
-     再向左偏移 20rpx: 28rpx -> 8rpx
-     Y: 18vh + 64rpx padding (同步卡片位置)
+     锚点同步计算：
+     X: 保持左位微调落点
+     Y: 基于全局锚点变量向上偏移，确保所有机型相对比例一致
   */
-  transform: translate3d(calc(11vw + 8rpx), calc(18vh + 64rpx), 0);
+  transform: translate3d(calc(11vw + 18rpx), calc(var(--anchor-y) - 200rpx), 0);
 }
 
 /* State 3: Hidden (Success Fade Out) */
@@ -141,8 +141,9 @@
 .login-card {
   position: fixed; 
   left: 50%;
-  top: 15vh; /* 从 20vh 上移至 15vh */
-  transform: translateX(-50%) translateY(40rpx); 
+  top: var(--anchor-y); /* 使用全局锚点变量 */
+  /* 使用 -50% 让卡片自身的中轴线对齐锚点 */
+  transform: translate(-50%, -40%); 
   
   width: 78vw; 
   background: rgba(255, 255, 255, 0.82); 
@@ -150,7 +151,7 @@
   -webkit-backdrop-filter: blur(20px);
   
   border-radius: 64rpx;
-  padding: 64rpx 48rpx;
+  padding: 64rpx 48rpx 40rpx 48rpx; /* 减少底部内边距 */
   box-shadow: 0 40rpx 100rpx rgba(0, 0, 0, 0.15);
   
   opacity: 0;
@@ -163,7 +164,7 @@
 
 .login-card.show {
   opacity: 1;
-  transform: translateX(-50%) translateY(0);
+  transform: translate(-50%, -50%); /* 最终落位在 5/11 处 */
   pointer-events: auto;
 }
 
@@ -210,7 +211,7 @@
 .card-header {
   display: flex !important;
   align-items: center !important;
-  margin-bottom: 50rpx !important;
+  margin-bottom: 30rpx !important; /* 从 50rpx 减少到 30rpx，压缩标题下方间距 */
   flex-direction: row !important;
 }
 
