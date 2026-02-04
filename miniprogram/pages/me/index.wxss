@@ -1691,7 +1691,7 @@
 .sheet-footer-v3 {
     background: #fff;
     box-shadow: 0 -10rpx 40rpx rgba(0, 0, 0, 0.05);
-    padding: 23rpx 23rpx 19rpx 32rpx;
+    padding: 23rpx 32rpx 19rpx 40rpx;
     display: flex;
     justify-content: space-between;
     align-items: center;
