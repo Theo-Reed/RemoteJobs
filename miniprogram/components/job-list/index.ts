@@ -22,8 +22,8 @@ Component({
       value: true,
     },
     scrollTop: {
-      type: [Number, String],
-      value: '',
+      type: Number,
+      value: 0,
     },
     lowerThreshold: {
       type: Number,
