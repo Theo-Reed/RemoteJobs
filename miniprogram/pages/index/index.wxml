@@ -2,8 +2,11 @@
 <view class="page">
   <login-wall visible="{{!isLoggedIn}}" bind:loginSuccess="onLoginSuccess" />
 
-  <!-- Hidden content until logged in - Zero flicker guarantee -->
-  <block wx:if="{{isLoggedIn}}">
+  <!-- 
+    取消 wx:if 强制拦截，让底层页面结构在模糊背景下可见。
+    z-index: 10000 的 login-wall 会阻断所有底部交互。
+  -->
+  <view class="main-content">
     <!-- Internal tabs for job list (公开 / 精选 / 收藏) -->
     <view class="jobs-tabs">
       <view class="tab-slider tab-slider-{{currentTab}}"></view>
@@ -93,5 +96,5 @@
     </ui-drawer>
 
     <ui-feedback id="ui-feedback" />
-  </block>
+  </view>
 </view>
