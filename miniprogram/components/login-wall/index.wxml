@@ -1,24 +1,23 @@
 <!-- Global Container -->
-<view class="login-wall {{_shouldShow ? 'visible' : ''}} {{internalPhase === 'hidden' ? 'wall-fade-out' : ''}}" catchtouchmove="preventTouch">
-  <!-- Shared Background: Glass mask persists during login phase for depth -->
-  <view class="glass-mask {{internalPhase}}"></view>
+<view class="login-wall {{_shouldShow ? 'visible' : ''}} {{internalPhase === 'hidden' ? 'wall-fade-out' : ''}} s-{{internalPhase}} {{authState === 'loading' ? 's-loading' : ''}}" catchtouchmove="preventTouch">
+  
+  <!-- Shared Background Layer -->
+  <view class="glass-mask"></view>
 
-  <!-- Shared Animated Globe (The Engine 🎨) -->
-  <!-- 彻底剥离 authState 的干扰，只听 internalPhase 的指挥 -->
-  <view class="shared-globe {{internalPhase}}">
-    <image class="ai-star" src="/assets/icons/ai-star.svg" mode="aspectFit" />
+  <!-- Mascot Standalone Engine: 坐标投射物理层 -->
+  <view class="mascot-container {{internalPhase === 'hidden' ? 'frozen' : ''}}">
+    <view class="mascot-inner">
+       <image class="ai-star-view" src="../../assets/icons/ai-star.svg" mode="aspectFit" />
+    </view>
   </view>
   
-  <!-- Phase 1: Splash Content (Visual Purity) -->
+  <!-- Phase 1: Splash Content -->
   <view class="splash-content {{internalPhase !== 'splash' ? 'fade-out' : ''}}"></view>
 
   <!-- Phase 2: Login Card -->
-  <!-- Note: The logo here is a placeholder space to ensure alignment -->
   <view class="login-card {{internalPhase === 'login' ? 'show' : ''}} {{authState === 'success' ? 'hide-all' : ''}}">
-    <!-- Card Content Wrapper for Easy Fading -->
     <view class="card-inner-content {{authState === 'loading' || authState === 'success' ? 'content-fade-out' : ''}}">
       <view class="card-header">
-        <!-- Empty space for the moving logo to land in -->
         <view class="logo-placeholder"></view>
         <view class="title-group">
           <text class="main-title">即刻登陆</text>

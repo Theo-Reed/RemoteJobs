@@ -1,155 +1,146 @@
 /* Global Container */
 .login-wall {
-  --anchor-y: 45.45vh; /* 5/11 处作为全局对齐锚点 */
+  --anchor-y: 45.45vh;
+  
+  /* --- 新增：大厂级 Mascot 引擎变量 --- */
+  --star-x: 50vw;
+  --star-y: 50vh;
+  --star-size: 500rpx;
+  --star-opacity: 1;
+  --star-scale: 1;
+  
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
   z-index: 10000;
-  
-  /* 初始不显示，但不触发 visibility: hidden，防止切断动画 */
-  display: none; 
+  display: none;
   opacity: 0;
-  background: #ffffff !important; /* 强制底色 */
-  transition: opacity 10s ease-in-out; 
+  background: #ffffff;
+  transition: opacity 1.5s ease-in-out;
 }
 
 .login-wall.visible {
   display: block !important;
   opacity: 1 !important;
-  pointer-events: auto;
 }
 
-/* 全局整体淡出控制 */
+/* 整体淡出流程 */
 .login-wall.wall-fade-out {
-  opacity: 0 !important;
+  opacity: 0;
   pointer-events: none;
-  /* 注意：这里千万不要设置 display: none，否则 10s 动画会立即消失 */
 }
 
-/* Background Layer - 动态背景切换 🌓 */
+/* --- Mascot 独立物理层 --- */
+.mascot-container {
+  position: absolute;
+  z-index: 1001;
+  left: 0;
+  top: 0;
+  /* 坐标投射：基于变量精确控制位姿 */
+  width: var(--star-size);
+  height: var(--star-size);
+  opacity: var(--star-opacity);
+  transform: translate3d(
+    calc(var(--star-x) - (var(--star-size) / 2)),
+    calc(var(--star-y) - (var(--star-size) / 2)),
+    0
+  ) scale(var(--star-scale));
+  
+  /* 关键：所有物理属性共用同一套高精度过渡 */
+  transition: 
+    transform 0.8s cubic-bezier(0.23, 1, 0.32, 1),
+    width 0.8s cubic-bezier(0.23, 1, 0.32, 1),
+    height 0.8s cubic-bezier(0.23, 1, 0.32, 1),
+    opacity 0.8s ease;
+    
+  will-change: transform, opacity, width, height;
+  pointer-events: none;
+}
+
+/* 针对最终淡出阶段，拉长过渡时间，实现优雅的“飞走” */
+.login-wall.s-hidden .mascot-container {
+  transition: 
+    transform 1.5s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 1.5s ease-in-out;
+}
+
+.mascot-inner {
+  width: 100%;
+  height: 100%;
+  /* 默认保持呼吸 */
+  animation: ai-breathe 4s infinite ease-in-out;
+}
+
+/* 停止呼吸：当进入消失阶段，停止呼吸 */
+.login-wall.s-hidden .mascot-inner {
+  animation-play-state: paused !important;
+}
+
+.ai-star-view {
+  width: 100%;
+  height: 100%;
+  display: block;
+  filter: drop-shadow(0 0 15rpx rgba(46, 95, 233, 0.4));
+}
+
+@keyframes ai-breathe {
+  0%, 100% { transform: scale(0.95) rotate(-2deg); }
+  50% { transform: scale(1.05) rotate(2deg); }
+}
+
+/* --- 场景定义 (Scene Setters) --- */
+
+/* Scene: Splash (开屏) */
+.login-wall.s-splash {
+  --star-x: 50vw;
+  --star-y: 50vh;
+  --star-size: 500rpx;
+  --star-opacity: 1;
+}
+
+/* Scene: Login Card (登录卡片) */
+.login-wall.s-login {
+  --star-x: calc(11vw + 100rpx);
+  --star-y: calc(var(--anchor-y) - 130rpx); 
+  --star-size: 160rpx;
+  --star-opacity: 1;
+}
+
+/* Loading 状态：星星停留在中心 */
+.login-wall.s-loading {
+  --star-x: 50vw;
+  --star-y: calc(var(--anchor-y) - 80rpx); 
+  --star-size: 160rpx;
+  --star-opacity: 1;
+}
+
+/* Scene: Hidden (Exit - 成功淡出) */
+.login-wall.s-hidden {
+  --star-opacity: 0;
+  /* 特意不改 size，防止维度坍塌，但可以给一个极轻微的飞升感 */
+  --star-y: 40vh; 
+}
+
+/* Background Layer */
 .glass-mask {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  transition: all 1.2s cubic-bezier(0.23, 1, 0.32, 1);
   z-index: 0;
-  opacity: 1;
+  background: #ffffff;
+  transition: background 1.2s ease;
 }
 
-/* 初始 Splash 状态：纯白背景，遮挡主页面 */
-.glass-mask.splash {
-  background: #ffffff !important;
-  backdrop-filter: blur(0px);
-  -webkit-backdrop-filter: blur(0px);
+.login-wall.s-login .glass-mask {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
 }
 
-/* 转换到 Login 状态：背景变为透明毛玻璃，透出主页面 */
-.glass-mask.login {
-  background: rgba(255, 255, 255, 0.03) !important; 
-  backdrop-filter: blur(5px) brightness(102%); 
-  -webkit-backdrop-filter: blur(5px) brightness(102%);
-}
-
-/* 隐藏状态：统一由父级 .login-wall.wall-fade-out 控制淡出时机，
-   此处不再设置重复的 opacity 1.2s，避免星星先消失而背景还在的情况 */
-.glass-mask.hidden {
-  opacity: 1; 
-}
-
-/* --- Shared Animated Globe (The Engine 🎨) --- */
-.shared-globe {
-  position: fixed;
-  z-index: 1001;
-  /* 增加 GPU 预渲染提示 */
-  will-change: transform, opacity;
-  /* 更丝滑的弹性曲线 - 这里的 0.8s 仅针对位移，颜色淡出由父容器或 .hidden 属性控制 */
-  transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1), opacity 10s ease-in-out;
-  pointer-events: none;
-  overflow: visible !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  /* 初始强制硬件加速 */
-  transform: translate3d(0, 0, 0);
-  backface-visibility: hidden;
-  perspective: 1000px;
-}
-
-.ai-star {
-  width: 100%;
-  height: 100%;
-  /* 基础动画：不再使用 opacity 0.9->1，防止干扰最终淡出 */
-  animation: ai-breathe 4s infinite ease-in-out;
-  will-change: transform, opacity;
-  /* 增加主题蓝色外发光，增强质感 */
-  filter: drop-shadow(0 0 15rpx rgba(46, 95, 233, 0.4));
-}
-
-@keyframes ai-breathe {
-  0%, 100% { transform: translate3d(0,0,0) scale(0.85) rotate(-2deg); }
-  50% { transform: translate3d(0,0,0) scale(1.05) rotate(2deg); }
-}
-
-/* State 1: Splash (Centered, Large) */
-.shared-globe.splash {
-  width: 500rpx;
-  height: 500rpx;
-  top: 0; 
-  left: 0;
-  /* 使用 translate3d 进行绝对定位，避开 Layout 抖动 */
-  transform: translate3d(calc(50vw - 250rpx), calc(50vh - 250rpx), 0);
-}
-
-/* State 2: Login (与卡片锚点锁定同步) */
-.shared-globe.login {
-  width: 160rpx;
-  height: 160rpx;
-  top: 0;
-  left: 0;
-  /* 
-     锚点同步计算：
-     X: 保持左位微调落点
-     Y: 基于全局锚点变量向上偏移，确保所有机型相对比例一致
-  */
-  transform: translate3d(calc(11vw + 18rpx), calc(var(--anchor-y) - 200rpx), 0);
-}
-
-/* 授权加载状态：移位到卡片中心 */
-.shared-globe.auth-loading {
-  transform: translate3d(calc(50vw - 80rpx), calc(var(--anchor-y) - 80rpx), 0) !important;
-}
-
-/* 授权过程中的呼吸动画（更律动，体现正在处理） */
-.auth-loading .ai-star {
-  animation: auth-breathing 1.5s infinite ease-in-out !important;
-}
-
-@keyframes auth-breathing {
-  0%, 100% { transform: scale(0.9); opacity: 0.85; }
-  50% { transform: scale(1.1); opacity: 1; }
-}
-
-/* State 3: Hidden (Success Fade Out) */
-.shared-globe.hidden {
-  /* 移除这里的 opacity: 0 !important，防止它抢跑 */
-  transition: transform 10s cubic-bezier(0.23, 1, 0.32, 1) !important;
-  transform: translate3d(50vw, -100vh, 0) scale(0.2) !important; 
-  pointer-events: none;
-}
-
-/* 赋予星星独立的 10s 淡出，并强制同步 */
-.shared-globe .ai-star {
-  transition: opacity 10s ease-in-out !important;
-}
-
-/* 当父级进入 hidden 状态，强制让子级 ai-star 跑 10s 透明度动画 */
-.shared-globe.hidden .ai-star {
-  opacity: 0 !important;
-}
 
 /* 强制覆盖 Tabbar：确保淡出过程遮挡底部 */
 .login-wall.wall-fade-out {

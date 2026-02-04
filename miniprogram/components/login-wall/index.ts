@@ -27,14 +27,11 @@ Component({
   observers: {
     'internalPhase': function(phase) {
       if (phase === 'hidden') {
-        // 既然 TabBar 会窜出来覆盖，我们就等渐变接近尾声（比如第 8 秒）再显示它
-        // 这样给用户的感觉是伴随着背景变透明，底部导航栏慢慢“沉”下去或者浮现出来
+        // 在 1.5s 渐变的接近尾声时（1.2s）展示 TabBar
         setTimeout(() => {
-          console.log('[LoginWall] Observer showing TabBar');
           wx.showTabBar({ animated: true }).catch(() => {});
-        }, 8000); 
+        }, 1200); 
       } else {
-        console.log('[LoginWall] Observer hiding TabBar');
         wx.hideTabBar({ animated: false }).catch(() => {});
       }
     }
@@ -95,18 +92,15 @@ Component({
         if (bootStatus === 'success') {
           console.log('[LoginWall] SUCCESS state detected');
           
-          // 给数据渲染留一点微小的时间
           setTimeout(() => {
-            console.log('[LoginWall] Starting 10s fade-out');
             this.setData({ internalPhase: 'hidden' });
           }, 100);
           
-          // 动画彻底结束后（10s），清理流程状态
+          // 动画彻底结束后（1.5s），清理流程状态
           setTimeout(() => {
-            console.log('[LoginWall] 10s animation finished');
             this.setData({ _flowStarted: false, _shouldShow: false });
             this.triggerEvent('loginSuccess', _app.globalData.user);
-          }, 10000);
+          }, 1500);
         } 
         else if (bootStatus === 'no-network' || bootStatus === 'server-down' || bootStatus === 'error') {
           // ⚠️ Network/Server Error: Stay in splash phase and keep star centered
@@ -165,8 +159,8 @@ Component({
       // 1. 开始动画：元素淡出，星星移位
       this.setData({ authState: 'loading' });
 
-      // 2. 启动最低 5 秒的定时器 (调试模式)
-      const minTimerPromise = new Promise(resolve => setTimeout(resolve, 5000));
+      // 2. 启动最低 1.5 秒的定时器
+      const minTimerPromise = new Promise(resolve => setTimeout(resolve, 1500));
 
       try {
         const openid = wx.getStorageSync('user_openid');
@@ -193,11 +187,11 @@ Component({
              // 触发淡出状态
              this.setData({ internalPhase: 'hidden' });
              
-             // 动画持续 10s 后彻底释放占位
+             // 动画持续 1.5s 后彻底释放占位
              setTimeout(() => {
                 this.setData({ _flowStarted: false, _shouldShow: false });
                 this.triggerEvent('loginSuccess', app.globalData.user);
-             }, 10000);
+             }, 1500);
           }, 400); 
         } else {
            throw new Error(res?.message || '登录失败');
