@@ -52,7 +52,7 @@ Page({
 
     this.checkFeaturedSubscription();
 
-    const app = getApp<IAppOption>() as any;
+    // 移除重复定义的 app 变量，统一使用上层定义的常量
     const lang = normalizeLanguage(app?.globalData?.language);
     wx.setNavigationBarTitle({ title: '' });
     
