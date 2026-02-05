@@ -253,18 +253,17 @@ Component({
       const currentLang = normalizeLanguage(app?.globalData?.language || 'Chinese')
       filterParams.language = currentLang
       
-      // 根据 tabType 选择不同的云函数
-      const cloudFunctionName = tabType === 0 ? 'getPublicJobList' : 'getFeaturedJobList'
+      const functionName = tabType === 0 ? 'getPublicJobList' : 'getFeaturedJobList'
       
-      const res = await callApi(cloudFunctionName, {
+      const res = await callApi(functionName, {
         pageSize: this.data.pageSize,
         skip,
         ...filterParams,
       })
       
       const result = res.result || (res as any)
-      if (result && result.ok) {
-        const jobs = result.jobs || []
+      if (result && (result.ok || result.success)) {
+        const jobs = result.jobs || result.data || []
         const newJobs = mapJobs(jobs, currentLang) as JobItem[]
         const merged = reset ? newJobs : [...existingJobs, ...newJobs]
         const hasMore = newJobs.length >= this.data.pageSize
@@ -284,6 +283,7 @@ Component({
         // 通知父组件数据已更新
         this.triggerEvent('dataupdate', { jobs: merged, hasMore })
       } else {
+        console.error(`[JobTab] ${cloudFunctionName} failed or ok=false:`, result)
         this.setData({ loading: false, hasMore: true })
       }
     },
