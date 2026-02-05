@@ -28,6 +28,13 @@ Page({
   },
 
   onShow() {
+    const app = getApp<any>();
+    
+    // 同步全局选中的 Tab 索引，防止闪烁
+    if (app.globalData) {
+      app.globalData.tabSelected = 0;
+    }
+
     if (typeof this.getTabBar === 'function') {
       const tabBar = this.getTabBar();
       if (tabBar) {

@@ -15,6 +15,7 @@ App<IAppOption>({
     _langListeners: new Set<LangListener>(),
     _userListeners: new Set<(user: any) => void>(),
     _splashAnimated: false, // 追踪当前 session 是否已展示过开屏动画
+    tabSelected: 1, // 默认选中的 tab 索引 (对应 pages/tools/index)
     // 页面跳转临时数据存储
     _pageData: {
       jobData: null as any,
