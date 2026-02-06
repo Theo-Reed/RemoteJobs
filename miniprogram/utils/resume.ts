@@ -139,17 +139,7 @@ async function doGenerate(user: any, profile: any, job: any, isChineseEnv: boole
       
       if (options.showSuccessModal !== false) {
         // 展示统一的成功提效模态框
-        ui.showModal({
-          title: t('jobs.generateRequestSubmittedTitle', lang),
-          content: t('jobs.generateRequestSubmittedContent', lang),
-          confirmText: t('jobs.generateRequestSubmittedConfirm', lang),
-          cancelText: t('jobs.generateRequestSubmittedCancel', lang),
-          success: (modalRes) => {
-            if (modalRes.confirm) {
-              wx.navigateTo({ url: '/pages/generated-resumes/index' })
-            }
-          }
-        })
+        showGenerationSuccessModal()
       }
     } else {
       throw new Error('Service response error')
@@ -159,6 +149,26 @@ async function doGenerate(user: any, profile: any, job: any, isChineseEnv: boole
     if (options.onFinish) options.onFinish(false)
     handleGenerateError(err, lang)
   }
+}
+
+/**
+ * 成功触发生成后的全局统一提示
+ */
+export function showGenerationSuccessModal() {
+  const app = getApp<any>()
+  const lang = normalizeLanguage(app.globalData.language)
+  
+  ui.showModal({
+    title: t('jobs.generateRequestSubmittedTitle', lang),
+    content: t('jobs.generateRequestSubmittedContent', lang),
+    confirmText: t('jobs.generateRequestSubmittedConfirm', lang),
+    cancelText: t('jobs.generateRequestSubmittedCancel', lang),
+    success: (res) => {
+      if (res.confirm) {
+        wx.navigateTo({ url: '/pages/generated-resumes/index' });
+      }
+    }
+  });
 }
 
 /**

@@ -1,4 +1,3 @@
-<!--miniprogram/pages/resume-generator/index.wxml-->
 <view class="page">
   <ui-feedback id="ui-feedback" />
   
@@ -59,11 +58,9 @@
         ></textarea>
       </view>
     </view>
-    <!-- Spacer for bottom bar -->
     <view style="height: 200rpx;"></view>
   </scroll-view>
 
-  <!-- Bottom Action Bar (Copied and adapted from job-detail) -->
   <view class="apply-overlay">
     <view class="apply-overlay-mask"></view>
     <view class="apply-dock-content">
