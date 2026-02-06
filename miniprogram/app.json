@@ -5,7 +5,8 @@
     "pages/filter/index",
     "pages/job-detail/index",
     "pages/resume-profile/index",
-    "pages/generated-resumes/index"
+    "pages/generated-resumes/index",
+    "pages/resume-generator/index"
   ],
   "window": {
     "navigationBarTextStyle": "@navTextStyle",

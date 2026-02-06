@@ -1,0 +1,79 @@
+<!--miniprogram/pages/resume-generator/index.wxml-->
+<view class="page">
+  <ui-feedback id="ui-feedback" />
+  
+  <scroll-view class="form-content" scroll-y="{{true}}">
+    <view class="form-body">
+      <view class="header-section">
+        <text class="header-title">{{ui.title}}</text>
+        <text class="header-subtitle">{{ui.subtitle}}</text>
+      </view>
+
+      <view class="form-item">
+        <text class="label">{{ui.jobTitle}}</text>
+        <input 
+          class="input" 
+          placeholder="{{ui.jobTitlePlaceholder}}" 
+          placeholder-class="placeholder"
+          value="{{targetJob.title}}" 
+          bindinput="onFieldChange" 
+          data-field="title"
+        />
+      </view>
+
+      <view class="form-item">
+        <text class="label">{{ui.workYears}}</text>
+        <input 
+          class="input" 
+          placeholder="{{ui.workYearsPlaceholder}}" 
+          placeholder-class="placeholder"
+          value="{{targetJob.experience}}" 
+          bindinput="onFieldChange" 
+          data-field="experience"
+        />
+      </view>
+
+      <view class="form-item">
+        <text class="label">{{ui.company}}</text>
+        <input 
+          class="input" 
+          placeholder="{{ui.companyPlaceholder}}" 
+          placeholder-class="placeholder"
+          value="{{targetJob.company}}" 
+          bindinput="onFieldChange" 
+          data-field="company"
+        />
+      </view>
+      
+      <view class="form-item">
+        <text class="label">{{ui.jobDescription}}</text>
+        <textarea 
+          class="textarea" 
+          placeholder="{{ui.jdPlaceholder}}" 
+          placeholder-class="placeholder"
+          value="{{targetJob.content}}" 
+          bindinput="onFieldChange" 
+          data-field="content"
+          maxlength="5000"
+          auto-height="{{false}}"
+        ></textarea>
+      </view>
+    </view>
+    <!-- Spacer for bottom bar -->
+    <view style="height: 200rpx;"></view>
+  </scroll-view>
+
+  <!-- Bottom Action Bar (Copied and adapted from job-detail) -->
+  <view class="apply-overlay">
+    <view class="apply-overlay-mask"></view>
+    <view class="apply-dock-content">
+      <view 
+        class="apply-button {{isReady ? 'active' : 'disabled'}}" 
+        bindtap="handleSubmit" 
+        hover-class="{{isReady ? 'apply-button-active' : ''}}"
+      >
+        <text class="apply-text">生成简历</text>
+      </view>
+    </view>
+  </view>
+</view>

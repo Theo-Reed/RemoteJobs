@@ -238,6 +238,13 @@ Component({
         })
     },
 
+    onTextResumeTap() {
+        if (!this.checkPhonePermission()) return
+        wx.navigateTo({
+            url: '/pages/resume-generator/index'
+        })
+    },
+
     onImportTap() {
         if (!this.checkPhonePermission()) return
         

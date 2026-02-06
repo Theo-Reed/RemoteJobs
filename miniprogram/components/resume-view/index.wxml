@@ -20,7 +20,7 @@
       </view>
 
       <!-- 2. 文字生成简历 -->
-      <view class="tool-card" bindtap="openJdDrawer">
+      <view class="tool-card" bindtap="onTextResumeTap">
         <view class="icon-box purple">
           <text class="tool-emoji">✨</text>
         </view>
