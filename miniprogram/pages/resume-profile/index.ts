@@ -306,6 +306,10 @@ Page({
 
     if (user) {
       console.log('[ResumeProfile] Loading data for user:', user._id)
+      const profile = user.resume_profile || {}
+      const zh = profile.zh || {}
+      const en = profile.en || {}
+
       // 直接从后端返回的 completeness 字段获取
       const zhCompleteness = zh.completeness || { score: 0, level: 0 };
       const enCompleteness = en.completeness || { score: 0, level: 0 };
