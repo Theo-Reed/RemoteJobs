@@ -216,17 +216,35 @@
     margin-bottom: 48rpx;
 }
 
+.nickname-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
 .nickname-modal-input {
-    width: 100%;
+    flex: 1;
     height: 100rpx;
-    background: #f8fafc; /* 使用浅灰色背景 */
+    background: #f8fafc;
     border: 2rpx solid #e2e8f0;
     border-radius: 20rpx;
-    padding: 0 32rpx;
+    padding: 0 100rpx 0 32rpx;
     font-size: 32rpx;
     color: #1a202c;
     box-sizing: border-box;
     transition: border-color 0.2s;
+}
+
+.nickname-counter {
+    position: absolute;
+    right: 32rpx;
+    font-size: 26rpx;
+    color: #94a3b8;
+}
+
+.nickname-counter.overflow {
+    color: var(--primary-dark, #1e40af);
+    font-weight: 600;
 }
 
 .nickname-modal-input:focus {
@@ -244,6 +262,17 @@
 .nickname-modal-footer-btn {
     flex: 1;
     min-width: 0;
+}
+
+.shake-animation {
+    animation: shake 0.4s cubic-bezier(.36, .07, .19, .97) both;
+}
+
+@keyframes shake {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+    40%, 60% { transform: translate3d(4px, 0, 0); }
 }
 
 .nickname-modal-footer-btn ui-button {

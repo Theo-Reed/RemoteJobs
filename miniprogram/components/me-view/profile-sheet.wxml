@@ -80,7 +80,7 @@
                 confirm-type="done"
                 bindconfirm="onSaveNickname"
         />
-        <text class="nickname-counter {{newNickname.length > 8 ? 'overflow' : ''}}">{{newNickname.length}}/8</text>
+        <text class="nickname-counter {{nicknameWeightedLength > 16 ? 'overflow' : ''}}">{{nicknameDisplayCount}}/8</text>
       </view>
     </view>
     <view class="nickname-modal-footer">

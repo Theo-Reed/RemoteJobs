@@ -89,6 +89,9 @@ Component({
         showNicknameModal: false,
         nicknameModalOpen: false,
         newNickname: '',
+        nicknameWeightedLength: 0,
+        nicknameDisplayCount: 0,
+        shouldShake: false,
         userPhone: '', // 原始手机号
         maskedPhone: '', // 脱敏后的手机号
 
@@ -815,10 +818,17 @@ Component({
             const user = app?.globalData?.user
             const currentNickname = user?.nickname || ''
             
+            let weightedLen = 0
+            for (let i = 0; i < currentNickname.length; i++) {
+                weightedLen += currentNickname.charCodeAt(i) > 127 ? 2 : 1
+            }
+
             this.setData({
                 showNicknameModal: true,
                 nicknameModalOpen: false,
-                newNickname: currentNickname
+                newNickname: currentNickname,
+                nicknameWeightedLength: weightedLen,
+                nicknameDisplayCount: Math.ceil(weightedLen / 2)
             })
             
             setTimeout(() => {
@@ -834,7 +844,16 @@ Component({
         },
 
         onNicknameInput(e: any) {
-            this.setData({ newNickname: e.detail.value })
+            const value = e.detail.value || ''
+            let weightedLen = 0
+            for (let i = 0; i < value.length; i++) {
+                weightedLen += value.charCodeAt(i) > 127 ? 2 : 1
+            }
+            this.setData({ 
+                newNickname: value,
+                nicknameWeightedLength: weightedLen,
+                nicknameDisplayCount: Math.ceil(weightedLen / 2)
+            })
         },
 
         async onSaveNickname() {
@@ -846,31 +865,40 @@ Component({
                 return
             }
 
-            // 验证长度：中文字符计为2，英文字符计为1，总长度不能超过20 (即小于10个中文字)
-            let totalLen = 0
-            for (let i = 0; i < trimmedNickname.length; i++) {
-                if (trimmedNickname.charCodeAt(i) > 127) {
-                    totalLen += 2
-                } else {
-                    totalLen += 1
-                }
-            }
-
-            if (totalLen > 20) {
-                ui.showToast(uiStrings.nicknameTooLong)
+            // 用户名最长为16个单位 (8个中文字)
+            if (this.data.nicknameWeightedLength > 16) {
+                // 触发抖动和震动
+                this.setData({ shouldShake: true })
+                wx.vibrateShort({ type: 'light' })
+                setTimeout(() => {
+                    this.setData({ shouldShake: false })
+                }, 400)
                 return
             }
 
             try {
+                // 先关闭弹窗，提供流畅反馈
+                this.closeNicknameModal()
+                
+                // 开启 Loading，最少展示 2.5s
                 ui.showLoading(uiStrings.saving)
+                const startTime = Date.now()
+                
                 const updateRes: any = await callApi('updateUserProfile', { nickname: trimmedNickname })
 
                 const updatedUser = updateRes?.result?.user
                 const app = getApp<any>() as any
                 if (app?.globalData) app.globalData.user = updatedUser
 
+                // 计算已耗时，确保总共至少等待 2.5s
+                const elapsedTime = Date.now() - startTime
+                const remainingTime = Math.max(0, 2500 - elapsedTime)
+                
+                if (remainingTime > 0) {
+                    await new Promise(resolve => setTimeout(resolve, remainingTime))
+                }
+
                 this.syncUserFromApp()
-                this.closeNicknameModal()
                 ui.hideLoading()
                 ui.showSuccess(uiStrings.nicknameSuccess)
             }
