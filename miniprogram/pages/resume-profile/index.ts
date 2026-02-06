@@ -245,9 +245,12 @@ Page({
   },
 
   refreshDisplayData() {
-    const { currentLang, zh, en, completeness_cn, completeness_en } = this.data
+    const { currentLang, zh, en, completeness_cn, completeness_en, percent_cn, percent_en } = this.data
     const profile = currentLang === 'English' ? en : zh
+    const currentPercent = currentLang === 'English' ? (percent_en || 0) : (percent_cn || 0)
     
+    console.log(`[ResumeProfile] Refreshing UI. Lang: ${currentLang}, Score: ${currentPercent}%`)
+
     this.setData({
       name: profile.name || '',
       photo: formatFileUrl(profile.photo) || '',
@@ -268,7 +271,7 @@ Page({
       workExperiences: profile.workExperiences || [],
       aiMessage: profile.aiMessage || '',
       currentCompleteness: currentLang === 'English' ? completeness_en : completeness_cn,
-      currentPercent: currentLang === 'English' ? this.data.percent_en : this.data.percent_cn
+      currentPercent: currentPercent
     })
   },
 
@@ -310,9 +313,15 @@ Page({
       const zh = profile.zh || {}
       const en = profile.en || {}
 
-      // 直接从后端返回的 completeness 字段获取
-      const zhCompleteness = zh.completeness || { score: 0, level: 0 };
-      const enCompleteness = en.completeness || { score: 0, level: 0 };
+      // 优先从后端专门的 completeness 字段获取，如果没有则 fallback 到旧的顶层字段
+      const zhCompleteness = zh.completeness || { 
+        score: user.resume_percent ?? 0, 
+        level: user.resume_completeness ?? 0 
+      };
+      const enCompleteness = en.completeness || { 
+        score: user.resume_percent_en ?? 0, 
+        level: user.resume_completeness_en ?? 0 
+      };
 
       this.setData({
         zh,
