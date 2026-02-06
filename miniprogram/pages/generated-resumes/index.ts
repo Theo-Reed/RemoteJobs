@@ -58,7 +58,7 @@ Page({
             // Await it so we are sure the list reflects the new state
             await this.fetchResumes(true)
         } else {
-            wx.showModal({
+            ui.showModal({
                 title: 'Retry Failed',
                 content: res.message || 'Unknown error',
                 showCancel: false
@@ -74,7 +74,7 @@ Page({
     const { item } = e.currentTarget.dataset
     if (!item || !item._id) return
 
-    wx.showModal({
+    ui.showModal({
       title: this.data.ui.delete || 'Delete',
        // 简单这里直接硬编码中文提示，也可以根据语言
       content: this.data.currentLang === 'English' ? 'Are you sure you want to delete this resume?' : '确定要删除这份简历吗？删除后无法恢复。',
@@ -224,7 +224,7 @@ Page({
     }
 
     if (item.status === 'failed') {
-      wx.showModal({
+      ui.showModal({
         title: t('resume.generateFailed', lang),
         content: item.errorMessage || t('resume.tryAgain', lang),
         showCancel: false
@@ -255,7 +255,7 @@ Page({
          } else if (downloadRes.statusCode === 404) {
               // 物理文件由于 24 小时过期已被系统回收，触发免 AI 重新渲染恢复
               ui.hideLoading();
-              wx.showLoading({ title: '过期文件恢复中...', mask: true });
+              ui.showLoading('过期文件恢复中...')
               
               try {
                  const restoreRes = await callApi('restoreResume', {
@@ -267,7 +267,7 @@ Page({
                      this.startPolling();
                      // 提示用户稍等
                      setTimeout(() => {
-                         wx.hideLoading();
+                         ui.hideLoading();
                          ui.showToast('文件已在云端重新渲染中，请稍候')
                      }, 500);
                  } else {

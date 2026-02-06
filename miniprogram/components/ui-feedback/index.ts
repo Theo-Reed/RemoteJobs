@@ -4,7 +4,11 @@ Component({
       type: null, 
       value: ''
     },
-    type: { type: String, value: 'loading' }, // 'loading', 'success', 'error', 'none'
+    modalContent: { type: String, value: '' },
+    confirmText: { type: String, value: '确定' },
+    cancelText: { type: String, value: '取消' },
+    showCancel: { type: Boolean, value: true },
+    type: { type: String, value: 'loading' }, // 'loading', 'success', 'error', 'info', 'modal'
     mask: { type: Boolean, value: false },
     visible: { 
       type: Boolean, 
@@ -41,5 +45,13 @@ Component({
     displayVisible: false
   },
   methods: {
+    onCancel() {
+      this.triggerEvent('cancel');
+      this.setData({ visible: false });
+    },
+    onConfirm() {
+      this.triggerEvent('confirm');
+      this.setData({ visible: false });
+    }
   }
 })

@@ -5,6 +5,7 @@ import { attachLanguageAware } from '../../utils/languageAware'
 // import { processAndSaveAIResume } from '../../utils/resume'
 import { request, callApi } from '../../utils/request'
 import { ui } from '../../utils/ui'
+import { checkIsAuthed } from '../../utils/util'
 const { cloudRunEnv } = require('../../env.js')
 
 const SAVED_COLLECTION = 'saved_jobs'
@@ -226,7 +227,7 @@ Page({
 
     const app = getApp<IAppOption>() as any
     const user = app?.globalData?.user
-    const isVerified = !!(user && user.phoneNumber)
+    const isVerified = checkIsAuthed(user)
     if (!isVerified) {
       ui.showToast(this.data.pleaseLoginText)
       return
@@ -308,7 +309,7 @@ Page({
 
       if (existingList.length > 0) {
         ui.hideLoading()
-        wx.showModal({
+        ui.showModal({
           title: '已生成过简历',
           content: '您已为该岗位生成过定制简历，是否需要重新生成？',
           confirmText: '重新生成',
@@ -418,7 +419,7 @@ Page({
             const taskId = res.result.task_id
             
             // 提示用户任务已提交
-            wx.showModal({
+            ui.showModal({
               title: isChineseEnv ? '生成请求已提交' : 'Request Submitted',
               content: isChineseEnv 
                 ? 'AI 正在为你深度定制简历，大约需要 30 秒。完成后将在“我的简历”中展示，你可以继续浏览其他岗位。'
@@ -446,7 +447,7 @@ Page({
 
           // 1. 如果是正在生成中 (409)
           if (isProcessingError) {
-            wx.showModal({
+            ui.showModal({
                 title: isChineseEnv ? '生成中' : 'Processing',
                 content: isChineseEnv 
                   ? '该岗位的定制简历还在生成中，请耐心等待，无需重复提交。' 
@@ -459,7 +460,7 @@ Page({
 
           // 2. 如果是配额不足 (403)
           if (isQuotaError) {
-             wx.showModal({
+             ui.showModal({
                  title: isChineseEnv ? '生成额度已用完' : 'Quota Exhausted',
                  content: isChineseEnv 
                     ? '您的简历生成额度已用完。请升级会员或购买积分。' 
@@ -482,7 +483,7 @@ Page({
              return;
           }
 
-          wx.showModal({
+          ui.showModal({
             title: isChineseEnv ? '生成失败' : 'Generate Failed',
             content: err?.data?.message || err?.message || (isChineseEnv ? '系统繁忙，请稍后再试' : 'System busy, please try again later.'),
             showCancel: false
@@ -513,7 +514,7 @@ Page({
           : (isChineseEnv ? '请先完善简历资料' : 'Please complete your profile')
 
         // 简历不完整，跳转到简历资料页
-        wx.showModal({
+        ui.showModal({
           title: isChineseEnv ? '简历信息不完整' : 'Profile Incomplete',
           content: content,
           confirmText: isChineseEnv ? '去完善' : 'Edit Profile',

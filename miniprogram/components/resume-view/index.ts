@@ -4,6 +4,7 @@ import { ui } from '../../utils/ui'
 import { callApi } from '../../utils/request'
 import { normalizeLanguage, t } from '../../utils/i18n'
 import { attachLanguageAware } from '../../utils/languageAware'
+import { checkIsAuthed } from '../../utils/util'
 
 Component({
   properties: {
@@ -101,10 +102,10 @@ Component({
         }
 
         const user = app.globalData.user;
-        const isLoggedIn = !!(user && user.phoneNumber);
+        const isLoggedIn = checkIsAuthed(user);
 
         this.setData({
-        isLoggedIn: !!(user && user.phoneNumber),
+        isLoggedIn,
         isInitializing: false
         });
     },
@@ -118,8 +119,8 @@ Component({
         const app = getApp<any>()
         const user = app.globalData.user
         
-        if (!user?.phoneNumber) {
-        wx.showModal({
+        if (!checkIsAuthed(user)) {
+        ui.showModal({
             title: '需要身份认证',
             content: '为了您的简历和会员权益能够永久同步，请先登录并验证手机号。',
             confirmText: '去登录',

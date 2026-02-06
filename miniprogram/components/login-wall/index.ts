@@ -1,6 +1,7 @@
 import { callApi } from '../../utils/request';
 import { InternalPhase, AuthState, SuccessMode, TIMINGS } from './constants';
 import { getCeremonyConfig, executeFadeOut } from './ceremonies';
+import { checkIsAuthed } from '../../utils/util';
 
 Component({
   properties: {
@@ -36,7 +37,7 @@ Component({
     attached() {
       const app = getApp<any>();
       const { user, bootStatus } = app.globalData;
-      if (user?.phoneNumber && bootStatus === 'success') {
+      if (checkIsAuthed(user) && bootStatus === 'success') {
           this.setData({ 
               internalPhase: 'hidden', 
               _shouldShow: false,

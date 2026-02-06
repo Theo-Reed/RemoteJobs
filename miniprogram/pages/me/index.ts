@@ -148,7 +148,7 @@ Page({
         const app = getApp<any>();
         const user = app.globalData.user;
         const bootStatus = app.globalData.bootStatus;
-        const loggedIn = !!(user && user.phoneNumber && bootStatus === 'success');
+        const loggedIn = !!(checkIsAuthed(user) && bootStatus === 'success');
         
         console.log('[Me] syncLoginState:', {
             hasUser: !!user,
@@ -210,7 +210,7 @@ Page({
         const app = getApp<IAppOption>() as any
         const user = app?.globalData?.user
 
-        const isVerified = !!(user && user.phoneNumber) // 认证状态：有手机号
+        const isVerified = checkIsAuthed(user) // 认证状态：有手机号
 
         // 使用新包裹字段 membership
         const membership = user?.membership
@@ -541,9 +541,7 @@ Page({
 
         // Check if AI features are unlocked
         if (lang.startsWith('AI') && !this.data.isAiChineseUnlocked) {
-            wx.showModal({
-                title: uiStrings.aiUnlockTitle,
-                content: uiStrings.aiUnlockContent,
+                ui.showModal({
                 confirmText: uiStrings.toPay,
                 cancelText: uiStrings.cancel,
                 success: (res) => {
@@ -1000,59 +998,53 @@ Page({
         const { memberLevel, ui: uiStrings } = this.data
         if (!memberLevel) return
 
-        wx.showModal({
-            title: uiStrings.memberRenew,
-            content: uiStrings.memberRenewContent,
-            confirmText: uiStrings.renewNow,
-            success: (res) => {
-                if (res.confirm) {
-                    this.executePaymentFlow(memberLevel)
+            ui.showModal({
+                title: uiStrings.memberRenew,
+                content: uiStrings.memberRenewContent,
+                confirmText: uiStrings.renewNow,
+                success: (res) => {
+                    if (res.confirm) {
+                        this.executePaymentFlow(memberLevel)
+                    }
                 }
+            })
+        },
+
+        onUpgrade() {
+            if (!this.checkPhoneBeforePayment()) return;
+
+            const { memberLevel, upgradeAmount, ui: uiStrings } = this.data
+            let targetLevel = 0
+            let title = ''
+            let content = ''
+
+            if (memberLevel === 1) {
+                targetLevel = 2
+                title = uiStrings.upgradeBasicTitle
+                content = uiStrings.upgradeBasicContent.replace('{amount}', upgradeAmount.toString())
+            } else if (memberLevel === 2) {
+                targetLevel = 3
+                title = uiStrings.upgradeProTitle
+                content = uiStrings.upgradeProContent.replace('{amount}', upgradeAmount.toString())
             }
-        })
-    },
 
-    onUpgrade() {
-        if (!this.checkPhoneBeforePayment()) return;
+            if (!targetLevel) return
 
-        const { memberLevel, upgradeAmount, ui: uiStrings } = this.data
-        let targetLevel = 0
-        let title = ''
-        let content = ''
-
-        if (memberLevel === 1) {
-            targetLevel = 2
-            title = uiStrings.upgradeBasicTitle
-            content = uiStrings.upgradeBasicContent.replace('{amount}', upgradeAmount.toString())
-        } else if (memberLevel === 2) {
-            targetLevel = 3
-            title = uiStrings.upgradeProTitle
-            content = uiStrings.upgradeProContent.replace('{amount}', upgradeAmount.toString())
-        }
-
-        if (!targetLevel) return
-
-        wx.showModal({
-            title,
-            content,
-            confirmText: uiStrings.apply,
-            success: (res) => {
-                if (res.confirm) {
-                    this.executePaymentFlow(targetLevel, upgradeAmount)
+            ui.showModal({
+                title,
+                content,
+                confirmText: uiStrings.apply,
+                success: (res) => {
+                    if (res.confirm) {
+                        this.executePaymentFlow(targetLevel, upgradeAmount)
+                    }
                 }
-            }
-        })
-    },
+            })
+        },
 
-    checkPhoneBeforePayment(): boolean {
-        if (!this.data.userPhone) {
-            wx.showModal({
-                title: this.data.ui.phoneWarningTitle,
-                content: this.data.ui.paymentPhoneRequired,
-                showCancel: false,
-                confirmText: this.data.ui.confirm,
-                success: () => {
-                    this.openProfileSheet();
+        checkPhoneBeforePayment(): boolean {
+            if (!this.data.userPhone) {
+                ui.showModal({
                 }
             });
             return false;
@@ -1153,7 +1145,7 @@ Page({
                 return
             }
 
-            wx.showModal({
+            ui.showModal({
                 title: uiStrings.payPrompt,
                 content: (err.message || err.errMsg || uiStrings.payError) + (err.order_id ? ` (ID: ${err.order_id})` : ''),
                 showCancel: false,
@@ -1200,7 +1192,7 @@ Page({
 
             // 如果是首次设置手机号，弹出重要提示
             if (!this.data.userPhone) {
-                wx.showModal({
+                ui.showModal({
                     title: this.data.ui.phoneWarningTitle,
                     content: this.data.ui.phoneWarningContent,
                     confirmText: this.data.ui.phoneWarningConfirm,

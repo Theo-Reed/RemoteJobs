@@ -2,6 +2,7 @@ import { normalizeLanguage, type AppLanguage, t } from './utils/i18n'
 import { bootManager, type BootStatus } from './utils/bootManager'
 import { request, callApi, performLogin } from './utils/request'
 import { StatusCode } from './utils/statusCodes'
+import { checkIsAuthed } from './utils/util'
 
 App<IAppOption>({
   globalData: {
@@ -59,7 +60,7 @@ App<IAppOption>({
     const currentStatus = bootManager.getStatus();
     
     if (currentStatus === 'loading' || currentStatus === 'success') {
-        if (user && (user.phone || user.phoneNumber)) {
+        if (checkIsAuthed(user)) {
             bootManager.setStatus('success');
         } else if ((this as any).globalData.bootStatus !== 'server-down' && (this as any).globalData.bootStatus !== 'no-network') {
             bootManager.setStatus('unauthorized');
@@ -86,7 +87,7 @@ App<IAppOption>({
       if (res.isConnected && bootManager.getStatus() === 'no-network') {
         bootManager.setStatus('loading');
         this.refreshUser().then(() => {
-          if ((this as any).globalData.user?.phone) {
+          if (checkIsAuthed((this as any).globalData.user)) {
             bootManager.setStatus('success');
           }
         }).catch(() => {});

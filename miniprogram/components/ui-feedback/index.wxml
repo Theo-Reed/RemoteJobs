@@ -15,6 +15,20 @@
       <view class="ui-error-line ui-error-line-2"></view>
     </view>
 
-    <text class="ui-message">{{title}}</text>
+    <!-- Modal Content -->
+    <block wx:if="{{type === 'modal'}}">
+      <view class="ui-modal-header">
+        <text class="ui-modal-title">{{title}}</text>
+      </view>
+      <view class="ui-modal-body">
+        <text class="ui-modal-content">{{modalContent}}</text>
+      </view>
+      <view class="ui-modal-footer">
+        <view wx:if="{{showCancel}}" class="ui-modal-btn cancel" bindtap="onCancel">{{cancelText}}</view>
+        <view class="ui-modal-btn confirm" bindtap="onConfirm">{{confirmText}}</view>
+      </view>
+    </block>
+
+    <text wx:else class="ui-message">{{title}}</text>
   </view>
 </view>

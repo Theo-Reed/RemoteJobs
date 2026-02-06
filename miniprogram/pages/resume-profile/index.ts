@@ -191,7 +191,7 @@ Page({
     const { zh, ui: uiStrings, interfaceLang } = this.data
     if (!zh || Object.keys(zh).length === 0) return
 
-    wx.showModal({
+    ui.showModal({
       title: uiStrings.syncFromCn || '同步确认',
       content: interfaceLang === 'English' ? 'Sync from Chinese resume? Current English content will be overwritten.' : '确定要从中文简历同步吗？这会覆盖当前的英文简历内容。',
       success: async (res) => {
@@ -466,7 +466,7 @@ Page({
       sourceType: ['album', 'camera'],
       success: async (res) => {
         const tempFilePath = res.tempFiles[0].tempFilePath
-        wx.showLoading({ title: uiStrings.uploading })
+        ui.showLoading(uiStrings.uploading)
         try {
           const openid = wx.getStorageSync('user_openid')
           const token = wx.getStorageSync('token')
@@ -499,12 +499,12 @@ Page({
               ui.showToast(uiStrings.uploadFailed)
             },
             complete: () => {
-              wx.hideLoading()
+              ui.hideLoading()
             }
           })
         } catch (e) {
           console.error('[Upload] Exception:', e)
-          wx.hideLoading()
+          ui.hideLoading()
           ui.showToast(uiStrings.uploadFailed)
         }
       }
@@ -1080,7 +1080,7 @@ Page({
     const { editingWorkIndex, workExperiences } = this.data
     if (editingWorkIndex === -1) return
 
-    wx.showModal({
+    ui.showModal({
       title: '删除确认',
       content: '确定要删除这段工作经历吗？',
       success: async (res) => {
@@ -1224,7 +1224,7 @@ Page({
     const { editingEduIndex, educations } = this.data
     if (editingEduIndex === -1) return
 
-    wx.showModal({
+    ui.showModal({
       title: '删除确认',
       content: '确定要删除这段教育经历吗？',
       success: async (res) => {

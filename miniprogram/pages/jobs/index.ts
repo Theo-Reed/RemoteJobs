@@ -5,6 +5,7 @@ import { toDateMs } from '../../utils/time'
 import { isAiChineseUnlocked } from '../../utils/subscription'
 import { request, callApi } from '../../utils/request'
 import { ui } from '../../utils/ui'
+import { checkIsAuthed } from '../../utils/util'
 
 Page({
   data: {
@@ -87,11 +88,10 @@ Page({
     const user = app.globalData.user;
     const bootStatus = app.globalData.bootStatus;
 
-    const isLoggedIn = !!(user && user.phoneNumber && bootStatus === 'success');
+    const isLoggedIn = checkIsAuthed(user) && bootStatus === 'success';
     
     console.log('[Index] syncLoginState:', {
       hasUser: !!user,
-      hasPhone: !!user?.phoneNumber,
       bootStatus,
       isLoggedIn
     });
@@ -217,7 +217,7 @@ Page({
       // 检查认证状态
       const app = getApp<IAppOption>() as any
       const user = app?.globalData?.user
-      const isVerified = !!(user && user.phoneNumber)
+      const isVerified = checkIsAuthed(user)
       if (!isVerified) {
         ui.showToast('请先登录验证手机号')
         return
@@ -394,7 +394,7 @@ Page({
 
       const lang = normalizeLanguage(app?.globalData?.language)
 
-      wx.showModal({
+      ui.showModal({
         title: t('jobs.confirmClearTitle', lang),
         content: t('jobs.confirmClearContent', lang),
         confirmText: t('drawer.confirm', lang),
@@ -445,7 +445,7 @@ Page({
     const app = getApp<IAppOption>() as any
     const lang = normalizeLanguage(app?.globalData?.language)
 
-    wx.showModal({
+    ui.showModal({
       title: t('jobs.unlockFeaturedTitle', lang),
       content: t('jobs.unlockFeaturedContent', lang),
       confirmText: t('jobs.goSubscribe', lang),

@@ -131,7 +131,7 @@ Component({
     },
 
     onDelete() {
-      wx.showModal({
+      ui.showModal({
         title: '确认删除',
         content: '确定要删除这段教育经历吗？',
         success: (res) => {

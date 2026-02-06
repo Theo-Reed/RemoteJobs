@@ -55,7 +55,7 @@ Page({
     const bootStatus = bootManager.getStatus();
     
     // 兼容多种字段名，确保登录态正确判断
-    const hasPhone = !!(user && (user.phone || user.phoneNumber));
+    const hasPhone = checkIsAuthed(user);
     const isLoggedIn = !!(hasPhone && bootStatus === 'success');
     
     console.log('[Main] syncState:', {

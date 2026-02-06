@@ -5,6 +5,7 @@ import { toDateMs } from '../../utils/time'
 import { isAiChineseUnlocked } from '../../utils/subscription'
 import { request, callApi } from '../../utils/request'
 import { ui } from '../../utils/ui'
+import { checkIsAuthed } from '../../utils/util'
 
 // Define App Option type locally if not imported
 interface IAppOption {
@@ -125,7 +126,7 @@ Component({
         const user = app.globalData.user;
         const bootStatus = app.globalData.bootStatus;
 
-        const isLoggedIn = !!(user && user.phoneNumber && bootStatus === 'success');
+        const isLoggedIn = !!(checkIsAuthed(user) && bootStatus === 'success');
         
         console.log('[CommunityView] syncLoginState:', {
             hasUser: !!user,
@@ -239,7 +240,7 @@ Component({
         // 检查认证状态
         const app = getApp<IAppOption>() as any
         const user = app?.globalData?.user
-        const isVerified = !!(user && user.phoneNumber)
+        const isVerified = checkIsAuthed(user)
         if (!isVerified) {
             ui.showToast('请先登录验证手机号')
             return
@@ -417,9 +418,7 @@ Component({
 
         const lang = normalizeLanguage(app?.globalData?.language)
 
-        wx.showModal({
-            title: t('jobs.confirmClearTitle', lang),
-            content: t('jobs.confirmClearContent', lang),
+      ui.showModal({
             confirmText: t('drawer.confirm', lang),
             cancelText: t('resume.cancel', lang),
             success: async (res) => {
@@ -465,7 +464,7 @@ Component({
         const app = getApp<IAppOption>() as any
         const lang = normalizeLanguage(app?.globalData?.language)
 
-        wx.showModal({
+        ui.showModal({
             title: t('jobs.unlockFeaturedTitle', lang),
             content: t('jobs.unlockFeaturedContent', lang),
             confirmText: t('jobs.goSubscribe', lang),

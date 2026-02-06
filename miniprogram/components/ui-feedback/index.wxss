@@ -131,3 +131,64 @@
   line-height: 1.4;
 }
 
+/* --- Modal Styles --- */
+.ui-content.modal {
+  padding: 0;
+  width: 600rpx;
+  max-width: 85%;
+  align-items: stretch;
+  overflow: hidden;
+}
+
+.ui-modal-header {
+  padding: 48rpx 48rpx 16rpx;
+  text-align: center;
+}
+
+.ui-modal-title {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.ui-modal-body {
+  padding: 0 48rpx 48rpx;
+  text-align: center;
+}
+
+.ui-modal-content {
+  font-size: 28rpx;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.ui-modal-footer {
+  display: flex;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.ui-modal-btn {
+  flex: 1;
+  padding: 28rpx 0;
+  text-align: center;
+  font-size: 32rpx;
+  font-weight: 600;
+}
+
+.ui-modal-btn.cancel {
+  color: var(--text-secondary);
+  border-right: 1rpx solid #f0f0f0;
+}
+
+.ui-modal-btn.cancel:active {
+  background: #f8f8f8;
+}
+
+.ui-modal-btn.confirm {
+  color: #2e5fe9;
+}
+
+.ui-modal-btn.confirm:active {
+  background: #f0f4ff;
+}
+

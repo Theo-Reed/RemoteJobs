@@ -1,6 +1,7 @@
 import { ui } from '../../utils/ui'
 import { callApi } from '../../utils/request'
 import { normalizeLanguage } from '../../utils/i18n'
+import { checkIsAuthed } from '../../utils/util'
 
 interface IAppOption {
   globalData: {
@@ -51,10 +52,10 @@ Page({
     }
 
     const user = app.globalData.user;
-    const isLoggedIn = !!(user && user.phoneNumber);
+    const isLoggedIn = checkIsAuthed(user);
 
     this.setData({
-      isLoggedIn: !!(user && user.phoneNumber),
+      isLoggedIn: checkIsAuthed(user),
       isInitializing: false
     });
   },
@@ -68,8 +69,8 @@ Page({
     const app = getApp<IAppOption>()
     const user = app.globalData.user
     
-    if (!user?.phoneNumber) {
-      wx.showModal({
+    if (!checkIsAuthed(user)) {
+      ui.showModal({
         title: '需要身份认证',
         content: '为了您的简历和会员权益能够永久同步，请先登录并验证手机号。',
         confirmText: '去登录',
@@ -251,7 +252,7 @@ Page({
         // 通知抽屉成功
         if (detail.complete) detail.complete()
 
-        wx.showModal({
+        ui.showModal({
           title: isChineseEnv ? '生成任务已提交' : 'Task Submitted',
           content: isChineseEnv 
             ? 'AI 正在为你深度定制简历，预计需要 30 秒。完成后可在“生成记录”中查看。'
@@ -288,7 +289,7 @@ Page({
       if (isProcessingError) {
         const lang = normalizeLanguage(getApp<IAppOption>().globalData.language)
         const isChineseEnv = (lang === 'Chinese' || lang === 'AIChinese')
-        wx.showModal({
+        ui.showModal({
             title: isChineseEnv ? '生成中' : 'Processing',
             content: isChineseEnv 
               ? '定制简历还在生成中，请耐心等待，无需重复提交。' 
@@ -332,7 +333,7 @@ Page({
             const data = JSON.parse(uploadRes.data)
             if (data.success) {
               const { summary, polished_content } = data.result
-              wx.showModal({
+              ui.showModal({
                 title: '润色成功',
                 content: `${summary}\n\n建议内容已生成，点击确认查看细节`,
                 confirmText: '查看',
@@ -340,7 +341,7 @@ Page({
                   if (modalRes.confirm) {
                     // 这里可以跳转到专门的结果页，或者打开一个展示长文本的 Drawer
                     // 暂时先用弹窗展示核心润色内容
-                    wx.showModal({
+                    ui.showModal({
                       title: '润色建议',
                       content: polished_content,
                       showCancel: false

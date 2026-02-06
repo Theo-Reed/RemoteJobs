@@ -7,6 +7,7 @@ import {toDateMs} from '../../utils/time'
 import {getPhoneNumberFromAuth, updatePhoneNumber} from '../../utils/phoneAuth'
 import {callApi, formatFileUrl} from '../../utils/request'
 import {ui} from '../../utils/ui'
+import {checkIsAuthed} from '../../utils/util'
 import * as UIConfig from './ui.config'
 import type { IMemberScheme, IGetMemberSchemesResult, ICalculatePriceResult } from '../../typings/types/api'
 
@@ -183,7 +184,7 @@ Component({
             const app = getApp<any>();
             const user = app.globalData.user;
             const bootStatus = app.globalData.bootStatus;
-            const loggedIn = !!(user && user.phoneNumber && bootStatus === 'success');
+            const loggedIn = !!(checkIsAuthed(user) && bootStatus === 'success');
             
             console.log('[Me] syncLoginState:', {
                 hasUser: !!user,
@@ -245,7 +246,7 @@ Component({
             const app = getApp<any>() as any
             const user = app?.globalData?.user
 
-            const isVerified = !!(user && user.phoneNumber) // 认证状态：有手机号
+            const isVerified = checkIsAuthed(user)
 
             // 使用新包裹字段 membership
             const membership = user?.membership
@@ -577,7 +578,7 @@ Component({
 
             // Check if AI features are unlocked
             if (lang.startsWith('AI') && !this.data.isAiChineseUnlocked) {
-                wx.showModal({
+                ui.showModal({
                     title: uiStrings.aiUnlockTitle,
                     content: uiStrings.aiUnlockContent,
                     confirmText: uiStrings.toPay,
@@ -1036,7 +1037,7 @@ Component({
             const { memberLevel, ui: uiStrings } = this.data
             if (!memberLevel) return
 
-            wx.showModal({
+            ui.showModal({
                 title: uiStrings.memberRenew,
                 content: uiStrings.memberRenewContent,
                 confirmText: uiStrings.renewNow,
@@ -1068,7 +1069,7 @@ Component({
 
             if (!targetLevel) return
 
-            wx.showModal({
+            ui.showModal({
                 title,
                 content,
                 confirmText: uiStrings.apply,
@@ -1082,7 +1083,7 @@ Component({
 
         checkPhoneBeforePayment(): boolean {
             if (!this.data.userPhone) {
-                wx.showModal({
+                ui.showModal({
                     title: this.data.ui.phoneWarningTitle,
                     content: this.data.ui.paymentPhoneRequired,
                     showCancel: false,
@@ -1188,7 +1189,7 @@ Component({
                     return
                 }
 
-                wx.showModal({
+                ui.showModal({
                     title: uiStrings.payPrompt,
                     content: (err.message || err.errMsg || uiStrings.payError) + (err.order_id ? ` (ID: ${err.order_id})` : ''),
                     showCancel: false,
@@ -1235,7 +1236,7 @@ Component({
 
                 // 如果是首次设置手机号，弹出重要提示
                 if (!this.data.userPhone) {
-                    wx.showModal({
+                    ui.showModal({
                         title: this.data.ui.phoneWarningTitle,
                         content: this.data.ui.phoneWarningContent,
                         confirmText: this.data.ui.phoneWarningConfirm,

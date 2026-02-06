@@ -84,5 +84,47 @@ export const ui = {
     } else {
       console.warn('UI feedback component not found on current page');
     }
+  },
+
+  /**
+   * 显示对话框 (替代原生 showModal)
+   */
+  showModal(options: {
+    title?: string;
+    content?: string;
+    confirmText?: string;
+    cancelText?: string;
+    showCancel?: boolean;
+    success?: (res: { confirm: boolean; cancel: boolean }) => void;
+  }) {
+    const pages = getCurrentPages();
+    const page = pages[pages.length - 1];
+    const feedback = page?.selectComponent('#ui-feedback') as any;
+
+    if (feedback) {
+      feedback.setData({
+        title: options.title || '提示',
+        modalContent: options.content || '',
+        confirmText: options.confirmText || '确定',
+        cancelText: options.cancelText || '取消',
+        showCancel: options.showCancel !== false,
+        type: 'modal',
+        mask: true,
+        visible: true
+      });
+
+      // 绑定回调
+      feedback.onConfirm = () => {
+        feedback.setData({ visible: false });
+        if (options.success) options.success({ confirm: true, cancel: false });
+      };
+      feedback.onCancel = () => {
+        feedback.setData({ visible: false });
+        if (options.success) options.success({ confirm: false, cancel: true });
+      };
+    } else {
+      // 降级使用原生
+      wx.showModal(options);
+    }
   }
 };

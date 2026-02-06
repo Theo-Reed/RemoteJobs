@@ -543,14 +543,14 @@ Component({
         return
       }
       
-      wx.showLoading({ title: '收藏中...', mask: true })
+      ui.showLoading('收藏中...')
       try {
         // 构建批量保存参数
         // 直接提交所有有效职位，让后端去重
         const jobsToCheck = currentJobs.filter(job => job._id && job._id.trim())
         
         if (jobsToCheck.length === 0) {
-          wx.hideLoading()
+          ui.hideLoading()
           ui.showToast('当前列表为空')
           return
         }
@@ -572,7 +572,7 @@ Component({
           jobData,
         })
         
-        wx.hideLoading()
+        ui.hideLoading()
         ui.showToast('收藏成功')
         
         // 更新职位列表的isSaved状态
@@ -587,7 +587,7 @@ Component({
         // 通知父组件刷新收藏tab
         this.triggerEvent('refreshsaved')
       } catch (err) {
-        wx.hideLoading()
+        ui.hideLoading()
         ui.showToast('收藏失败')
       }
     },
