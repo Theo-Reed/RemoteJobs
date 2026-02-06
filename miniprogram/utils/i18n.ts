@@ -149,6 +149,23 @@ const dict = {
         noteMultiLang: { Chinese: '✓ 中英双语支持', English: '✓ Multi-Language Support' },
         noteStackable: { Chinese: '✓ 支持多次叠加购买', English: '✓ Stackable purchase' },
         noteNoExpiry: { Chinese: '✓ 个人额度永久有效', English: '✓ Forever valid' },
+        // Job checks
+        checkingStatus: { Chinese: '检查状态...', English: 'Checking status...' },
+        checkFailed: { Chinese: '系统检查失败', English: 'System check failed' },
+        // Generated resumes / retry / file actions
+        retrying: { Chinese: '已开始重试', English: 'Retrying...' },
+        deleteResumeConfirm: { Chinese: '确定要删除这份简历吗？删除后无法恢复。', English: 'Are you sure you want to delete this resume?' },
+        deleting: { Chinese: '删除中...', English: 'Deleting...' },
+        deleteSuccess: { Chinese: '删除成功', English: 'Success' },
+        deleteFailedShort: { Chinese: '删除失败', English: 'Failed' },
+        errorShort: { Chinese: '错误', English: 'Error' },
+        loadingFailed: { Chinese: '加载失败', English: 'Load failed' },
+        fetchingFile: { Chinese: '正在获取文件...', English: 'Fetching file...' },
+        recoveringExpiredFile: { Chinese: '过期文件恢复中...', English: 'Recovering expired file...' },
+        cloudRerenderingToast: { Chinese: '文件已在云端重新渲染中，请稍候', English: 'File is being re-rendered in cloud, please wait' },
+        oldFileUnavailable: { Chinese: '文件已过期且无法恢复', English: 'Old file unavailable' },
+        cannotOpenDocument: { Chinese: '无法打开该文档', English: 'Unable to open the document' },
+        downloadFailed: { Chinese: '下载失败', English: 'Download failed' },
     },
     resume: {
         toolTitle: { Chinese: '求职助手', English: 'Career Assistant' },
@@ -543,6 +560,19 @@ export type I18nKey =
     | 'resume.emptyTitle'
     | 'resume.emptySubtitle'
     | 'resume.goJobs'
+    | 'resume.retrying'
+    | 'resume.deleteResumeConfirm'
+    | 'resume.deleting'
+    | 'resume.deleteSuccess'
+    | 'resume.deleteFailedShort'
+    | 'resume.errorShort'
+    | 'resume.loadingFailed'
+    | 'resume.fetchingFile'
+    | 'resume.recoveringExpiredFile'
+    | 'resume.cloudRerenderingToast'
+    | 'resume.oldFileUnavailable'
+    | 'resume.cannotOpenDocument'
+    | 'resume.downloadFailed'
     | 'resume.year'
     | 'resume.month'
     | 'jobs.unknownCompany'

@@ -295,7 +295,7 @@ Page({
     const jobId = this.data.job?._id
     
     try {
-      ui.showLoading('检查状态...')
+      ui.showLoading(t('jobs.checkingStatus', lang))
       
       // 1. 前置检查：是否已经为该岗位生成过简历
       const checkRes = await callApi<any>('getGeneratedResumes', {
@@ -490,7 +490,7 @@ Page({
       ui.hideLoading()
       this.setData({ isGenerating: false })
       console.error('检查完整度失败:', err)
-      ui.showError('系统检查失败')
+      ui.showError(t('jobs.checkFailed', lang))
     }
   },
 

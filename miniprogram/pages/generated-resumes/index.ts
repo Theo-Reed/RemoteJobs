@@ -50,7 +50,9 @@ Page({
         })
         
         if (res.success) {
-            ui.showSuccess(this.data.currentLang === 'English' ? 'Retrying...' : '已开始重试')
+          const app = getApp<IAppOption>();
+          const lang = normalizeLanguage(app?.globalData?.language);
+          ui.showSuccess(t('resume.retrying', lang))
             
             // Start polling first to ensure we don't miss the window
             this.startPolling()
@@ -59,11 +61,13 @@ Page({
             // Await it so we are sure the list reflects the new state
             await this.fetchResumes(true)
         } else {
-            ui.showModal({
-                title: 'Retry Failed',
-                content: res.message || 'Unknown error',
-                showCancel: false
-            })
+          const app = getApp<IAppOption>();
+          const lang = normalizeLanguage(app?.globalData?.language);
+          ui.showModal({
+            title: t('resume.deleteFailedShort', lang),
+            content: res.message || t('resume.errorShort', lang),
+            showCancel: false
+          })
         }
     } catch (err: any) {
         console.error('Retry failed', err)
@@ -74,27 +78,28 @@ Page({
         const isChineseEnv = (lang === 'Chinese' || lang === 'AIChinese');
 
         if (isQuotaError) {
-            ui.showModal({
-                title: isChineseEnv ? '生成额度已用完' : 'Quota Exhausted',
-                content: isChineseEnv 
-                  ? '您的简历生成额度已用完。请升级会员或购买积分。' 
-                  : 'Your resume generation quota has been used up. Please upgrade your plan or top-up points.',
-                confirmText: isChineseEnv ? '去升级' : 'Upgrade',
-                cancelText: isChineseEnv ? '取消' : 'Cancel',
-                success: (res) => {
-                    if (res.confirm) {
-                        app.globalData.tabSelected = 2;
-                        app.globalData.openMemberHubOnShow = true;
-                        wx.reLaunch({
-                            url: '/pages/main/index'
-                        })
-                    }
-                }
-            })
+          const lang = normalizeLanguage(app?.globalData?.language);
+          ui.showModal({
+            title: t('jobs.quotaExhaustedTitle', lang),
+            content: err?.data?.message || t('jobs.quotaExhaustedContent', lang),
+            confirmText: t('jobs.quotaExhaustedConfirm', lang),
+            cancelText: t('jobs.quotaExhaustedCancel', lang),
+            success: (res) => {
+              if (res.confirm) {
+                app.globalData.tabSelected = 2;
+                app.globalData.openMemberHubOnShow = true;
+                wx.reLaunch({
+                  url: '/pages/main/index'
+                })
+              }
+            }
+          })
             return;
         }
         
-        ui.showError(isChineseEnv ? '系统繁忙' : 'Error')
+        const app = getApp<IAppOption>();
+        const lang = normalizeLanguage(app?.globalData?.language);
+        ui.showError(t('resume.errorShort', lang))
     }
   },
 
@@ -103,13 +108,13 @@ Page({
     if (!item || !item._id) return
 
     ui.showModal({
-      title: this.data.ui.delete || 'Delete',
-       // 简单这里直接硬编码中文提示，也可以根据语言
-      content: this.data.currentLang === 'English' ? 'Are you sure you want to delete this resume?' : '确定要删除这份简历吗？删除后无法恢复。',
+      title: this.data.ui.delete || t('resume.deleteResumeConfirm', normalizeLanguage(this.data.currentLang)),
+      // 删除确认文案
+      content: t('resume.deleteResumeConfirm', normalizeLanguage(this.data.currentLang)),
       confirmColor: '#ef4444',
       success: async (res) => {
         if (res.confirm) {
-            ui.showLoading('Deleting...')
+              ui.showLoading(t('resume.deleting', normalizeLanguage(this.data.currentLang)))
             try {
                 const res = await callApi('deleteGeneratedResume', {
                     resumeId: item._id
@@ -118,7 +123,7 @@ Page({
                 ui.hideLoading()
                 
                 if (res.success) {
-                    ui.showSuccess('Success')
+                    ui.showSuccess(t('resume.deleteSuccess', normalizeLanguage(this.data.currentLang)))
                     // Remove from local list
                     const updatedResumes = this.data.resumes.filter((r: any) => r._id !== item._id)
                     this.setData({ resumes: updatedResumes } as any);
@@ -128,12 +133,12 @@ Page({
                         this.setData({ isEditMode: false } as any)
                     }
                 } else {
-                    ui.showError('Failed')
+                    ui.showError(t('resume.deleteFailedShort', normalizeLanguage(this.data.currentLang)))
                 }
             } catch (err) {
                 ui.hideLoading()
                 console.error('Delete failed', err)
-                ui.showError('Error')
+                ui.showError(t('resume.errorShort', normalizeLanguage(this.data.currentLang)))
             }
         }
       }
@@ -187,7 +192,7 @@ Page({
 
     } catch (err) {
       console.error('获取简历列表失败:', err)
-      if (!silent) ui.showToast('加载失败')
+      if (!silent) ui.showToast(t('resume.loadingFailed', normalizeLanguage(this.data.currentLang)))
       this.setData({ loading: false })
     }
   },
@@ -262,7 +267,7 @@ Page({
 
     if (!item.fileUrl && !item.fileId) return
 
-    ui.showLoading('正在获取文件...')
+    ui.showLoading(t('resume.fetchingFile', normalizeLanguage(this.data.currentLang)))
 
     try {
       let tempFilePath = '';
@@ -283,7 +288,7 @@ Page({
          } else if (downloadRes.statusCode === 404) {
               // 物理文件由于 24 小时过期已被系统回收，触发免 AI 重新渲染恢复
               ui.hideLoading();
-              ui.showLoading('过期文件恢复中...')
+              ui.showLoading(t('resume.recoveringExpiredFile', normalizeLanguage(this.data.currentLang)))
               
               try {
                  const restoreRes = await callApi('restoreResume', {
@@ -296,7 +301,7 @@ Page({
                      // 提示用户稍等
                      setTimeout(() => {
                          ui.hideLoading();
-                         ui.showToast('文件已在云端重新渲染中，请稍候')
+                         ui.showToast(t('resume.cloudRerenderingToast', normalizeLanguage(this.data.currentLang)))
                      }, 500);
                  } else {
                      throw new Error(restoreRes.message || 'Restoration failed');
@@ -304,14 +309,14 @@ Page({
                  return; // 退出，等待轮询
               } catch (restoreErr: any) {
                   console.error('Restore failed:', restoreErr);
-                  ui.showError(restoreErr.message || '文件已过期且无法恢复');
+                  ui.showError(restoreErr.message || t('resume.oldFileUnavailable', normalizeLanguage(this.data.currentLang)));
                   return;
               }
          } else {
              throw new Error('Download failed status ' + downloadRes.statusCode);
          }
       } else if (item.fileId) {
-        ui.showError('Old file unavailable (Cloud)');
+        ui.showError(t('resume.oldFileUnavailable', normalizeLanguage(this.data.currentLang)));
         ui.hideLoading();
         return;
       }
@@ -328,13 +333,13 @@ Page({
         fail: (err) => {
           console.error(err)
           ui.hideLoading()
-          ui.showError('无法打开该文档')
+          ui.showError(t('resume.cannotOpenDocument', normalizeLanguage(this.data.currentLang)))
         }
       })
     } catch (err) {
       console.error(err)
       ui.hideLoading()
-      ui.showError('下载失败')
+      ui.showError(t('resume.downloadFailed', normalizeLanguage(this.data.currentLang)))
     }
   },
 
