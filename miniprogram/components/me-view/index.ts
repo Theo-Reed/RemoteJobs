@@ -8,7 +8,7 @@ import {getPhoneNumberFromAuth, updatePhoneNumber} from '../../utils/phoneAuth'
 import {callApi, formatFileUrl} from '../../utils/request'
 import {ui} from '../../utils/ui'
 import {checkIsAuthed} from '../../utils/util'
-import * as UIConfig from './ui.config'
+import * as UIConfig from '../../utils/i18n/configs/me'
 import type { IMemberScheme, IGetMemberSchemesResult, ICalculatePriceResult } from '../../typings/types/api'
 
 
