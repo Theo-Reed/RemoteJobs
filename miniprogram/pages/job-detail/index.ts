@@ -4,6 +4,7 @@ import { normalizeJobTags, translateFieldValue } from '../../utils/job'
 import { attachLanguageAware } from '../../utils/languageAware'
 // import { processAndSaveAIResume } from '../../utils/resume'
 import { request, callApi } from '../../utils/request'
+import { StatusCode, StatusMessage } from '../../utils/statusCodes'
 import { ui } from '../../utils/ui'
 import { checkIsAuthed } from '../../utils/util'
 const { cloudRunEnv } = require('../../env.js')
@@ -438,10 +439,10 @@ Page({
           ui.hideLoading()
           this.setData({ isGenerating: false })
           
-          const isQuotaError = (err?.statusCode === 403) || (err?.data?.error === 'Quota exhausted') || (err?.message && err.message.includes('Quota'));
-          const isProcessingError = (err?.statusCode === 409) || (err?.data?.message && err.data.message.includes('生成中'));
+          const isQuotaError = (err?.data?.code === StatusCode.QUOTA_EXHAUSTED) || (err?.statusCode === StatusCode.HTTP_FORBIDDEN) || (err?.data?.error === 'Quota exhausted');
+          const isProcessingError = (err?.statusCode === StatusCode.HTTP_CONFLICT) || (err?.data?.message && err.data.message.includes('生成中'));
 
-          // 1. 如果是正在生成中 (409)
+          // 1. 如果是正在生成中 (StatusCode.HTTP_CONFLICT)
           if (isProcessingError) {
             ui.showModal({
                 title: isChineseEnv ? '生成中' : 'Processing',
@@ -454,12 +455,12 @@ Page({
             return;
           }
 
-          // 2. 如果是配额不足 (403)
+          // 2. 如果是配额不足 (StatusCode.HTTP_FORBIDDEN / QUOTA_EXHAUSTED)
           if (isQuotaError) {
              ui.showModal({
                  title: isChineseEnv ? '生成额度已用完' : 'Quota Exhausted',
                  content: isChineseEnv 
-                    ? '您的简历生成额度已用完。请升级会员或购买积分。' 
+                    ? (err?.data?.message || StatusMessage[StatusCode.QUOTA_EXHAUSTED])
                     : 'Your resume generation quota has been used up. Please upgrade your plan or top-up points.',
                  confirmText: isChineseEnv ? '去升级' : 'Upgrade',
                  cancelText: isChineseEnv ? '取消' : 'Cancel',

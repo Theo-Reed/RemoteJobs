@@ -1,6 +1,7 @@
 import { normalizeLanguage, t } from '../../utils/i18n'
 import { ui } from '../../utils/ui'
 import { callApi, formatFileUrl } from '../../utils/request'
+import { StatusCode } from '../../utils/statusCodes'
 
 Page({
   data: {
@@ -66,7 +67,34 @@ Page({
         }
     } catch (err: any) {
         console.error('Retry failed', err)
-        ui.showError('Error')
+        
+        const isQuotaError = (err?.statusCode === StatusCode.HTTP_FORBIDDEN) || (err?.data?.error === 'Quota exhausted') || (err?.message && err.message.includes('Quota'));
+        const app = getApp<IAppOption>();
+        const lang = normalizeLanguage(app?.globalData?.language);
+        const isChineseEnv = (lang === 'Chinese' || lang === 'AIChinese');
+
+        if (isQuotaError) {
+            ui.showModal({
+                title: isChineseEnv ? '生成额度已用完' : 'Quota Exhausted',
+                content: isChineseEnv 
+                  ? '您的简历生成额度已用完。请升级会员或购买积分。' 
+                  : 'Your resume generation quota has been used up. Please upgrade your plan or top-up points.',
+                confirmText: isChineseEnv ? '去升级' : 'Upgrade',
+                cancelText: isChineseEnv ? '取消' : 'Cancel',
+                success: (res) => {
+                    if (res.confirm) {
+                        app.globalData.tabSelected = 2;
+                        app.globalData.openMemberHubOnShow = true;
+                        wx.reLaunch({
+                            url: '/pages/main/index'
+                        })
+                    }
+                }
+            })
+            return;
+        }
+        
+        ui.showError(isChineseEnv ? '系统繁忙' : 'Error')
     }
   },
 
