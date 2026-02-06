@@ -127,6 +127,7 @@
   <ui-drawer 
     show="{{showLanguageSheet}}" 
     title="{{ui.languageEntry}}" 
+    confirmText="{{ui.confirm}}"
     confirmActive="{{isLanguageChanged}}"
     bind:close="closeLanguageSheet"
     bind:confirm="onLanguageConfirm"
@@ -234,6 +235,7 @@
   <ui-drawer 
     title="{{ui.memberCenter}}" 
     show="{{showMemberHub}}" 
+    confirmText="{{ui.confirm}}"
     confirmActive="{{false}}"
     useScroll="{{false}}"
     bind:close="closeMemberHub"
@@ -347,6 +349,7 @@
   <ui-drawer 
     title="{{ui.contactAuthor}}" 
     show="{{showContactSheet}}" 
+    confirmText="{{ui.confirm}}"
     confirmActive="{{false}}"
     useScroll="{{false}}"
     bind:close="closeContactSheet"

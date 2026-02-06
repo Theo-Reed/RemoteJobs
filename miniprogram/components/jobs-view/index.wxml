@@ -63,6 +63,7 @@
     <ui-drawer 
       title="{{ui.restoreSearchLabel}}" 
       show="{{showRestoreSheet}}" 
+      confirmText="{{ui.doneLabel}}"
       bind:close="closeRestoreSheet"
       bind:confirm="onRestoreConfirm"
     >

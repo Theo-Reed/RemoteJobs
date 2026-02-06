@@ -1,4 +1,5 @@
 import { t } from '../../../utils/i18n/index'
+import { attachLanguageAware } from '../../../utils/languageAware'
 
 Component({
   options: {
@@ -13,7 +14,7 @@ Component({
     showConfirm: { type: Boolean, value: true },
     confirmText: { 
       type: null, 
-      value: '' // 默认为空，attached 时填充
+      value: '' 
     },
     confirmActive: { type: Boolean, value: true },
     showClose: { type: Boolean, value: false },
@@ -27,14 +28,21 @@ Component({
   },
   lifetimes: {
     attached() {
-      // 如果没有传 confirmText，设置默认值
-      if (!this.properties.confirmText) {
-        this.setData({
-          confirmText: t('resume.done')
-        })
-      }
+      (this as any)._langDetach = attachLanguageAware(this, {
+        onLanguageRevive: () => {
+          // 如果没有传 confirmText，设置默认值
+          if (!this.properties.confirmText) {
+            this.setData({
+              confirmText: t('resume.done')
+            })
+          }
+        },
+      })
     },
     detached() {
+      if ((this as any)._langDetach) {
+        (this as any)._langDetach()
+      }
       if ((this as any)._confirmTimeout) {
         clearTimeout((this as any)._confirmTimeout);
       }
