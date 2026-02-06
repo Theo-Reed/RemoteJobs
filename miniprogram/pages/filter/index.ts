@@ -45,6 +45,13 @@ const SOURCE_KEY_MAP: Record<string, string> = {
   'Wellfound': 'source_wellfound',
 }
 
+const REGION_KEY_MAP: Record<string, string> = {
+  '全部': 'regionAll',
+  '国内': 'regionDomestic',
+  '国外': 'regionOverseas',
+  'web3': 'regionWeb3',
+}
+
 Page({
   data: {
     tempValue: { salary: '全部', experience: '全部', source_name: [], region: '全部' } as DrawerValue,
@@ -94,14 +101,14 @@ Page({
       { key: 'region', label: t('drawer.regionTitle') },
       { key: 'source', label: t('drawer.sourceTitle') },
     ]
-    let regionOptions = [t('jobs.regionAll'), t('jobs.regionDomestic'), t('jobs.regionOverseas'), t('jobs.regionWeb3')]
+    let regionOptions = ['全部', '国内', '国外', 'web3']
     
     if (tabIndex === 0) {
       // 公开 tab: 去掉工作类型和招聘软件
       navTabs = navTabs.filter(t => t.key !== 'region' && t.key !== 'source')
     } else if (tabIndex === 1) {
-      // 精选 tab: 去掉国内，且国外改名海外
-      regionOptions = [t('jobs.regionAll'), t('jobs.regionOverseas'), t('jobs.regionWeb3')]
+      // 精选 tab: 去掉国内
+      regionOptions = ['全部', '国外', 'web3']
     }
 
     // 计算每个来源的选中状态
@@ -137,9 +144,6 @@ Page({
     // attach language-aware behavior
     ;(this as any)._langDetach = attachLanguageAware(this, {
       onLanguageRevive: () => {
-        const app = getApp<IAppOption>() as any
-        const lang = normalizeLanguage(app?.globalData?.language)
-        wx.setNavigationBarTitle({ title: '' })
         this.syncLanguageFromApp()
       },
     })
@@ -258,11 +262,8 @@ Page({
     
     // 区域选项显示处理
     const displayRegionOptions = (this.data.regionOptions || []).map((k) => {
-      if (k === '全部') return t('jobs.regionAll')
-      if (k === '国内') return t('jobs.regionDomestic')
-      if (k === '国外') return t('jobs.regionOverseas')
-      if (k === 'web3') return t('jobs.regionWeb3')
-      return k
+      const mapped = REGION_KEY_MAP[k]
+      return mapped ? t(`jobs.${mapped}`) : k
     })
     const displaySourceOptions = (this.data.sourceOptions || []).map((k) => {
       const mapped = SOURCE_KEY_MAP[k]
@@ -294,6 +295,8 @@ Page({
         confirm: t('drawer.confirm'),
       },
     })
+
+    wx.setNavigationBarTitle({ title: t('jobs.filterLabel') })
   },
 
   onPickSalary(e: any) {

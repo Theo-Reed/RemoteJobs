@@ -20,6 +20,12 @@ export const drawer = {
     login: { Chinese: '立即登录', English: 'Login' },
     notLoggedIn: { Chinese: '未登录', English: 'Not Logged In' },
     clickToLogin: { Chinese: '点击登录/注册', English: 'Click to Login/Register' },
+    salary: { Chinese: '薪资', English: 'Salary' },
+    experience: { Chinese: '经验', English: 'Experience' },
+    regionTitle: { Chinese: '区域', English: 'Region' },
+    sourceTitle: { Chinese: '来源', English: 'Source' },
+    clear: { Chinese: '重置', English: 'Reset' },
+    confirm: { Chinese: '确定', English: 'Confirm' },
     features: {
         jobSearch: { Chinese: '职位搜索', English: 'Job Search' },
         resumeBuilder: { Chinese: '简历生成', English: 'Resume Builder' },

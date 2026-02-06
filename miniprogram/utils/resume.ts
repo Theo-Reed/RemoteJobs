@@ -23,28 +23,34 @@ export async function requestGenerateResume(jobData: any, options: ResumeGenerat
   try {
     // 1. 实时刷新用户以获取最新的简历完善度 (level)
     const user = await app.refreshUser()
-    const profile = user?.resume_profile || {}
     
-    const completeness = isChineseEnv 
+    // 重新获取语言状态，避免 refreshUser 修改了全局语言导致逻辑不一致
+    const currentLang = normalizeLanguage(app.globalData.language)
+    const currentIsChineseEnv = (currentLang === 'Chinese' || currentLang === 'AIChinese')
+    
+    const profile = user?.resume_profile || {}
+    const completeness = currentIsChineseEnv 
       ? (profile.zh?.completeness || { level: 0, score: 0 }) 
       : (profile.en?.completeness || { level: 0, score: 0 });
+
+    console.log(`[ResumeService] Level check - Lang: ${currentLang}, Level: ${completeness.level}, Score: ${completeness.score}%`)
 
     // 2. 简历完整度校验 (Backend: level >= 1 为达标)
     if (completeness.level < 1) {
       if (options.onFinish) options.onFinish(false)
       
       ui.showModal({
-        title: t('jobs.basicInfoIncompleteTitle', lang),
-        content: t('jobs.profileIncompleteContent', lang),
-        confirmText: t('jobs.profileIncompleteConfirm', lang),
-        cancelText: t('jobs.generateAnyway', lang),
+        title: t('jobs.basicInfoIncompleteTitle', currentLang),
+        content: t('jobs.profileIncompleteContent', currentLang),
+        confirmText: t('jobs.profileIncompleteConfirm', currentLang),
+        cancelText: t('jobs.generateAnyway', currentLang),
         success: async (res) => {
           if (res.confirm) {
             wx.navigateTo({ url: '/pages/resume-profile/index' })
             if (options.onCancel) options.onCancel()
           } else if (res.cancel) {
             // 用户选择“直接生成”
-            doGenerate(user, profile, jobData, isChineseEnv, lang, options)
+            doGenerate(user, profile, jobData, currentIsChineseEnv, currentLang, options)
           } else {
              if (options.onCancel) options.onCancel()
           }
@@ -54,7 +60,7 @@ export async function requestGenerateResume(jobData: any, options: ResumeGenerat
     }
 
     // 3. 资料已达标，进入正式生成流程
-    await doGenerate(user, profile, jobData, isChineseEnv, lang, options)
+    await doGenerate(user, profile, jobData, currentIsChineseEnv, currentLang, options)
 
   } catch (err) {
     console.error('[ResumeService] Generation flow failed:', err)

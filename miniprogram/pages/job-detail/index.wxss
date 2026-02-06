@@ -40,6 +40,18 @@
   height: 76rpx;
   display: block;
   flex-shrink: 0;
+  transition: transform 0.2s ease, filter 0.3s ease;
+}
+
+@media (prefers-color-scheme: dark) {
+  .collect-icon {
+    /* 降低未激活状态图标的亮度，使其在暗色背景下不刺眼 */
+    filter: brightness(0.85);
+  }
+}
+
+.collect-button:active .collect-icon {
+  transform: scale(0.9);
 }
 
 .collect-text {
@@ -129,9 +141,8 @@
   padding: 32rpx;
   background-color: var(--bg-card);
   border-radius: 28rpx; /* 增大圆角以匹配简历卡片风格 */
-  border: 1rpx solid rgb(226 232 240 / 60%);
-  box-shadow: 0 8rpx 25rpx rgb(15 23 42 / 10%), 
-              0 4rpx 8rpx rgb(15 23 42 / 3%);
+  border: 1rpx solid var(--divider);
+  box-shadow: var(--shadow-sm);
 }
 
 .detail-description-rich {
@@ -183,15 +194,21 @@
 .apply-button {
   width: 45%; /* 按钮缩小10% (从50%到45%) */
   height: 83rpx; /* 按钮缩小10% (从92rpx到83rpx) */
-  background: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%); /* 浅蓝至深蓝渐变 */
-  color: var(--bg-card);
+  background: var(--grad-primary);
+  color: #ffffff;
   border-radius: 42rpx;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12rpx;
-  box-shadow: 0 10rpx 25rpx rgb(37 99 235 / 20%);
+  box-shadow: 0 10rpx 25rpx rgba(37, 99, 235, 0.2);
   transition: all 0.2s ease;
+}
+
+@media (prefers-color-scheme: dark) {
+  .apply-button {
+    box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.4);
+  }
 }
 
 .apply-button-active {

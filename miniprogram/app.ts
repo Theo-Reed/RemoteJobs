@@ -174,11 +174,14 @@ App<IAppOption>({
         if (responseData.token) {
           wx.setStorageSync('token', responseData.token);
         }
+        return this.globalData.user;
       } else {
         console.warn('[App] loginByOpenid failed or no user:', res.message || 'Unknown error');
+        return this.globalData.user;
       }
     } catch (err) {
       console.error('[App] refreshUser fatal error:', err);
+      return this.globalData.user;
     }
   },
 
