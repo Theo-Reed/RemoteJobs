@@ -13,6 +13,8 @@
     "navigationBarBackgroundColor": "#ffffff",
     "enablePullDownRefresh": false
   },
+  "darkmode": true,
+  "themeLocation": "theme.json",
   "lazyCodeLoading": "requiredComponents",
   "style": "v2"
 }

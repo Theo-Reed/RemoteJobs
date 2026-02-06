@@ -244,10 +244,14 @@ Page({
 
   refreshDisplayData() {
     const { currentLang, zh, en, completeness_cn, completeness_en, percent_cn, percent_en } = this.data
-    const profile = currentLang === 'English' ? en : zh
-    const currentPercent = currentLang === 'English' ? (percent_en || 0) : (percent_cn || 0)
     
-    console.log(`[ResumeProfile] Refreshing UI. Lang: ${currentLang}, Score: ${currentPercent}%`)
+    // Safety check: ensure we have something to show
+    const profile = currentLang === 'English' ? (en || {}) : (zh || {})
+    const currentPercent = currentLang === 'English' ? (percent_en || 0) : (percent_cn || 0)
+    const currentCompleteness = currentLang === 'English' ? (completeness_en || 0) : (completeness_cn || 0)
+    
+    console.log(`[ResumeProfile] Refreshing UI. Lang: ${currentLang}, Score: ${currentPercent}%, Level: ${currentCompleteness}`)
+    console.log(`[ResumeProfile] Stats - CN: ${percent_cn}%, EN: ${percent_en}%`)
 
     this.setData({
       name: profile.name || '',
@@ -268,7 +272,7 @@ Page({
       skills: profile.skills || [],
       workExperiences: profile.workExperiences || [],
       aiMessage: profile.aiMessage || '',
-      currentCompleteness: currentLang === 'English' ? completeness_en : completeness_cn,
+      currentCompleteness: currentCompleteness,
       currentPercent: currentPercent
     })
   },

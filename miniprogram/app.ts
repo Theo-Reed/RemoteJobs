@@ -1,5 +1,6 @@
 import { normalizeLanguage, type AppLanguage } from './utils/i18n/index'
 import { bootManager, type BootStatus } from './utils/bootManager'
+import { themeManager } from './utils/themeManager'
 import { request, callApi, performLogin } from './utils/request'
 import { checkIsAuthed } from './utils/util'
 
@@ -34,6 +35,9 @@ App<IAppOption>({
 
   onLaunch() {
     console.log('[App] onLaunch');
+    
+    // Initialize Theme Manager early to capture launch theme
+    themeManager.init();
     
     wx.onError((err) => {
       console.error('[Global Error]', err);
