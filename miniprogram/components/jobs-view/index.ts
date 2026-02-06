@@ -219,6 +219,12 @@ Component({
         
         wx.navigateTo({
             url: '/pages/job-detail/index',
+            events: {
+                // 监听详情页发出的刷新通知
+                refreshsaved: () => {
+                    this.onRefreshSaved()
+                }
+            }
         })
     },
 

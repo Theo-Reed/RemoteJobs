@@ -246,6 +246,12 @@ Page({
 
       this.setData({ saved: targetSaved })
       
+      // 通知来源页面（如收藏列表）状态已改变，触发刷新
+      const eventChannel = (this as any).getOpenerEventChannel()
+      if (eventChannel && typeof eventChannel.emit === 'function') {
+        eventChannel.emit('refreshsaved')
+      }
+      
       ui.showSuccess(targetSaved ? (this.data.saveSuccessText || 'Saved') : (this.data.unsaveSuccessText || 'Unsaved'))
     } catch (err) {
       ui.showError(this.data.operationFailedText || 'Error')
