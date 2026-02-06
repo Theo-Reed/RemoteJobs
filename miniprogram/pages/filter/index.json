@@ -2,6 +2,9 @@
   "navigationBarTitleText": "",
   "navigationBarTextStyle": "black",
   "navigationBarBackgroundColor": "#ffffff",
-  "disableSwipeBack": false
+  "disableSwipeBack": false,
+  "usingComponents": {
+    "ui-scroll-view": "../../components/ui/scroll-view/index"
+  }
 }
 

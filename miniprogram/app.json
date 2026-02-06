@@ -14,7 +14,8 @@
   "window": {
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "",
-    "navigationBarBackgroundColor": "#ffffff"
+    "navigationBarBackgroundColor": "#ffffff",
+    "enablePullDownRefresh": false
   },
   "lazyCodeLoading": "requiredComponents",
   "style": "v2"

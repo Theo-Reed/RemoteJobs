@@ -1,6 +1,8 @@
 {
   "navigationBarTitleText": "",
   "usingComponents": {
-    "education-drawer": "../../components/education-drawer/index"
+    "ui-scroll-view": "../../components/ui/scroll-view/index",
+    "ui-drawer": "../../components/ui/drawer/index",
+    "ui-feedback": "../../components/ui-feedback/index"
   }
 }
