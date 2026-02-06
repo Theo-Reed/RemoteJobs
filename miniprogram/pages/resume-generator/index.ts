@@ -2,6 +2,7 @@ import { ui } from '../../utils/ui'
 import { t } from '../../utils/i18n/index'
 import { attachLanguageAware } from '../../utils/languageAware'
 import { requestGenerateResume } from '../../utils/resume'
+require('../../env.js')
 
 Page({
   data: {
@@ -32,7 +33,7 @@ Page({
     // Allow passing initial data via query params or event channel
     if (options.title) {
         this.setData({
-            'targetJob.title': decodeURIComponent(options.title),
+            'targetJob.title': decodeURIComponent(options.title || ''),
             'targetJob.company': decodeURIComponent(options.company || ''),
             'targetJob.content': decodeURIComponent(options.content || ''),
             'targetJob.experience': decodeURIComponent(options.experience || '')
@@ -64,13 +65,14 @@ Page({
             jdPlaceholder: t('resume.jdPlaceholder'),
           }
         });
+        wx.setNavigationBarTitle({ title: t('resume.toolTextTitle') });
       }
     });
   },
 
   onFieldChange(e: any) {
-    const { field } = e.currentTarget.dataset
-    const { value } = e.detail
+    const field = e.currentTarget.dataset.field
+    const value = e.detail.value
     this.setData({
       [`targetJob.${field}`]: value
     }, () => this.validateForm())
@@ -99,7 +101,7 @@ Page({
     // 2. Haptic Feedback
     wx.vibrateShort({ type: 'medium' });
 
-    // 3. API Call (requestGenerateResume will handle language/completeness checks)
+    // 3. API Call
     this.performGeneration()
       .then(() => {
         // 4. API Success! Show loading (min 2 seconds)
@@ -110,10 +112,10 @@ Page({
             this.handleSuccess();
         }, 2000);
       })
-      .catch((err) => {
+      .catch((err: any) => {
         ui.hideLoading();
         // If it's a cancellation, don't show error modal
-        if (err.message === 'User cancelled') {
+        if (err && err.message === 'User cancelled') {
             return;
         }
         this.handleError(err);
@@ -124,7 +126,7 @@ Page({
       return new Promise((resolve, reject) => {
         const { targetJob } = this.data
         
-        // Mock job_data structure expected by backend/service
+        // Mock job_data structure
         const mockJobData = {
             _id: `CUSTOM_${Date.now()}`,
             _is_custom: true,
@@ -133,12 +135,12 @@ Page({
             title_english: targetJob.title,
             description: targetJob.content,
             experience: targetJob.experience,
-            source_name: targetJob.company || t('jobs.unknownCompany', 'Chinese'), // Default fallback
+            source_name: targetJob.company || t('jobs.unknownCompany', 'Chinese'),
             createdAt: new Date().toISOString()
         }
 
         requestGenerateResume(mockJobData, {
-            showSuccessModal: false, // We'll show our own after closing the page
+            showSuccessModal: false,
             onFinish: (success) => {
                 if (success) {
                     resolve(true)
@@ -158,7 +160,7 @@ Page({
     let msg = '';
     
     if (!title || !title.trim()) {
-        msg = t('resume.jobTitlePlaceholder'); // "请输入职位名称"
+        msg = t('resume.jobTitlePlaceholder');
     } else if (!experience || !experience.trim()) {
         msg = t('resume.experiencePlaceholder');
     } else if (!content || !content.trim()) {
@@ -174,10 +176,6 @@ Page({
     // Navigate back
     wx.navigateBack();
 
-    // Show modal on the previous page (or global/over current page if back is slow, but back is typically fast)
-    // To ensure user sees it, we normally show a toast or modal.
-    // Requirement: "告诉用户开始生成了，要不要去看看"
-    
     setTimeout(() => {
         wx.showModal({
             title: '开始生成',
@@ -196,7 +194,7 @@ Page({
   handleError(err: any) {
     wx.showModal({
       title: '调用失败',
-      content: err.message || '未知错误，请重试',
+      content: (err && err.message) || '未知错误，请重试',
       showCancel: false
     });
   }
