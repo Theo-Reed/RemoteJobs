@@ -19,6 +19,22 @@ const UI_MAP = {
     /** 会员到期后缀 */
     expiresSuffix: 'me.expiresSuffix',
     
+    // --- 简历与功能入口 ---
+    /** 简历资料入口 */
+    resumeProfileEntry: 'me.resumeProfileEntry',
+    /** 简历资料副标题 */
+    resumeProfileSubtitle: 'me.resumeProfileSubtitle',
+    /** 已生成简历入口 */
+    generatedResumesEntry: 'me.generatedResumesEntry',
+    /** 已生成简历副标题 */
+    generatedResumesSubtitle: 'me.generatedResumesSubtitle',
+    /** 联系作者 */
+    contactAuthor: 'me.contactAuthor',
+    /** 作者微信引导文案 */
+    authorWechatSlogan: 'me.authorWechatSlogan',
+    /** 二维码识别提示 */
+    qrHint: 'me.qrHint',
+
     // --- 会员与配额 ---
     /** 会员权益管理 */
     manageBenefits: 'me.manageBenefits',
@@ -38,6 +54,8 @@ const UI_MAP = {
     memberExpiredDate: 'me.memberExpiredDate',
     /** 额度点数 */
     points: 'me.points',
+    /** 额度单位 (如: 额度/pts) */
+    unitPoints: 'me.unitPoints',
     /** 可用 */
     available: 'me.available',
     /** 会员中心 */
@@ -46,58 +64,108 @@ const UI_MAP = {
     active: 'me.active',
     /** 未激活 */
     inactive: 'me.inactive',
+    /** 未开通 */
+    notActivated: 'me.notActivated',
     /** 充值与升级 */
     rechargeUpgrade: 'me.rechargeUpgrade',
+    /** 天 */
+    unitDays: 'me.unitDays',
+    /** 永久 */
+    forever: 'me.forever',
 
     // --- 邀请码弹窗 ---
     /** 邀请码弹窗标题 */
-    inviteDialogTitle: 'me.inviteDialogTitle',
+    inviteDialogTitle: 'me.inputInviteCode',
     /** 邀请码输入提示 */
-    invitePlaceholder: 'me.invitePlaceholder',
+    invitePlaceholder: 'me.inputInviteCodePlaceholder',
     /** 无效邀请码提示 */
-    invalidInviteCode: 'me.invalidInviteCode',
+    invalidInviteCode: 'me.inviteCodeInvalid',
     /** 已激活成功提示 */
-    inviteSuccess: 'me.inviteSuccess',
+    inviteSuccess: 'me.inviteCodeApplied',
 
     // --- 语言选择 ---
     /** 语言选择面板标题 */
     languageSheetTitle: 'me.languageSheetTitle',
+    /** 基础模式标题 */
+    basicMode: 'me.basicMode',
     /** 中文版显示名 */
     langChinese: 'me.langChinese',
+    /** 中文版描述 */
+    langChineseDesc: 'me.langChineseDesc',
     /** 英文版显示名 */
     langEnglish: 'me.langEnglish',
+    /** 英文版描述 */
+    langEnglishDesc: 'me.langEnglishDesc',
+    /** AI 模式标题 */
+    aiMode: 'me.aiMode',
     /** AI 中文 */
     langAIChinese: 'me.langAIChinese',
+    /** AI 中文描述 */
+    langAIChineseDesc: 'me.langAIChineseDesc',
     /** AI 英文 */
     langAIEnglish: 'me.langAIEnglish',
+    /** AI 英文描述 */
+    langAIEnglishDesc: 'me.langAIEnglishDesc',
+
+    // --- 邀请好友 ---
+    /** 邀请好友计划标题 */
+    inviteFriendPlan: 'me.inviteFriendPlan',
+    /** 邀请奖励描述 */
+    inviteRewardDesc: 'me.inviteRewardDesc',
+    /** 我有邀请码按钮 */
+    iHaveInviteCode: 'me.iHaveInviteCode',
+    /** 我的邀请码标题 */
+    myInviteCode: 'me.myInviteCode',
+    /** 点击复制提示 */
+    clickToCopy: 'me.clickToCopy',
+    /** 邀请码输入点位符 */
+    inputInviteCodePlaceholder: 'me.inputInviteCodePlaceholder',
+    /** 兑换按钮 */
+    redeem: 'me.redeem',
 
     // --- 提示与反馈 ---
     /** 正在保存 */
     saving: 'me.saving',
     /** 保存成功 */
-    saveSuccess: 'me.saveSuccess',
+    saveSuccess: 'me.nicknameSuccess',
     /** 授权失败 */
-    authFailed: 'me.authFailed',
+    authFailed: 'me.phoneAuthFailed',
     /** 会员已到期 */
-    memberExpired: 'me.memberExpired',
+    memberExpired: 'me.memberExpiredDate',
     /** 点数不足提示 */
     pointsInsufficient: 'me.pointsInsufficient',
     /** 上传失败 */
     uploadFailed: 'me.uploadFailed',
     /** 未设置手机号 */
-    phoneNotBound: 'me.phoneNotBound',
+    phoneNotBound: 'me.notBound',
     /** 登录过期提示 */
-    sessionExpired: 'me.sessionExpired',
+    sessionExpired: 'me.authRequiredTitle',
     /** 无网络提示 */
     noNetwork: 'me.noNetwork',
+
+    // --- 个人资料 ---
+    /** 用户资料标题 */
+    userProfileTitle: 'me.userProfileTitle',
+    /** 上传头像 */
+    uploadAvatar: 'me.uploadAvatar',
+    /** 用户名 */
+    editNickname: 'me.editNickname',
+    /** 手机号 */
+    phoneNumber: 'me.phoneNumber',
+    /** 未设置 */
+    notSet: 'me.notSet',
 
     // --- 支付相关 ---
     /** 订单创建中 */
     orderCreating: 'me.orderCreating',
+    /** 合计标签 */
+    totalLabel: 'me.totalLabel',
+    /** 立即支付 */
+    payNow: 'me.payNow',
     /** 调起支付失败 */
-    paymentLaunchFailed: 'me.paymentLaunchFailed',
+    paymentLaunchFailed: 'me.payError',
     /** 支付取消 */
-    paymentCancelled: 'me.paymentCancelled',
+    paymentCancelled: 'me.payCancelled',
     /** 支付前绑定手机号提示 */
     paymentPhoneRequired: 'me.paymentPhoneRequired',
 
@@ -118,27 +186,27 @@ const UI_MAP = {
 
 /**
  * 构造页面所需的完整 UI 对象
- * @param _lang 兼容性保留字段 (不再强制使用)
+ * @param lang 界面语言 (AppLanguage)
  * @param data 页面当前的 Data，用于填充动态占位符（如金额、徽章名等）
  */
-export function buildPageUI(_lang: AppLanguage | undefined, data: any) {
+export function buildPageUI(lang: AppLanguage | undefined, data: any) {
     const ui: Record<string, string> = {}
 
     // 1. 自动执行全量静态 Key 映射
     Object.keys(UI_MAP).forEach((key) => {
         const i18nPath = UI_MAP[key as keyof typeof UI_MAP]
-        ui[key] = t(i18nPath as any)
+        ui[key] = t(i18nPath as any, lang)
     })
 
     // 2. 特殊动态逻辑处理：补差价升级引导
-    const rawUpgradeGuide = t('me.upgradeGuide') as string
+    const rawUpgradeGuide = t('me.upgradeGuide', lang) as string
     const displayAmount = typeof data.upgradeAmount === 'number' ? (data.upgradeAmount / 100).toFixed(1) : '0'
-    ui.upgradeGuide = rawUpgradeGuide.replace('{amount}', displayAmount)
+    ui.upgradeGuide = (rawUpgradeGuide || '').replace('{amount}', displayAmount)
 
     // 3. 特殊动态逻辑处理：会员续费文案
     if (data.memberBadgeText) {
-        const rawRenewContent = t('me.memberRenewContent') as string
-        ui.memberRenewContent = rawRenewContent.replace('{badge}', data.memberBadgeText)
+        const rawRenewContent = t('me.memberRenewContent', lang) as string
+        ui.memberRenewContent = (rawRenewContent || '').replace('{badge}', data.memberBadgeText)
     }
 
     return ui
