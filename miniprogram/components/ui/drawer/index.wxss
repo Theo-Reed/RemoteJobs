@@ -5,12 +5,14 @@
   z-index: 9998; /* Adapt for custom tab-bar (9000) */
   opacity: 0;
   visibility: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 0.3s ease, visibility 0.3s step-end;
+  will-change: opacity;
 }
 
 .ui-drawer-mask.show {
   opacity: 1;
   visibility: visible;
+  transition: opacity 0.3s ease, visibility 0s step-start;
 }
 
 .ui-drawer-container {
@@ -21,8 +23,9 @@
   background: #fff;
   border-radius: 40rpx 40rpx 0 0;
   z-index: 9999; /* Adapt for custom tab-bar (9000) */
-  transform: translateY(100%);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translate3d(0, 100%, 0);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
@@ -31,7 +34,7 @@
 }
 
 .ui-drawer-container.show {
-  transform: translateY(0);
+  transform: translate3d(0, 0, 0);
 }
 
 .ui-drawer-header {
@@ -99,7 +102,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  transition: opacity 0.2s ease, color 0.2s ease;
 }
 
 .ui-drawer-confirm-btn.disabled {

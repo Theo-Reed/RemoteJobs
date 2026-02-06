@@ -38,8 +38,9 @@ Component({
     async onConfirm() {
       if (this.data.loading) return;
 
+      // If !confirmActive, the button behaves as a close/cancel button by default
       if (!this.properties.confirmActive) {
-        // Just return - consistent with disabled button behavior
+        this.onClose();
         return;
       }
 

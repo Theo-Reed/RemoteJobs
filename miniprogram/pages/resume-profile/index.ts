@@ -812,9 +812,9 @@ Page({
     }
 
     try {
-      const res: any = await callApi('searchUniversities', { keyword })
+      const res = await callApi('searchUniversities', { keyword })
       
-      const items = res?.result?.data || []
+      const items = res?.result?.items || []
       this.setData({
         universitySuggestions: items,
         showUniversitySuggestions: items.length > 0
@@ -892,9 +892,9 @@ Page({
     }
 
     try {
-      const res: any = await callApi('searchMajors', { keyword, level: levelQuery })
+      const res = await callApi('searchMajors', { keyword, level: levelQuery })
       
-      const items = res?.result?.data || []
+      const items = res?.result?.items || []
       this.setData({
         majorSuggestions: items,
         showMajorSuggestions: items.length > 0

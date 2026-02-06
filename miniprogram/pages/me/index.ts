@@ -356,12 +356,11 @@ Page({
             // 2. 如果彻底没有数据且不在请求中，才通过 API 获取
             if (schemes.length === 0 && !(this as any)._schemesLoading) {
                 (this as any)._schemesLoading = callApi('getMemberSchemes', {}).then(res => {
-                    const result = res.result || (res as any)
-                    if (result?.success) {
-                        const sList = result.schemes || []
+                    if (res.success && res.result) {
+                        const sList = res.result.schemes || []
                         this.setData({ schemsList: sList })
-                        if (result.userScheme) (this as any)._cachedUserScheme = result.userScheme
-                        return result
+                        if (res.result.userScheme) (this as any)._cachedUserScheme = res.result.userScheme
+                        return res.result
                     }
                     return null
                 }).finally(() => {
