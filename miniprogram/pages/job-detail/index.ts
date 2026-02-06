@@ -306,10 +306,9 @@ Page({
     try {
       ui.showLoading(t('jobs.checkingStatus'))
       
-      // 1. 前置检查：是否已经为该岗位生成过简历
+      // 1. 检查是否已经为该岗位生成过简历（包括正在生成中的）
       const checkRes = await callApi<any>('getGeneratedResumes', {
         jobId,
-        status: 'completed',
         limit: 1
       })
       const existingList = checkRes.result?.items || []
