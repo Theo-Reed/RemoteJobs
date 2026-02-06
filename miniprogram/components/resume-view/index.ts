@@ -21,7 +21,6 @@ Component({
       }
   },
   data: {
-    isLoggedIn: false, // 初始默认为 false 启动 Login Wall 的 Splash 流程
     isInitializing: true,
     jdText: '', // Deprecated, keep for now if needed or remove
     showJdDrawer: false,

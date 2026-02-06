@@ -403,9 +403,6 @@ job-list {
   box-sizing: border-box;
 }
 
-job-list {
-}
-
 .featured-tab-wrapper {
   position: relative;
 }

@@ -51,7 +51,6 @@ Component({
       editLabel: '',
       noSavedSearchConditions: '',
     } as Record<string, string>,
-    isLoggedIn: false,
   },
 
   lifetimes: {

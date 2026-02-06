@@ -23,9 +23,9 @@
 }
 
 /* --- Base Page Style --- */
-page {
+:host {
+    display: block;
     height: 100%;
-    overflow: hidden;
 }
 
 .page {

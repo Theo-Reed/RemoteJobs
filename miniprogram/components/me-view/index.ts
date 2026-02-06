@@ -33,7 +33,6 @@ Component({
         isInitialLoading: true,
         phoneAuthBusy: false,
         isLogin: false, // 是否已登录
-        isLoggedIn: false, // 全局登录墙控制
         isBeta: false, // 是否测试环境
 
         showLanguageSheet: false,
