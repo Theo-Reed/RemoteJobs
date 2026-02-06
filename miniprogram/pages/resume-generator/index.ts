@@ -23,8 +23,7 @@ Page({
       experience: '',
       content: ''
     },
-    isReady: false,
-    _langDetach: null as any
+    isReady: false
   },
 
   onLoad(options: any) {
@@ -43,13 +42,13 @@ Page({
   },
 
   onUnload() {
-    if (this.data._langDetach) {
-      this.data._langDetach();
+    if ((this as any)._langDetach) {
+      (this as any)._langDetach();
     }
   },
 
   initLanguage() {
-    const _langDetach = attachLanguageAware(this, {
+    (this as any)._langDetach = attachLanguageAware(this, {
       onLanguageRevive: () => {
         this.setData({
           ui: {
@@ -59,7 +58,7 @@ Page({
             jobTitlePlaceholder: t('resume.jobTitlePlaceholder'),
             workYears: t('resume.experience'),
             workYearsPlaceholder: t('resume.experiencePlaceholder'),
-            company: t('resume.companyPlaceholder'), // using placeholder text for label suffix if needed, or just hardcode as per design
+            company: t('resume.company'),
             companyPlaceholder: t('resume.companyPlaceholder'),
             jobDescription: t('resume.jobDescription'),
             jdPlaceholder: t('resume.jdPlaceholder'),
@@ -67,7 +66,6 @@ Page({
         });
       }
     });
-    this.setData({ _langDetach });
   },
 
   onFieldChange(e: any) {
@@ -81,9 +79,9 @@ Page({
   validateForm() {
     const { title, content, experience } = this.data.targetJob
     // Must have Job Title AND JD content AND Experience
-    const hasTitle = title && title.trim().length >= 1
-    const hasContent = content && content.trim().length >= 5
-    const hasExperience = experience && experience.trim().length >= 1
+    const hasTitle = !!(title && title.trim().length >= 1)
+    const hasContent = !!(content && content.trim().length >= 5)
+    const hasExperience = !!(experience && experience.trim().length >= 1)
     
     const isReady = hasTitle && hasContent && hasExperience
     if (isReady !== this.data.isReady) {
@@ -101,25 +99,23 @@ Page({
     // 2. Haptic Feedback
     wx.vibrateShort({ type: 'medium' });
 
-    // 3. Show loading (min 2 seconds)
-    // ui.showLoading handles masking
-    ui.showLoading('简历生成中...', true);
-    
-    const startTime = Date.now();
-
-    // 4. API Call
+    // 3. API Call (requestGenerateResume will handle language/completeness checks)
     this.performGeneration()
       .then(() => {
-        const duration = Date.now() - startTime;
-        const remaining = Math.max(0, 2000 - duration);
+        // 4. API Success! Show loading (min 2 seconds)
+        ui.showLoading('生成中...', true);
         
         setTimeout(() => {
             ui.hideLoading();
             this.handleSuccess();
-        }, remaining);
+        }, 2000);
       })
       .catch((err) => {
         ui.hideLoading();
+        // If it's a cancellation, don't show error modal
+        if (err.message === 'User cancelled') {
+            return;
+        }
         this.handleError(err);
       });
   },
@@ -142,6 +138,7 @@ Page({
         }
 
         requestGenerateResume(mockJobData, {
+            showSuccessModal: false, // We'll show our own after closing the page
             onFinish: (success) => {
                 if (success) {
                     resolve(true)
@@ -150,7 +147,6 @@ Page({
                 }
             },
             onCancel: () => {
-                // If user cancels during some intermediate step if any
                 reject(new Error('User cancelled'))
             }
         })

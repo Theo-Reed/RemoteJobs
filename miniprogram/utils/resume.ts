@@ -8,6 +8,7 @@ export interface ResumeGenerateOptions {
   onStart?: () => void
   onFinish?: (success: boolean) => void
   onCancel?: () => void
+  showSuccessModal?: boolean
 }
 
 /**
@@ -136,18 +137,20 @@ async function doGenerate(user: any, profile: any, job: any, isChineseEnv: boole
     if (res.success && res.result?.task_id) {
       if (options.onFinish) options.onFinish(true)
       
-      // 展示统一的成功提效模态框
-      ui.showModal({
-        title: t('jobs.generateRequestSubmittedTitle', lang),
-        content: t('jobs.generateRequestSubmittedContent', lang),
-        confirmText: t('jobs.generateRequestSubmittedConfirm', lang),
-        cancelText: t('jobs.generateRequestSubmittedCancel', lang),
-        success: (modalRes) => {
-          if (modalRes.confirm) {
-            wx.navigateTo({ url: '/pages/generated-resumes/index' })
+      if (options.showSuccessModal !== false) {
+        // 展示统一的成功提效模态框
+        ui.showModal({
+          title: t('jobs.generateRequestSubmittedTitle', lang),
+          content: t('jobs.generateRequestSubmittedContent', lang),
+          confirmText: t('jobs.generateRequestSubmittedConfirm', lang),
+          cancelText: t('jobs.generateRequestSubmittedCancel', lang),
+          success: (modalRes) => {
+            if (modalRes.confirm) {
+              wx.navigateTo({ url: '/pages/generated-resumes/index' })
+            }
           }
-        }
-      })
+        })
+      }
     } else {
       throw new Error('Service response error')
     }
