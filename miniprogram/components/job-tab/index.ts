@@ -243,34 +243,32 @@ Component({
       // 构建筛选参数
       const filterParams: any = {}
       
+      // 语言设置
+      const app = getApp<any>()
+      const currentLang = normalizeLanguage(app?.globalData?.language || 'Chinese')
+      const isEnglishEnv = (currentLang === 'English' || currentLang === 'AIEnglish')
+      
+      filterParams.language = currentLang
+      
       // 来源筛选
       const source_names = this.data.drawerFilter?.source_name || []
       if (Array.isArray(source_names) && source_names.length > 0) {
-        filterParams.source_name = source_names
+        if (isEnglishEnv) {
+          filterParams.source_name_english = source_names
+        } else {
+          filterParams.source_name = source_names
+        }
       }
       
       // 薪资筛选
       const salary = this.data.drawerFilter?.salary || '全部'
       if (salary && salary !== '全部') {
-        filterParams.salary = salary
+        if (isEnglishEnv) {
+          filterParams.salary_english = salary
+        } else {
+          filterParams.salary = salary
+        }
       }
-      
-      // 经验筛选
-      const experience = this.data.drawerFilter?.experience || '全部'
-      if (experience && experience !== '全部') {
-        filterParams.experience = experience
-      }
-
-      // 地区筛选
-      const region = this.data.drawerFilter?.region || '全部'
-      if (region && region !== '全部') {
-        filterParams.type = region
-      }
-      
-      // 语言设置
-      const app = getApp<any>()
-      const currentLang = normalizeLanguage(app?.globalData?.language || 'Chinese')
-      filterParams.language = currentLang
       
       const functionName = tabType === 0 ? 'getPublicJobList' : 'getFeaturedJobList'
 

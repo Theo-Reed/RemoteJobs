@@ -1,3 +1,5 @@
+import { normalizeLanguage, t } from '../../utils/i18n'
+
 Component({
   options: {
     multipleSlots: true
@@ -11,7 +13,7 @@ Component({
     showConfirm: { type: Boolean, value: true },
     confirmText: { 
       type: null, 
-      value: '' 
+      value: '' // 默认为空，attached 时填充
     },
     confirmActive: { type: Boolean, value: true },
     showClose: { type: Boolean, value: false },
@@ -22,6 +24,16 @@ Component({
   },
   data: {
     loading: false
+  },
+  lifetimes: {
+    attached() {
+      // 如果没有传 confirmText，设置默认值
+      if (!this.properties.confirmText) {
+        this.setData({
+          confirmText: t('resume.done')
+        })
+      }
+    }
   },
   methods: {
     onClose() {
