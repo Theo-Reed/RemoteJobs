@@ -145,20 +145,15 @@ Component({
     },
 
     syncLanguageFromApp() {
-        const app = getApp<IAppOption>() as any
-        const lang = normalizeLanguage(app?.globalData?.language)
-        
-        console.log('[CommunityView] syncLanguageFromApp:', lang)
-
         const uiData = {
-            tabPublic: t('jobs.tabPublic', lang),
-            tabFeatured: t('jobs.tabFeatured', lang),
-            tabSaved: t('jobs.tabSaved', lang),
-            editLabel: t('jobs.editLabel', lang),
-            doneLabel: t('jobs.doneLabel', lang),
-            clearAllLabel: t('jobs.clearAllLabel', lang),
-            noSavedSearchConditions: t('jobs.noSavedSearchConditions', lang),
-            restoreSearchLabel: t('jobs.restoreSearchLabel', lang),
+            tabPublic: t('jobs.tabPublic'),
+            tabFeatured: t('jobs.tabFeatured'),
+            tabSaved: t('jobs.tabSaved'),
+            editLabel: t('jobs.editLabel'),
+            doneLabel: t('jobs.doneLabel'),
+            clearAllLabel: t('jobs.clearAllLabel'),
+            noSavedSearchConditions: t('jobs.noSavedSearchConditions'),
+            restoreSearchLabel: t('jobs.restoreSearchLabel'),
         }
 
         this.setData({
@@ -273,39 +268,28 @@ Component({
             
             // 如果没有保存的搜索条件，只显示toast，不弹窗
             if (savedConditions.length === 0) {
-                const lang = normalizeLanguage(app?.globalData?.language)
-                ui.showToast(t('jobs.trySaveSearchHint', lang))
+                ui.showToast(t('jobs.trySaveSearchHint'))
                 return
             }
             
             // 格式化数据用于显示
-            const lang = normalizeLanguage(app?.globalData?.language)
-            const useEnglish = lang === 'English' || lang === 'AIEnglish'
-            // ... (keeping implementation details same as original)
-            const EN_SOURCE: Record<string, string> = {
-                '全部': 'All',
-                'BOSS直聘': 'BOSS Zhipin',
-                '智联招聘': 'Zhilian Zhaopin',
-            }
-            
             // 翻译 tab 名称
             const tabNames = [
-                t('jobs.tabPublic', lang),
-                t('jobs.tabFeatured', lang),
-                t('jobs.tabSaved', lang),
+                t('jobs.tabPublic'),
+                t('jobs.tabFeatured'),
+                t('jobs.tabSaved'),
             ]
             
             const formattedConditions = savedConditions.map((condition) => {
                 const keyword = condition.searchKeyword || ''
                 const filter = condition.drawerFilter || {}
-                const tabName = tabNames[tabType] || tabNames[0]
                 
                 // 构建描述文本
-                const keywordLabel = t('jobs.filterKeywordLabel', lang)
-                const regionLabel = t('jobs.filterRegionLabel', lang)
-                const sourceLabel = t('jobs.filterSourceLabel', lang)
-                const salaryLabel = t('jobs.filterSalaryLabel', lang)
-                const noFilterText = t('jobs.noFilterConditions', lang)
+                const keywordLabel = t('jobs.filterKeywordLabel')
+                const regionLabel = t('jobs.filterRegionLabel')
+                const sourceLabel = t('jobs.filterSourceLabel')
+                const salaryLabel = t('jobs.filterSalaryLabel')
+                const noFilterText = t('jobs.noFilterConditions')
                 
                 const parts: string[] = []
                 if (keyword) {
