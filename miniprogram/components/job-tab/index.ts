@@ -342,7 +342,7 @@ Component({
       const app = getApp<IAppOption>() as any
       const user = app?.globalData?.user
       const openid = user?.openid
-      const isVerified = !!(user && (user.isAuthed || user.phone))
+      const isVerified = !!(user && user.isAuthed)
       
       if (!isVerified || !openid) {
         this.setData({ 
@@ -532,7 +532,7 @@ Component({
       const app = getApp<IAppOption>() as any
       const user = app?.globalData?.user
       const openid = user?.openid
-      const isVerified = !!(user && (user.isAuthed || user.phone))
+      const isVerified = !!(user && user.isAuthed)
       if (!isVerified || !openid) {
         ui.showToast('请先绑定手机号')
         return
@@ -600,7 +600,7 @@ Component({
       const app = getApp<IAppOption>() as any
       const user = app?.globalData?.user
       const openid = user?.openid
-      const isVerified = !!(user && (user.isAuthed || user.phone))
+      const isVerified = !!(user && user.isAuthed)
       if (!isVerified || !openid) {
         ui.showToast('请先绑定手机号')
         return
@@ -649,7 +649,7 @@ Component({
       const app = getApp<IAppOption>() as any
       const user = app?.globalData?.user
       const openid = user?.openid
-      const isVerified = !!(user && (user.isAuthed || user.phone))
+      const isVerified = !!(user && user.isAuthed)
       if (!isVerified || !openid) {
         ui.showToast('请先绑定手机号')
         return

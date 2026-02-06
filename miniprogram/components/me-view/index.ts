@@ -894,7 +894,8 @@ Component({
         async openMemberHub() {
             this.setData({ 
                 showMemberHub: true, 
-                memberHubOpen: false
+                memberHubOpen: false,
+                selectedSchemeId: 0
             })
             
             // Always fetch to ensure we have the latest scheme benefits and layout stabilizers
@@ -908,16 +909,18 @@ Component({
         async fetchSchemes() {
             try {
                 const res = await callApi('getMemberSchemes', {})
-                const data = (res?.result || res) as any
-                if (data?.success && data?.schemes) {
-                    const schemes = data.schemes || []
+                const resData = (res as any)?.data || res
+                const success = (res as any)?.success && resData?.success
+                
+                if (success) {
+                    const schemes = resData.schemes || []
                     
-                    // Select first one by default if not set
+                    // Select first one by default if not set or not in list
                     let selectedId = this.data.selectedSchemeId
                     const exists = schemes.find((s:any) => s.scheme_id === selectedId)
                     
                     if (!exists && schemes.length > 0) {
-                    selectedId = schemes[0].scheme_id
+                        selectedId = schemes[0].scheme_id
                     }
                     
                     const selectedScheme = schemes.find((s:any) => s.scheme_id === selectedId)

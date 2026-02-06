@@ -32,16 +32,16 @@
   <!-- 3. Custom Tab Bar -->
   <view class="custom-tab-bar" style="position: fixed; bottom: 0; left: 0; right: 0; height: 96rpx; background: #fff; display: flex; border-top: 1rpx solid #eee; padding-bottom: env(safe-area-inset-bottom); z-index: 1000;">
     <view class="tab-item" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;" bindtap="onTabChange" data-index="0">
-      <view style="width: 48rpx; height: 48rpx; background: {{activeTab === 0 ? '#2E5FE9' : '#ccc'}}; border-radius: 8rpx; margin-bottom: 6rpx;"></view>
-      <text style="font-size: 20rpx; color: {{activeTab === 0 ? '#2E5FE9' : '#999'}}; font-weight: {{activeTab === 0 ? 'bold' : 'normal'}};">{{tabLabels.jobs}}</text>
+      <image src="/assets/tabbar/jobs{{activeTab === 0 ? '-active' : ''}}.png" style="width: 50rpx; height: 50rpx; margin-bottom: 2rpx; padding-top: 10rpx;"></image>
+      <text style="font-size: 20rpx; color: {{activeTab === 0 ? '#2E5FE9' : '#7A7E83'}}; font-weight: {{activeTab === 0 ? 'bold' : 'normal'}};">{{tabLabels.jobs}}</text>
     </view>
     <view class="tab-item" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;" bindtap="onTabChange" data-index="1">
-      <view style="width: 48rpx; height: 48rpx; background: {{activeTab === 1 ? '#2E5FE9' : '#ccc'}}; border-radius: 50%; margin-bottom: 6rpx;"></view>
-      <text style="font-size: 20rpx; color: {{activeTab === 1 ? '#2E5FE9' : '#999'}}; font-weight: {{activeTab === 1 ? 'bold' : 'normal'}};">{{tabLabels.resume}}</text>
+      <image src="/assets/tabbar/resume{{activeTab === 1 ? '-active' : ''}}.png" style="width: 50rpx; height: 50rpx; margin-bottom: 2rpx; padding-top: 10rpx;"></image>
+      <text style="font-size: 20rpx; color: {{activeTab === 1 ? '#2E5FE9' : '#7A7E83'}}; font-weight: {{activeTab === 1 ? 'bold' : 'normal'}};">{{tabLabels.resume}}</text>
     </view>
     <view class="tab-item" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;" bindtap="onTabChange" data-index="2">
-      <view style="width: 48rpx; height: 48rpx; background: {{activeTab === 2 ? '#2E5FE9' : '#ccc'}}; border-radius: 50%; margin-bottom: 6rpx;"></view>
-      <text style="font-size: 20rpx; color: {{activeTab === 2 ? '#2E5FE9' : '#999'}}; font-weight: {{activeTab === 2 ? 'bold' : 'normal'}};">{{tabLabels.me}}</text>
+      <image src="/assets/tabbar/me{{activeTab === 2 ? '-active' : ''}}.png" style="width: 50rpx; height: 50rpx; margin-bottom: 2rpx; padding-top: 10rpx;"></image>
+      <text style="font-size: 20rpx; color: {{activeTab === 2 ? '#2E5FE9' : '#7A7E83'}}; font-weight: {{activeTab === 2 ? 'bold' : 'normal'}};">{{tabLabels.me}}</text>
     </view>
   </view>
 </view>

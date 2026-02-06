@@ -1,8 +1,8 @@
 Component({
   data: {
     selected: 0,
-    color: "#6b7280",
-    selectedColor: "#1d4ed8",
+    color: "#7A7E83",
+    selectedColor: "#2E5FE9",
     list: [
       {
         pagePath: "/pages/jobs/index",
