@@ -69,14 +69,14 @@ Component({
     
     // UI文本（国际化）
     ui: {
-      searchPlaceholder: '搜索职位名称..',
-      filterLabel: '筛选',
-      saveMenuLabel: '功能',
-      collectAllLabel: '一键收藏当前列表',
-      saveSearchLabel: '保存搜索条件',
-      restoreSearchLabel: '恢复搜索条件',
-      emptyFavorites: '暂无收藏',
-      featuredSubscribeText: '订阅后查看精选岗位',
+      searchPlaceholder: t('jobs.searchPlaceholder'),
+      filterLabel: t('jobs.filterLabel'),
+      saveMenuLabel: t('jobs.saveMenuLabel'),
+      collectAllLabel: t('jobs.collectAllLabel'),
+      saveSearchLabel: t('jobs.saveSearchLabel'),
+      restoreSearchLabel: t('jobs.restoreSearchLabel'),
+      emptyFavorites: t('jobs.noSavedJobs'),
+      featuredSubscribeText: t('jobs.featuredSubscribeText'),
     },
   },
 
@@ -176,19 +176,16 @@ Component({
     },
 
     syncLanguageFromApp() {
-      const app = getApp<IAppOption>() as any
-      const lang = normalizeLanguage(app?.globalData?.language)
-      
       this.setData({
         ui: {
-          searchPlaceholder: t('jobs.searchPlaceholder', lang),
-          filterLabel: t('jobs.filterLabel', lang),
-          saveMenuLabel: t('jobs.saveMenuLabel', lang),
-          collectAllLabel: t('jobs.collectAllLabel', lang),
-          saveSearchLabel: t('jobs.saveSearchLabel', lang),
-          restoreSearchLabel: t('jobs.restoreSearchLabel', lang),
-          emptyFavorites: t('me.emptyFavorites', lang),
-          featuredSubscribeText: t('jobs.featuredSubscribeText', lang),
+          searchPlaceholder: t('jobs.searchPlaceholder'),
+          filterLabel: t('jobs.filterLabel'),
+          saveMenuLabel: t('jobs.saveMenuLabel'),
+          collectAllLabel: t('jobs.collectAllLabel'),
+          saveSearchLabel: t('jobs.saveSearchLabel'),
+          restoreSearchLabel: t('jobs.restoreSearchLabel'),
+          emptyFavorites: t('jobs.noSavedJobs'),
+          featuredSubscribeText: t('jobs.featuredSubscribeText'),
         },
       })
     },
@@ -440,7 +437,7 @@ Component({
         
         this.triggerEvent('dataupdate', { jobs: mergedJobs, hasMore })
       } catch (err) {
-        ui.showToast('搜索失败')
+        ui.showToast(t('jobs.searchFailed'))
         if (reset) {
           this.setData({ isSearching: false })
         }
@@ -532,17 +529,17 @@ Component({
       const openid = user?.openid
       const isVerified = !!(user && user.isAuthed)
       if (!isVerified || !openid) {
-        ui.showToast('请先绑定手机号')
+        ui.showToast(t('jobs.pleaseLogin'))
         return
       }
       
       const currentJobs = this.data.jobs
       if (currentJobs.length === 0) {
-        ui.showToast('当前列表为空')
+        ui.showToast(t('jobs.listEmpty'))
         return
       }
       
-      ui.showLoading('收藏中...')
+      ui.showLoading(t('jobs.saving'))
       try {
         // 构建批量保存参数
         // 直接提交所有有效职位，让后端去重
@@ -550,7 +547,7 @@ Component({
         
         if (jobsToCheck.length === 0) {
           ui.hideLoading()
-          ui.showToast('当前列表为空')
+          ui.showToast(t('jobs.listEmpty'))
           return
         }
 
@@ -572,7 +569,7 @@ Component({
         })
         
         ui.hideLoading()
-        ui.showToast('收藏成功')
+        ui.showToast(t('jobs.saveSuccess'))
         
         // 更新职位列表的isSaved状态
         const savedJobIds = new Set(jobIds)
@@ -587,7 +584,7 @@ Component({
         this.triggerEvent('refreshsaved')
       } catch (err) {
         ui.hideLoading()
-        ui.showToast('收藏失败')
+        ui.showToast(t('jobs.saveFailed'))
       }
     },
 
@@ -600,7 +597,7 @@ Component({
       const openid = user?.openid
       const isVerified = !!(user && user.isAuthed)
       if (!isVerified || !openid) {
-        ui.showToast('请先绑定手机号')
+        ui.showToast(t('jobs.pleaseLogin'))
         return
       }
       
@@ -634,9 +631,9 @@ Component({
           ...searchCondition,
         })
         
-        ui.showToast('搜索条件已保存')
+        ui.showToast(t('jobs.searchSaved'))
       } catch (err) {
-        ui.showToast('保存失败')
+        ui.showToast(t('jobs.saveFailed'))
       }
     },
 
@@ -649,7 +646,7 @@ Component({
       const openid = user?.openid
       const isVerified = !!(user && user.isAuthed)
       if (!isVerified || !openid) {
-        ui.showToast('请先绑定手机号')
+        ui.showToast(t('jobs.pleaseLogin'))
         return
       }
       

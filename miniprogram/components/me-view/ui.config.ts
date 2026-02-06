@@ -267,26 +267,26 @@ const UI_MAP = {
 
 /**
  * 构造页面所需的完整 UI 对象
- * @param lang 当前语言环境
+ * @param _lang 兼容性保留字段 (不再强制使用)
  * @param data 页面当前的 Data，用于填充动态占位符（如金额、徽章名等）
  */
-export function buildPageUI(lang: AppLanguage, data: any) {
+export function buildPageUI(_lang: AppLanguage | undefined, data: any) {
     const ui: Record<string, string> = {}
 
     // 1. 自动执行全量静态 Key 映射
     Object.keys(UI_MAP).forEach((key) => {
         const i18nPath = UI_MAP[key as keyof typeof UI_MAP]
-        ui[key] = t(i18nPath as any, lang)
+        ui[key] = t(i18nPath as any)
     })
 
     // 2. 特殊动态逻辑处理：补差价升级引导
-    const rawUpgradeGuide = t('me.upgradeGuide', lang) as string
+    const rawUpgradeGuide = t('me.upgradeGuide') as string
     const displayAmount = typeof data.upgradeAmount === 'number' ? (data.upgradeAmount / 100).toFixed(1) : '0'
     ui.upgradeGuide = rawUpgradeGuide.replace('{amount}', displayAmount)
 
     // 3. 特殊动态逻辑处理：会员续费文案
     if (data.memberBadgeText) {
-        const rawRenewContent = t('me.memberRenewContent', lang) as string
+        const rawRenewContent = t('me.memberRenewContent') as string
         ui.memberRenewContent = rawRenewContent.replace('{badge}', data.memberBadgeText)
     }
 

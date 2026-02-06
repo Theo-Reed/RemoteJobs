@@ -89,19 +89,19 @@ Page({
     
     // 根据 tabIndex 调整导航和选项
     let navTabs = [
-      { key: 'salary', label: '薪资' },
-      { key: 'experience', label: '经验' },
-      { key: 'region', label: '工作类型' },
-      { key: 'source', label: '招聘软件' },
+      { key: 'salary', label: t('drawer.salary') },
+      { key: 'experience', label: t('drawer.experience') },
+      { key: 'region', label: t('drawer.regionTitle') },
+      { key: 'source', label: t('drawer.sourceTitle') },
     ]
-    let regionOptions = ['全部', '国内', '国外', 'web3']
+    let regionOptions = [t('jobs.regionAll'), t('jobs.regionDomestic'), t('jobs.regionOverseas'), t('jobs.regionWeb3')]
     
     if (tabIndex === 0) {
       // 公开 tab: 去掉工作类型和招聘软件
       navTabs = navTabs.filter(t => t.key !== 'region' && t.key !== 'source')
     } else if (tabIndex === 1) {
       // 精选 tab: 去掉国内，且国外改名海外
-      regionOptions = ['全部', '国外', 'web3']
+      regionOptions = [t('jobs.regionAll'), t('jobs.regionOverseas'), t('jobs.regionWeb3')]
     }
 
     // 计算每个来源的选中状态

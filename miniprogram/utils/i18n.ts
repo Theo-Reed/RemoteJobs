@@ -46,10 +46,12 @@ const dict = {
         clickToCopy: { Chinese: '点击复制邀请码', English: 'Click to copy code' },
         redeem: { Chinese: '兑换', English: 'Redeem' },
         memberBadge: { Chinese: '丈月尺会员', English: 'Subscribed' },
+        memberTrial: { Chinese: '体验成员', English: 'Trial Member' },
         uploadAvatar: { Chinese: '上传头像', English: 'Upload Avatar' },
         editNickname: { Chinese: '用户名', English: 'Username' },
         memberExpiredDate: { Chinese: '会员到期日期', English: 'Expiration Date' },
         phoneNumber: { Chinese: '手机号', English: 'Phone' },
+        authButton: { Chinese: '一键授权手机号登录', English: 'One-tap Login with Phone' },
         changePhone: { Chinese: '更换', English: 'Change' },
         setPhone: { Chinese: '设置', English: 'Set' },
         phoneWarningTitle: { Chinese: '重要提示', English: 'Final Check' },
@@ -125,8 +127,8 @@ const dict = {
         upgradeProContent: { Chinese: '补差价 ¥{amount} 即可升级为高级会员，尊享无限次 AI 提炼及专属视觉效果。', English: 'Pay ¥{amount} more to upgrade to Premium for unlimited AI intel.' },
         creatingOrder: { Chinese: '正在创建订单...', English: 'Creating order...' },
         activatingMember: { Chinese: '正在激活会员...', English: 'Activating membership...' },
-        paySuccess: { Chinese: '支付成功', English: 'Payment successful' },
         payCancelled: { Chinese: '支付已取消', English: 'Payment cancelled' },
+        payCancelledToast: { Chinese: '支付已取消，如有需要请再次重试', English: 'Payment cancelled. Please try again if needed.' },
         payPrompt: { Chinese: '支付提示', English: 'Payment Prompt' },
         payError: { Chinese: '支付过程出现问题，请稍后再试', English: 'Payment failed, please try again later.' },
         notActivated: { Chinese: '未开通', English: 'Not Activated' },
@@ -225,6 +227,7 @@ const dict = {
         startDate: { Chinese: '开始日期', English: 'Start Date' },
         endDate: { Chinese: '结束日期', English: 'End Date' },
         schoolPlaceholder: { Chinese: '请输入学校名称', English: 'Enter school name' },
+        inputSchool: { Chinese: '请输入学校名称', English: 'Please enter school name' },
         majorPlaceholder: { Chinese: '请输入专业名称', English: 'Enter major name' },
         degreePlaceholder: { Chinese: '请选择学历', English: 'Select degree' },
         genderPlaceholder: { Chinese: '请选择性别', English: 'Select gender' },
@@ -357,6 +360,9 @@ const dict = {
         contentEmpty: { Chinese: '内容为空', English: 'Content is empty' },
         applyMenuTitle: { Chinese: '申请岗位', English: 'Quick Apply' },
         copySourceLink: { Chinese: '复制来源链接', English: 'Copy Source Link' },
+        searchFailed: { Chinese: '搜索失败', English: 'Search failed' },
+        listEmpty: { Chinese: '当前列表为空', English: 'List is empty' },
+        searchSaved: { Chinese: '搜索条件已保存', English: 'Search saved' },
         aiResumeGenerate: { Chinese: 'AI简历生成', English: 'AI Resume Builder' },
         // REMOVED: oneClickSubmitResume
         oneClickSubmitResume: { Chinese: '已停用', English: 'Disabled' },
@@ -368,6 +374,12 @@ const dict = {
         saveSuccess: { Chinese: '收藏成功', English: 'Saved successfully' },
         unsaveSuccess: { Chinese: '已取消收藏', English: 'Unsaved successfully' },
         operationFailed: { Chinese: '操作失败', English: 'Operation failed' },
+        saving: { Chinese: '收藏中...', English: 'Saving...' },
+        saveFailed: { Chinese: '收藏失败', English: 'Save failed' },
+        alreadySaved: { Chinese: '已收藏', English: 'Saved' },
+        saveAction: { Chinese: '收藏', English: 'Save' },
+        applyAction: { Chinese: '申请岗位', English: 'Apply' },
+        noSavedJobs: { Chinese: '暂无收藏', English: 'No saved jobs' },
         unknownCompany: { Chinese: '未知公司', English: 'Unknown Company' },
         confirmClearTitle: { Chinese: '确认清空', English: 'Confirm Clear' },
         confirmClearContent: { Chinese: '确定要删除所有保存的搜索条件吗？', English: 'Are you sure you want to delete all saved search conditions?' },
@@ -447,10 +459,12 @@ export type I18nKey =
     | 'me.redeem'
     | 'me.langEnglish'
     | 'me.memberBadge'
+    | 'me.memberTrial'
     | 'me.uploadAvatar'
     | 'me.editNickname'
     | 'me.memberExpiredDate'
     | 'me.phoneNumber'
+    | 'me.authButton'
     | 'me.changePhone'
     | 'me.nicknameTooLong'
     | 'me.resumeProfileEntry'
@@ -487,6 +501,9 @@ export type I18nKey =
     | 'jobs.contentEmpty'
     | 'jobs.applyMenuTitle'
     | 'jobs.copySourceLink'
+    | 'jobs.searchFailed'
+    | 'jobs.listEmpty'
+    | 'jobs.searchSaved'
     | 'jobs.aiResumeGenerate'
     | 'jobs.oneClickSubmitResume'
     | 'jobs.noSourceLink'
@@ -497,6 +514,13 @@ export type I18nKey =
     | 'jobs.saveSuccess'
     | 'jobs.unsaveSuccess'
     | 'jobs.operationFailed'
+    | 'jobs.saving'
+    | 'jobs.saveFailed'
+    | 'jobs.alreadySaved'
+    | 'jobs.saveAction'
+    | 'jobs.applyAction'
+    | 'jobs.noSavedJobs'
+    | 'jobs.unknownCompany'
     | 'drawer.salary'
     | 'drawer.experience'
     | 'drawer.regionTitle'
@@ -548,6 +572,7 @@ export type I18nKey =
     | 'resume.startDate'
     | 'resume.endDate'
     | 'resume.schoolPlaceholder'
+    | 'resume.inputSchool'
     | 'resume.majorPlaceholder'
     | 'resume.degreePlaceholder'
     | 'resume.genderPlaceholder'
@@ -739,6 +764,7 @@ export type I18nKey =
     | 'me.activatingMember'
     | 'me.paySuccess'
     | 'me.payCancelled'
+    | 'me.payCancelledToast'
     | 'me.payPrompt'
     | 'me.payError'
     | 'me.notActivated'

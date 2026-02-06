@@ -2,6 +2,7 @@ import { callApi } from '../../utils/request';
 import { InternalPhase, AuthState, SuccessMode, TIMINGS } from './constants';
 import { getCeremonyConfig, executeFadeOut } from './ceremonies';
 import { checkIsAuthed } from '../../utils/util';
+import { t } from '../../utils/i18n';
 
 Component({
   properties: {
@@ -29,13 +30,24 @@ Component({
     _shouldShow: false,
     
     authState: 'idle' as AuthState,
-    authButtonText: '一键授权手机号登录',
+    authButtonText: t('me.authButton'),
     successMode: '' as SuccessMode 
   },
 
   lifetimes: {
     attached() {
       const app = getApp<any>();
+      
+      // 监听语言变化
+      if (app?.onLanguageChange) {
+        ;(this as any)._langListener = () => {
+          this.setData({
+            authButtonText: t('me.authButton')
+          })
+        }
+        app.onLanguageChange((this as any)._langListener)
+      }
+
       const { user, bootStatus } = app.globalData;
       if (checkIsAuthed(user) && bootStatus === 'success') {
           this.setData({ 
@@ -46,6 +58,15 @@ Component({
           return;
       }
       this.startFlow();
+    },
+
+    detached() {
+      const app = getApp<IAppOption>() as any
+      const listener = (this as any)._langListener
+      if (listener && app?.offLanguageChange) {
+        app.offLanguageChange(listener)
+      }
+      ;(this as any)._langListener = null
     }
   },
 
