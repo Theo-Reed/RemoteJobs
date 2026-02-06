@@ -61,8 +61,8 @@
   <ui-drawer 
     show="{{showApplyMenu}}" 
     title="{{applyMenuTitle}}" 
+    showConfirm="{{false}}"
     bind:close="closeApplyMenu"
-    bind:confirm="onApplyMenuConfirm"
   >
     <ui-scroll-view class="apply-menu-scroll" scrollY="{{true}}">
       <view class="apply-menu-content-padding">

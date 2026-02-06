@@ -269,10 +269,6 @@ Page({
     this.setData({ showApplyMenu: false })
   },
 
-  onApplyMenuConfirm(e: any) {
-    const { complete } = e.detail;
-    complete();
-  },
 
   onViewSource() {
     const job = this.data.job
