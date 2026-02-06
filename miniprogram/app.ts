@@ -111,15 +111,15 @@ App<IAppOption>({
   async preFetchJobs() {
     try {
       const [publicRes, featuredRes, schemesRes] = await Promise.all([
-        callApi('getPublicJobList', { page: 1, pageSize: 15 }),
-        callApi('getFeaturedJobList', { page: 1, pageSize: 15 }),
-        callApi('getMemberSchemes', {})
+        callApi<any>('getPublicJobList', { page: 1, pageSize: 15 }),
+        callApi<any>('getFeaturedJobList', { page: 1, pageSize: 15 }),
+        callApi<any>('getMemberSchemes', {})
       ]);
 
       this.globalData.prefetchedData = {
-        publicJobs: publicRes?.data?.jobs || [],
-        featuredJobs: featuredRes?.data?.jobs || [],
-        memberSchemes: schemesRes?.data?.schemes || [],
+        publicJobs: publicRes?.result?.jobs || [],
+        featuredJobs: featuredRes?.result?.jobs || [],
+        memberSchemes: schemesRes?.result?.schemes || [],
         timestamp: Date.now()
       };
     } catch (err) {
