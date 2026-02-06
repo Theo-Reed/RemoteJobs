@@ -55,8 +55,9 @@ Component({
       const app = getApp<any>();
       const hasShownSplash = app.globalData._splashAnimated;
 
-      // 核心修复：如果本 session 已经展示过开屏，则初始状态为隐藏且不占位
-      // 只有在明确需要登录墙（checkState 发现未授权）时才会由 checkState 唤起
+      // 逻辑还原：
+      // 冷启动统一展示 Splash (遮挡加载过程)，无论是否有 OpenID。
+      // 这样给 App.bootstrap 留出静默登录的时间。
       this.setData({ 
         _flowStarted: true,
         _shouldShow: !hasShownSplash,
@@ -111,7 +112,11 @@ Component({
           }, TIMINGS.RETRIAL_CYCLE);
         }
         else {
-          this.setData({ internalPhase: 'login' });
+          console.log('[LoginWall] Unauthorized, showing login immediately');
+          this.setData({ 
+             internalPhase: 'login',
+             _shouldShow: true // CRITICAL FIX: Ensure wall is visible if auth is needed, even if splash was skipped
+          });
         }
       };
 

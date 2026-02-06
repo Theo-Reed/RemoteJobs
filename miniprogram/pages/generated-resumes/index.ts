@@ -144,7 +144,8 @@ Page({
         limit: 20
       })
 
-      const list = (res.result && res.result.data) || []
+      const responseData = res.data
+      const list = responseData?.data || []
       this.processResumes(list)
       this.setData({ loading: false })
       
@@ -312,7 +313,7 @@ Page({
 
   goJobsList() {
     wx.switchTab({
-      url: '/pages/index/index'
+      url: '/pages/jobs/index'
     })
   }
 })

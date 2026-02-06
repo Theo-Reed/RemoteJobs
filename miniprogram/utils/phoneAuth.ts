@@ -47,34 +47,26 @@ async function getPhoneNumberByCode(code: string): Promise<string | undefined> {
     
     const res = await callApi('getPhoneNumber', { code })
 
-    const result = (res.result || (res as any)) as GetPhoneNumberResult
-    console.log('[PhoneAuth] API response:', result)
+    const responseData = res.data
+    console.log('[PhoneAuth] API response:', responseData)
 
-    if (!result?.ok) {
-        const errorMsg = result?.error || '获取手机号失败'
-        const errcode = result?.errcode
+    if (!res.success || !responseData?.phone) {
+        const errorMsg = res.message || '获取手机号失败'
         
         console.error('[PhoneAuth] Failed:', {
             error: errorMsg,
-            errcode: errcode,
-            fullResult: result,
+            fullResponse: res,
         })
         
-        // 根据错误码提供更详细的错误信息
-        if (errcode) {
-            throw new Error(`获取手机号失败 (错误码: ${errcode}): ${errorMsg}`)
-        } else {
-            throw new Error(errorMsg)
-        }
+        throw new Error(errorMsg)
     }
 
-    if (!result.phone) {
-        console.error('[PhoneAuth] No phone in result:', result)
-        throw new Error('未获取到手机号')
+    if (responseData.token) {
+        wx.setStorageSync('token', responseData.token)
     }
 
-    console.log('[PhoneAuth] Success, phone:', result.phone)
-    return result.phone
+    console.log('[PhoneAuth] Success, phone:', responseData.phone)
+    return responseData.phone
 }
 
 /**

@@ -1,56 +1,21 @@
 {
-  "entryPagePath": "pages/tools/index",
+  "entryPagePath": "pages/main/index",
   "pages": [
-    "pages/tools/index",
-    "pages/index/index",
-    "pages/me/index",
-    "pages/logs/logs",
-    "pages/job-detail/index",
+    "pages/main/index",
+    "pages/jobs/index",
     "pages/filter/index",
+    "pages/me/index",
+    "pages/job-detail/index",
     "pages/resume-profile/index",
-    "pages/generated-resumes/index"
+    "pages/generated-resumes/index",
+    "pages/resume/index",
+    "pages/logs/logs"
   ],
   "window": {
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "",
     "navigationBarBackgroundColor": "#ffffff"
   },
-  "usingComponents": {
-    "login-wall": "/components/login-wall/index",
-    "ui-feedback": "/components/ui-feedback/index",
-    "ui-button": "/components/ui/button/index",
-    "ui-card": "/components/ui/card/index",
-    "ui-drawer": "/components/ui/drawer/index",
-    "ui-scroll-view": "/components/ui/scroll-view/index"
-  },
-  "tabBar": {
-    "custom": true,
-    "color": "#6b7280",
-    "selectedColor": "#1d4ed8",
-    "backgroundColor": "#ffffff",
-    "borderStyle": "white",
-    "list": [
-      {
-        "pagePath": "pages/index/index",
-        "text": "岗位",
-        "iconPath": "assets/tabbar/community.png",
-        "selectedIconPath": "assets/tabbar/community-active.png"
-      },
-      {
-        "pagePath": "pages/tools/index",
-        "text": "简历",
-        "iconPath": "assets/tabbar/jobs.png",
-        "selectedIconPath": "assets/tabbar/jobs-active.png"
-      },
-      {
-        "pagePath": "pages/me/index",
-        "text": "我",
-        "iconPath": "assets/tabbar/me.png",
-        "selectedIconPath": "assets/tabbar/me-active.png"
-      }
-    ]
-  },
-  "style": "v2",
-  "componentFramework": "glass-easel",
-  "lazyCodeLoading": "requiredComponents"
+  "lazyCodeLoading": "requiredComponents",
+  "style": "v2"
 }

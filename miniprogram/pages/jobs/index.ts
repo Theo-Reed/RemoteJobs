@@ -240,8 +240,8 @@ Page({
           openid
         })
 
-        const result = res.result || (res as any)
-        const savedConditions = (result.conditions || []) as any[]
+        const responseData = res.data
+        const savedConditions = (responseData?.conditions || []) as any[]
         
         // 如果没有保存的搜索条件，只显示toast，不弹窗
         if (savedConditions.length === 0) {

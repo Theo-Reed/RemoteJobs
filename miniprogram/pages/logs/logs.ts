@@ -32,7 +32,7 @@ Page({
       app.refreshSystemConfig().then(() => {
         const config = app.globalData.systemConfig
         if (config && !config.isMaintenance) {
-          wx.reLaunch({ url: '/pages/index/index' })
+          wx.reLaunch({ url: '/pages/jobs/index' })
         }
         wx.stopPullDownRefresh()
       })

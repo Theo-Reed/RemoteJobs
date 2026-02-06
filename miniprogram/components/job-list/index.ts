@@ -108,91 +108,71 @@ Component({
       const listener = (this as any)._langListener
       if (listener && app?.offLanguageChange) app.offLanguageChange(listener)
       ;(this as any)._langListener = null
+      
+      // Clean up timers when component is detached
+      this._clearNoMoreTimers()
     },
   },
 
   observers: {
     'loading,hasMore,jobs': function(loading: boolean, hasMore: boolean, jobs: any[]) {
-      // Clear any existing timeout
-      const self = this as any
-      if (self._noMoreTimer) {
-        clearTimeout(self._noMoreTimer)
-        self._noMoreTimer = null
-      }
-      if (self._noMoreFadeOutTimer) {
-        clearTimeout(self._noMoreFadeOutTimer)
-        self._noMoreFadeOutTimer = null
-      }
-      if (self._noMoreRemoveTimer) {
-        clearTimeout(self._noMoreRemoveTimer)
-        self._noMoreRemoveTimer = null
-      }
-
       const prevLoading = this.data._prevLoading
-      const prevHasMore = this.data._prevHasMore
       
-      // Only show "no more" when:
-      // 1. Loading just finished (from true to false)
-      // 2. hasMore just became false (from true to false)
-      // 3. There are jobs to show
-      const shouldShow = !loading && !hasMore && jobs && jobs.length > 0 && 
-                        prevLoading && prevHasMore
-
-      if (shouldShow) {
-        this.setData({ showNoMore: true }, () => {
-          // Trigger fade-in animation
-          self._noMoreTimer = setTimeout(() => {
-            this.setData({ noMoreVisible: true })
-          }, 50)
-          // After showing for a while, fade out and remove
-          self._noMoreFadeOutTimer = setTimeout(() => {
-            this.setData({ noMoreVisible: false }, () => {
-              self._noMoreRemoveTimer = setTimeout(() => {
-                this.setData({ showNoMore: false })
-              }, 300) // Match CSS transition duration
-            })
-          }, 2000) // Show for 2 seconds
-        })
-      } else {
-        // Hide immediately when loading starts, hasMore becomes true, or jobs become empty
-        if (loading || hasMore || !jobs || jobs.length === 0) {
-          // If currently visible, fade out first, then remove
-          if (this.data.noMoreVisible) {
-            this.setData({ noMoreVisible: false }, () => {
-              self._noMoreRemoveTimer = setTimeout(() => {
-                this.setData({ showNoMore: false })
-              }, 300) // Match CSS transition duration
-            })
-          } else {
-            // Not visible, remove immediately
-            this.setData({ showNoMore: false })
-          }
-        }
+      // Reset flag and hide immediately when a new loading starts
+      if (loading) {
+        (this as any)._hasShownNoMore = false
+        this._hideNoMoreTip()
       }
 
-      // Update previous state
+      // NO AUTOMATIC SHOW on observer. 
+      // We only ever trigger the animation from onScrollLower 
+      // or when user actually tries to scroll.
+
       this.setData({ _prevLoading: loading, _prevHasMore: hasMore })
     },
   },
 
-  detached() {
-    // Clean up timers when component is detached
-    const self = this as any
-    if (self._noMoreTimer) {
-      clearTimeout(self._noMoreTimer)
-      self._noMoreTimer = null
-    }
-    if (self._noMoreFadeOutTimer) {
-      clearTimeout(self._noMoreFadeOutTimer)
-      self._noMoreFadeOutTimer = null
-    }
-    if (self._noMoreRemoveTimer) {
-      clearTimeout(self._noMoreRemoveTimer)
-      self._noMoreRemoveTimer = null
-    }
-  },
-
   methods: {
+    _clearNoMoreTimers() {
+      const self = this as any
+      if (self._noMoreTimer) clearTimeout(self._noMoreTimer)
+      if (self._noMoreFadeOutTimer) clearTimeout(self._noMoreFadeOutTimer)
+      if (self._noMoreRemoveTimer) clearTimeout(self._noMoreRemoveTimer)
+      self._noMoreTimer = null
+      self._noMoreFadeOutTimer = null
+      self._noMoreRemoveTimer = null
+    },
+
+    _showNoMoreTip() {
+      // Only show ONCE per loading cycle
+      if ((this as any)._hasShownNoMore || this.data.showNoMore) return 
+      
+      (this as any)._hasShownNoMore = true
+      this._clearNoMoreTimers()
+      const self = this as any
+      
+      this.setData({ showNoMore: true }, () => {
+        self._noMoreTimer = setTimeout(() => {
+          this.setData({ noMoreVisible: true })
+        }, 50)
+        
+        self._noMoreFadeOutTimer = setTimeout(() => {
+          this.setData({ noMoreVisible: false }, () => {
+            self._noMoreRemoveTimer = setTimeout(() => {
+              this.setData({ showNoMore: false })
+            }, 300)
+          })
+        }, 2000)
+      })
+    },
+
+    _hideNoMoreTip() {
+       this._clearNoMoreTimers()
+       if (this.data.noMoreVisible || this.data.showNoMore) {
+         this.setData({ noMoreVisible: false, showNoMore: false })
+       }
+    },
+
     onItemTap(e: WechatMiniprogram.TouchEvent) {
       const job = e.currentTarget.dataset.job
       const id = e.currentTarget.dataset._id
@@ -210,6 +190,12 @@ Component({
 
     onScrollLower(e: any) {
       this.triggerEvent('scrolltolower', e.detail)
+      
+      // When user slides to the absolute bottom, show the tip if no more data exists
+      const { loading, hasMore, jobs } = this.data
+      if (!loading && !hasMore && jobs && jobs.length > 0) {
+        this._showNoMoreTip()
+      }
     },
 
     onScroll(e: any) {

@@ -1,0 +1,10 @@
+{
+  "navigationBarTitleText": "丈月尺",
+  "disableScroll": true,
+  "usingComponents": {
+    "jobs-view": "../../components/jobs-view/index",
+    "resume-view": "../../components/resume-view/index",
+    "me-view": "../../components/me-view/index",
+    "login-wall": "../../components/login-wall/index"
+  }
+}

@@ -99,10 +99,11 @@ Component({
         app.onLanguageChange((this as any)._langListener)
       }
 
-      // 2. 工业级预加载逻辑：监听 BootManager 成功信号
-      // 当全局启动就绪时，无论当前 Tab 是否激活，都触发并行加载
+      // 2. 工业级预加载逻辑：监听 BootManager 信号
+      // 当全局启动就绪或确定为未授权时，无论当前 Tab 是否激活，都触发并行加载
       const checkAndLoad = () => {
-          if (bootManager.getStatus() === 'success' && !this.data.hasLoaded) {
+          const status = bootManager.getStatus();
+          if ((status === 'success' || status === 'unauthorized') && !this.data.hasLoaded) {
               this.loadData(true);
           }
       };
@@ -111,8 +112,9 @@ Component({
       (this as any)._unsubBoot = bootManager.onStatusChange(checkAndLoad);
 
       // 如果当前已经就绪，直接加载
-      if (bootManager.getStatus() === 'success') {
-          checkAndLoad();
+      const status = bootManager.getStatus();
+      if ((status === 'success' || status === 'unauthorized') && !this.data.hasLoaded) {
+          this.loadData(true);
       }
       // 保留原有的 active 触发逻辑（作为兜底）
       else if ((this.properties.active as boolean) && !this.data.hasLoaded) {
@@ -306,11 +308,11 @@ Component({
             ...filterParams,
           })
           
-          const result = res.result || (res as any)
-          if (result && result.ok) {
-            jobs = result.jobs || []
+          const responseData = res.data
+          if (res.success && responseData && responseData.ok) {
+            jobs = responseData.jobs || []
           } else {
-            console.error(`[JobTab] ${functionName} failed or ok=false:`, result)
+            console.error(`[JobTab] ${functionName} failed or ok=false:`, res)
             this.setData({ loading: false, hasMore: true })
             return
           }
@@ -363,8 +365,8 @@ Component({
           openid
         })
         
-        const result = res.result || (res as any)
-        const savedJobs = (result.jobs || []) as any[]
+        const responseData = res.data
+        const savedJobs = (responseData?.jobs || []) as any[]
         const hasMore = savedJobs.length >= this.data.pageSize
         
         // 获取用户语言设置
@@ -419,8 +421,8 @@ Component({
           language: userLanguage
         })
         
-        const result = res.result || (res as any)
-        const jobs = result.jobs || []
+        const responseData = res.data
+        const jobs = responseData?.jobs || []
         const hasMore = jobs.length >= this.data.pageSize
         
         const mappedJobs = mapJobs(jobs, userLanguage) as JobItem[]

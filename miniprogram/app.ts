@@ -1,85 +1,75 @@
-// app.ts
 import { normalizeLanguage, type AppLanguage, t } from './utils/i18n'
-import { request, callApi } from './utils/request'
-import { StatusCode } from './utils/statusCodes'
 import { bootManager, type BootStatus } from './utils/bootManager'
-
-type LangListener = (lang: AppLanguage) => void
+import { request, callApi, performLogin } from './utils/request'
+import { StatusCode } from './utils/statusCodes'
 
 App<IAppOption>({
   globalData: {
     user: null as any,
-    userPromise: null as Promise<any> | null,
     bootStatus: 'loading' as BootStatus,
     language: 'Chinese' as AppLanguage,
-    _langListeners: new Set<LangListener>(),
-    _userListeners: new Set<(user: any) => void>(),
-    _splashAnimated: false, // 追踪当前 session 是否已展示过开屏动画
-    tabSelected: 1, // 默认选中的 tab 索引 (对应 pages/tools/index)
-    // 页面跳转临时数据存储
+    _langListeners: new Set<any>(),
+    _userListeners: new Set<any>(),
+    _splashAnimated: false,
+    tabSelected: 1,
     _pageData: {
-      jobData: null as any,
-      filterValue: null as any,
+      jobData: null,
+      filterValue: null,
       filterTabIndex: 0,
-      filterResult: null as any, 
-      filterAction: null as string | null,
+      filterResult: null,
+      filterAction: null,
     },
-    // 全局预取数据缓存
     prefetchedData: {
-      publicJobs: null as any,
-      featuredJobs: null as any,
-      memberSchemes: null as any,
+      publicJobs: null,
+      featuredJobs: null,
+      memberSchemes: null,
       timestamp: 0,
     },
-  } as any,
-
-  async onLaunch() {
-    // 1. 强制隐藏 TabBar 防止闪烁
-    wx.hideTabBar({ animation: false }).catch(() => {});
-
-    // 2. 挂载 BootManager 广播监听
-    bootManager.onStatusChange((status) => {
-        (this as any).globalData.bootStatus = status;
-    });
-
-    // 3. 启动核心初始化流程 (大厂级多任务编排)
-    (this as any).bootstrap();
   },
 
-  /**
-   * 核心启动函数：编排所有初始化任务
-   */
+  onLaunch() {
+    console.log('[App] onLaunch');
+    
+    wx.onError((err) => {
+      console.error('[Global Error]', err);
+    });
+
+    bootManager.onStatusChange((status) => {
+      (this as any).globalData.bootStatus = status;
+    });
+
+    (this as any).bootstrap().catch(err => {
+      console.error('[App] Bootstrap crash:', err);
+    });
+  },
+
   async bootstrap() {
     console.log('[App] Bootstrap sequence started...');
-
-    // 任务1：基础配置 (无网络监听)
     this.initNetworkListener();
 
-    // 任务2：编排核心并发任务
     const coreTasks = [
-      this.refreshUser(), // 获取用户信息、Token 及 语言设置
-      this.refreshSystemConfig(), // 获取系统配置（Beta/维护状态）
-      this.preFetchJobs(), // 并行预取首页岗位数据 (大厂级首屏优化)
+      this.refreshUser(),
+      this.refreshSystemConfig(),
+      this.preFetchJobs(),
     ];
 
-    // 通过 BootManager 统一驱动生命周期
     await bootManager.start(coreTasks);
 
-    // 任务3：判定最终状态
     const user = (this as any).globalData.user;
     const currentStatus = bootManager.getStatus();
     
     if (currentStatus === 'loading' || currentStatus === 'success') {
-        if (user && user.phone) {
+        if (user && (user.phone || user.phoneNumber)) {
             bootManager.setStatus('success');
         } else if ((this as any).globalData.bootStatus !== 'server-down' && (this as any).globalData.bootStatus !== 'no-network') {
             bootManager.setStatus('unauthorized');
+        } else if (currentStatus === 'loading') {
+            // 如果加载完成但没有用户数据，判定为未授权
+            bootManager.setStatus('unauthorized'); 
         }
     }
 
-    // 任务4：确保 UI 语言已应用
     this.applyLanguage();
-    
     console.log('[App] Bootstrap complete.');
   },
 
@@ -104,14 +94,6 @@ App<IAppOption>({
     });
   },
 
-  onShow() {
-    // 每次进入小程序都确保用户已登录 (静默刷新，不走全量 bootstrap)
-    const user = this.globalData.user;
-    if (user) {
-        this.refreshUser().catch(() => null)
-    }
-  },
-
   async refreshSystemConfig() {
     try {
       const res: any = await request({
@@ -119,31 +101,15 @@ App<IAppOption>({
         method: 'POST',
         data: {}
       })
-      const config = res?.result?.data || res?.data || res
-      
+      const config = res?.data || res
       this.globalData.systemConfig = config || { isBeta: true, isMaintenance: false }
-
-      if (config && config.isMaintenance) {
-        bootManager.setStatus('server-down');
-        const lang = normalizeLanguage(this.globalData.language)
-        const msg = config.maintenanceMessage || t('app.maintenanceMsg', lang)
-        wx.reLaunch({
-          url: '/pages/logs/logs?mode=maintenance&msg=' + encodeURIComponent(msg)
-        })
-      }
     } catch (err) {
       this.globalData.systemConfig = { isBeta: true, isMaintenance: false }
     }
   },
 
-  /**
-   * 预取首页岗位数据
-   * 解决微信小程序由于页面懒加载导致的非首页 Tab 启动延迟问题
-   */
   async preFetchJobs() {
     try {
-      console.log('[App] Pre-fetching app data...');
-      // 并行请求公开列表、精选列表、会员方案 (大厂级首屏优化)
       const [publicRes, featuredRes, schemesRes] = await Promise.all([
         callApi('getPublicJobList', { page: 1, pageSize: 15 }),
         callApi('getFeaturedJobList', { page: 1, pageSize: 15 }),
@@ -151,167 +117,57 @@ App<IAppOption>({
       ]);
 
       this.globalData.prefetchedData = {
-        publicJobs: publicRes?.result?.jobs || [],
-        featuredJobs: featuredRes?.result?.jobs || [],
-        memberSchemes: schemesRes?.result?.schemes || [],
+        publicJobs: publicRes?.data?.jobs || [],
+        featuredJobs: featuredRes?.data?.jobs || [],
+        memberSchemes: schemesRes?.data?.schemes || [],
         timestamp: Date.now()
       };
-      console.log('[App] Pre-fetch complete.');
     } catch (err) {
       console.error('[App] Pre-fetch failed:', err);
     }
   },
 
-  applyLanguage() {
-    const lang = ((this as any).globalData.language || 'Chinese') as AppLanguage
-
-    // Tabbar text
+  async refreshUser() {
     try {
-      wx.setTabBarItem({ index: 0, text: t('tab.positions', lang) })
-      wx.setTabBarItem({ index: 1, text: t('tab.jobs', lang) })
-      wx.setTabBarItem({ index: 2, text: t('tab.me', lang) })
-    } catch {
-      // ignore
-    }
+      let openid = wx.getStorageSync('user_openid');
+      if (!openid) {
+        console.log('[App] No openid in storage, attempting silent login...');
+        try {
+          openid = await performLogin();
+          console.log('[App] Silent login successful, openid:', openid);
+        } catch (e) {
+          console.error('[App] Silent login failed:', e);
+        }
+      }
 
+      if (!openid) {
+        console.log('[App] No openid available after attempt');
+        return;
+      }
+
+      console.log('[App] Calling loginByOpenid with:', openid);
+      const res = await callApi('loginByOpenid', { openid });
+      const responseData = res.data;
+      
+      if (res.success && responseData && responseData.user) {
+        console.log('[App] User refreshed successfully:', responseData.user.phone || responseData.user.phoneNumber);
+        this.globalData.user = responseData.user;
+        if (responseData.token) {
+          wx.setStorageSync('token', responseData.token);
+        }
+      } else {
+        console.warn('[App] loginByOpenid failed or no user:', res.message || 'Unknown error');
+      }
+    } catch (err) {
+      console.error('[App] refreshUser fatal error:', err);
+    }
+  },
+
+  applyLanguage() {
     try {
       wx.setNavigationBarTitle({ title: '' })
     } catch {
       // ignore
     }
-  },
-
-  onLanguageChange(cb: LangListener) {
-    ;(this as any).globalData._langListeners.add(cb)
-  },
-
-  offLanguageChange(cb: LangListener) {
-    ;(this as any).globalData._langListeners.delete(cb)
-  },
-
-  emitLanguageChange(lang: AppLanguage) {
-    const set: Set<LangListener> = (this as any).globalData._langListeners
-    if (!set) return
-    set.forEach((fn) => {
-      try {
-        fn(lang)
-      } catch (e) {
-        // ignore
-      }
-    })
-  },
-
-  onUserChange(cb: (user: any) => void) {
-    ;(this as any).globalData._userListeners.add(cb)
-  },
-
-  offUserChange(cb: (user: any) => void) {
-    ;(this as any).globalData._userListeners.delete(cb)
-  },
-
-  emitUserChange(user: any) {
-    const set: Set<(user: any) => void> = (this as any).globalData._userListeners
-    if (!set) return
-    set.forEach((fn) => {
-      try {
-        fn(user)
-      } catch (e) {
-        // ignore
-      }
-    })
-  },
-
-  async setLanguage(language: AppLanguage) {
-    ;(this as any).globalData.language = language
-    this.applyLanguage()
-    this.emitLanguageChange(language)
-
-    try {
-      const res = await callApi('updateUserLanguage', { language })
-      const updatedUser = res?.result?.user || (res as any)?.user
-      if (updatedUser) {
-        ;(this as any).globalData.user = updatedUser
-        this.emitUserChange(updatedUser)
-      }
-    } catch (err) {
-      // ignore
-    }
-  },
-
-  async refreshUser() {
-    bootManager.setStatus('loading');
-    try {
-      // 1. Get Code
-      const { code } = await wx.login()
-
-      // 2. Exchange for OpenID
-      // Note: Backend /api/login now returns openid but DOES NOT create user
-      const loginRes: any = await callApi('login', { code })
-      const openid = loginRes?.result?.openid || loginRes?.openid
-      
-      if (!openid) throw new Error('Failed to get OpenID');
-      wx.setStorage({ key: 'user_openid', data: openid });
-
-      // 3. Try "Silent Login" with OpenID
-      // New Auth System: Check if this openid is bound to a user
-      const authRes: any = await callApi('loginByOpenid', { openid });
-
-      if (authRes && authRes.success && authRes.data && authRes.data.user) {
-          // Logged In Successfully
-          const user = authRes.data.user;
-          const token = authRes.data.token;
-          
-          wx.setStorageSync('token', token);
-          (this as any).globalData.user = user;
-
-          // Normalize language
-          const lang = normalizeLanguage(user?.language);
-          (this as any).globalData.language = lang;
-          
-          this.emitUserChange(user);
-          return user;
-
-      } else {
-          // Not Logged In (OpenID not bound)
-          console.log('[Auth] User not found or not bound, redirecting to Login Wall');
-          throw new Error('AUTH_REQUIRED');
-      }
-
-    } catch (err: any) {
-      console.log('[Auth] Error in refreshUser:', err);
-      
-      const statusCode = err.statusCode || (err.response && err.response.statusCode) || (err.data && err.data.code);
-      const bizCode = err.data && err.data.code;
-
-      // 1. 检查是否是微信底层报告的网络错误（无连接/超时）
-      if (err.errMsg && (err.errMsg.includes('timeout') || err.errMsg.includes('fail'))) {
-        const network = await new Promise(r => wx.getNetworkType({ success: r }));
-        if ((network as any).networkType === 'none') {
-          bootManager.setStatus('no-network');
-        } else {
-          // 有网但请求失败（可能是 DNS 错误或服务器彻底宕机连不上的）
-          bootManager.setStatus('server-down');
-        }
-      } 
-      // 2. 检查具体的商业状态码或 HTTP 状态码
-      else if (bizCode === StatusCode.USER_NOT_FOUND || statusCode === 404) {
-        // 用户不存在（新用户），在 Auth 系统中视为“未授权”状态以触发登录墙
-        bootManager.setStatus('unauthorized');
-      }
-      else if (bizCode === StatusCode.UNAUTHORIZED || bizCode === StatusCode.INVALID_TOKEN || statusCode === 401 || statusCode === 403 || err.message === 'AUTH_REQUIRED') {
-        // 正常的“未登录”状态
-        bootManager.setStatus('unauthorized');
-      } 
-      else if (statusCode >= 500 || bizCode === StatusCode.INTERNAL_ERROR) {
-        bootManager.setStatus('server-down');
-      }
-      else {
-        // 其他未知错误，安全起见引导至登录页
-        bootManager.setStatus('unauthorized');
-      }
-
-      this.globalData.user = null;
-      return null;
-    }
-  },
+  }
 })

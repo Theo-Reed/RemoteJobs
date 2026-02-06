@@ -304,7 +304,8 @@ Page({
         status: 'completed',
         limit: 1
       })
-      const existingList = (checkRes.result && checkRes.result.data) || []
+      const responseData = checkRes.data
+      const existingList = responseData?.data || []
 
       if (existingList.length > 0) {
         ui.hideLoading()
@@ -546,8 +547,8 @@ Page({
       createdAt: job.createdAt,
     })
 
-    const result = res.result || (res as any)
-    this.setData({ saveDocId: String(result?._id || '') })
+    const responseData = res.data
+    this.setData({ saveDocId: String(responseData?._id || '') })
   },
 
   async removeSavedRecord(_id: string) {
@@ -571,10 +572,10 @@ Page({
 
     try {
       const res = await callApi('checkJobSaved', { jobId: _id })
-      const result = res.result || (res as any)
-      const exists = !!result?.exists
+      const responseData = res.data
+      const exists = !!responseData?.exists
       const updates: Partial<typeof this.data> = {
-        saveDocId: String(result?._id || ''),
+        saveDocId: String(responseData?._id || ''),
       }
       if (!silent) updates.saved = exists
       this.setData(updates)

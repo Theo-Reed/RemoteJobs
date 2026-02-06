@@ -17,7 +17,6 @@ export interface ApiResponse<T = any> {
   code?: StatusCode;
   data?: T;
   message?: string;
-  result?: T; // To maintain compatibility with cloud function response structure
 }
 
 export const request = <T = any>(options: wx.RequestOption): Promise<T> => {
@@ -52,7 +51,7 @@ export const request = <T = any>(options: wx.RequestOption): Promise<T> => {
 };
 
 /**
- * Helper to call backend APIs that previously were cloud functions
+ * Helper to call standard backend APIs
  */
 export const callApi = async <T = any>(name: string, data: any = {}): Promise<ApiResponse<T>> => {
   // Automatic login if openid is missing (and not already doing login)
