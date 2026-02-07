@@ -491,6 +491,31 @@ Component({
             sourceType: ['album', 'camera'],
             success: async (res) => {
                 const tempFilePath = res.tempFiles[0].tempFilePath;
+                const fileSize = res.tempFiles[0].size;
+                const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+                const MIN_SIZE = 100; // 100 Bytes
+
+                // 1. Size Validation (Frontend)
+                if (fileSize > MAX_SIZE) {
+                    ui.showModal({
+                        title: t('resume.fileTooLarge', lang),
+                        content: t('resume.fileSizeExceededPrefix', lang) + (fileSize / 1024 / 1024).toFixed(2) + 'MB',
+                        showCancel: false,
+                        isAlert: true
+                    });
+                    return;
+                }
+
+                if (fileSize < MIN_SIZE) {
+                     ui.showModal({
+                        title: t('resume.fileInvalid', lang) || '无效文件',
+                        content: t('resume.fileEmptyOrTooSmall', lang),
+                        showCancel: false,
+                        isAlert: true
+                    });
+                    return;
+                }
+
                 ui.showLoading(t('resume.aiProcessing', lang));
                 
                 try {
