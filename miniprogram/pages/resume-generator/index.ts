@@ -317,6 +317,7 @@ Page({
 
     const startGeneration = async () => {
         const result = await requestGenerateResume(mockJobData, {
+            isPaid: this.data.parsedData?.from === 'screenshot',
             showSuccessModal: false,
             waitForCompletion: true,
             // We handle finish manually

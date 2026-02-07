@@ -59,6 +59,7 @@ Component({
       content: '',
       experience: ''
     },
+    isPaid: false,
     canSubmit: false,
     // Preview Modal State
     showPreviewModal: false,
@@ -198,6 +199,7 @@ Component({
       this.setData({ 
       showJdDrawer: true,
       drawerTitle: t('resume.toolTextTitle', lang),
+      isPaid: false, // Manual entry is not pre-paid
       targetJob: {
         title: '',
         company: '',
@@ -251,7 +253,7 @@ Component({
         }
 
         await requestGenerateResume(mockJobData, {
-            isPaid: !!this.data.targetJob._is_paid,
+            isPaid: this.data.isPaid,
             onFinish: (success) => {
                 if (success) {
                     complete(true)
@@ -510,12 +512,12 @@ Component({
                 // Instead of showModal, open the "Text to Resume" drawer with pre-filled data
                 this.setData({
                     showJdDrawer: true,
+                    isPaid: true, // Mark as already paid via screenshot parsing
                     targetJob: {
                         title: title || '',
                         company: '', // Screenshot parser doesn't return company usually
                         content: description || '',
-                        experience: String(years || ''),
-                        _is_paid: true // Mark as already paid via screenshot parsing
+                        experience: String(years || '')
                     }
                 }, () => this.validateForm());
             } else {
