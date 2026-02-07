@@ -19,6 +19,8 @@
 
 .header {
   margin-bottom: 48rpx;
+  padding-left: 15rpx;
+  padding-top: 20rpx;
   flex-shrink: 0;
 }
 
