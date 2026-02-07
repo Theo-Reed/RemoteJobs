@@ -45,15 +45,15 @@
       <!-- AI Message -->
       <view class="form-item {{shakeField === 'aiMessage' ? 'shake' : ''}}">
         <view class="header-row">
-          <text class="label" style="margin-bottom: 0;">AI Message</text>
+          <text class="label" style="margin-bottom: 0;">{{ui.aiMessageLabel}}</text>
           <view class="sync-btn" bindtap="onSyncResume">
             <text>🔄</text>
-            <text>与简历资料同步</text>
+            <text>{{ui.syncFromProfile}}</text>
           </view>
         </view>
         <textarea 
           class="textarea {{validation.aiMessage}}" 
-          placeholder="给 AI 的提示词..." 
+          placeholder="{{ui.aiMessagePlaceholder}}" 
           placeholder-class="placeholder"
           value="{{aiMessage}}" 
           bindinput="onFieldChange" 
@@ -67,7 +67,7 @@
   </scroll-view>
 
   <ui-dock-button 
-    text="生成简历" 
+    text="{{ui.confirmGenerate}}" 
     width="42.5%"
     disabled="{{!isReady}}"
     bind:tap="handleSubmit" 
@@ -78,7 +78,7 @@
   <ui-drawer 
     show="{{showExperiencePicker}}" 
     title="{{ui.workYears}}" 
-    confirmText="确定"
+    confirmText="{{ui.confirm}}"
     bind:close="closeExperiencePicker"
     bind:confirm="onExperienceConfirm"
   >

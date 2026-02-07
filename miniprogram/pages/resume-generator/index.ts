@@ -2,27 +2,26 @@ import { ui } from '../../utils/ui'
 import { t } from '../../utils/i18n/index'
 import { requestGenerateResume, showGenerationSuccessModal } from '../../utils/resume'
 
-const AI_MESSAGE_DEFAULT = "如果用户不满足目标岗位年限，会自动补充实习经历；如果岗位与用户过往工作经验不符，会自动更改过往工作岗位名称和填充工作内容；如果工作技能与目标岗位不符，会自动变更为目标岗位需要的工作技能";
 const DRAFT_STORAGE_KEY = 'resume_generator_draft';
 
 Page({
   data: {
     ui: {
-      title: '文字生成简历',
-      subtitle: '完善以下信息，让 AI 更好地为您生成简历',
-      jobTitle: '职位名称',
-      jobTitlePlaceholder: '请输入职位名称',
-      workYears: '目标岗位年限',
-      workYearsPlaceholder: '请选择年限',
-      jobDescription: '职位描述',
-      jdPlaceholder: '粘贴职位描述或手动输入...',
+      title: '',
+      subtitle: '',
+      jobTitle: '',
+      jobTitlePlaceholder: '',
+      workYears: '',
+      workYearsPlaceholder: '',
+      jobDescription: '',
+      jdPlaceholder: '',
     },
     targetJob: {
       title: '',
       experience: '',
       content: ''
     },
-    aiMessage: AI_MESSAGE_DEFAULT,
+    aiMessage: '',
     experienceRange: Array.from({ length: 50 }, (_, i) => `${i + 1}年`),
     experienceIndex: 0,
     tempExperienceIndex: [0], // picker-view value is an array
@@ -80,10 +79,16 @@ Page({
       'ui.subtitle': t('resume.tips') || '完善以下信息，让 AI 更好地为您生成简历',
       'ui.jobTitle': t('resume.jobTitle') || '职位名称',
       'ui.jobTitlePlaceholder': t('resume.jobTitlePlaceholder') || '请输入职位名称',
-      'ui.workYears': '目标岗位年限',
-      'ui.workYearsPlaceholder': '请选择年限',
+      'ui.workYears': t('resume.targetExperience') || '目标岗位年限',
+      'ui.workYearsPlaceholder': t('resume.selectExperience') || '请选择年限',
       'ui.jobDescription': t('resume.jobDescription') || '职位描述',
       'ui.jdPlaceholder': t('resume.jdPlaceholder') || '粘贴职位描述或手动输入...',
+      'ui.aiMessageLabel': t('resume.aiMessageLabel') || '想对 AI 说的话',
+      'ui.aiMessagePlaceholder': t('resume.aiMessagePlaceholder') || '给 AI 的提示词...',
+      'ui.syncFromProfile': t('resume.syncFromProfile') || '与简历资料同步',
+      'ui.confirmGenerate': t('resume.confirmGenerate') || '生成简历',
+      'ui.confirm': t('resume.confirm') || '确定',
+      aiMessage: this.data.aiMessage || t('resume.aiMessageDefault')
     });
   },
 
@@ -141,9 +146,9 @@ Page({
   onSyncResume() {
     // 模拟从简历同步逻辑，这里简单恢复默认提示词，或者可以从 globalData 读取简历信息拼接
     // 实际项目中可以读取 app.globalData.userProfile 等
-    this.setData({ aiMessage: "与简历资料同步：请根据我的简历重点突出与该职位匹配的经历..." }, () => {
+    this.setData({ aiMessage: t('resume.syncResumeTip') || "与简历资料同步：请根据我的简历重点突出与该职位匹配的经历..." }, () => {
       this.validateField('aiMessage');
-      ui.showToast('已同步简历提示词');
+      ui.showToast(t('resume.syncedMessage') || '已同步简历提示词');
     });
   },
 
@@ -258,7 +263,7 @@ Page({
         showSuccessModal: false,
         onFinish: (success) => {
           if (success) {
-            ui.showLoading('生成中...', true);
+            ui.showLoading(t('resume.generating') || '生成中...', true);
             setTimeout(() => {
               ui.hideLoading();
               this.handleSuccess();
@@ -291,8 +296,8 @@ Page({
   handleError(err: any) {
     this.isSubmitting = false;
     ui.showModal({
-      title: '提示',
-      content: (err && err.message) || '系统繁忙，请重试',
+      title: t('resume.errorShort') || '提示',
+      content: (err && err.message) || t('resume.saveFailed') || '系统繁忙，请重试',
       showCancel: false
     });
   },
@@ -307,12 +312,12 @@ Page({
 
   checkDraft() {
     const draft = wx.getStorageSync(DRAFT_STORAGE_KEY);
-    if (draft && (draft.targetJob.title || draft.targetJob.content || draft.aiMessage !== AI_MESSAGE_DEFAULT)) {
+    if (draft && (draft.targetJob.title || draft.targetJob.content || draft.aiMessage !== (t('resume.aiMessageDefault') || ''))) {
       ui.showModal({
-        title: '提示',
-        content: '上次有没写完的岗位信息，是否继续填写？',
-        cancelText: '清除',
-        confirmText: '继续',
+        title: t('resume.errorShort') || '提示',
+        content: t('resume.draftContinue') || '上次有没写完的岗位信息，是否继续填写？',
+        cancelText: t('resume.clear') || '清除',
+        confirmText: t('resume.continue') || '继续',
         success: (res) => {
           if (res.confirm) {
             this.setData({
@@ -334,7 +339,7 @@ Page({
 
     // Only save if there's actual content or non-default AI message
     const { targetJob, aiMessage, experienceIndex } = this.data;
-    if (targetJob.title || targetJob.content || aiMessage !== AI_MESSAGE_DEFAULT) {
+    if (targetJob.title || targetJob.content || aiMessage !== (t('resume.aiMessageDefault') || '')) {
       wx.setStorageSync(DRAFT_STORAGE_KEY, {
         targetJob,
         aiMessage,
