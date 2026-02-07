@@ -25,6 +25,10 @@ const UI_MAP = {
     resumeProfileEntry: 'me.resumeProfileEntry',
     /** 简历资料副标题 */
     resumeProfileSubtitle: 'me.resumeProfileSubtitle',
+    /** AI 润色入口 */
+    refineResumeEntry: 'me.refineResumeEntry',
+    /** AI 润色副标题 */
+    refineResumeSubtitle: 'me.refineResumeSubtitle',
     /** 已生成简历入口 */
     generatedResumesEntry: 'me.generatedResumesEntry',
     /** 已生成简历副标题 */

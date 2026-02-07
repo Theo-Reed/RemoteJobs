@@ -86,6 +86,8 @@ export const jobs = {
     generateRequestSubmittedContent: { Chinese: 'AI 正在为你深度定制简历，大约需要 30 秒。完成后将在“我的简历”中展示，你可以继续浏览其他岗位。', English: 'AI is customizing your resume, usually takes 30s. Check "Generated Resumes" later.' },
     generateRequestSubmittedConfirm: { Chinese: '去看看', English: 'Check' },
     generateRequestSubmittedCancel: { Chinese: '留在本页', English: 'Stay' },
+    generateFinishedTitle: { Chinese: '简历生成完成', English: 'Resume Ready' },
+    generateFinishedContent: { Chinese: 'AI 已为您完成简历重写与排版，快去查看效果吧！', English: 'AI has finished rewriting and layout. Check it out now!' },
     generatingTitle: { Chinese: '生成中', English: 'Processing' },
     generatingContent: { Chinese: '该岗位的定制简历还在生成中，请耐心等待，无需重复提交。', English: 'Resume for this job is still being generated. Please wait.' },
     generatingConfirm: { Chinese: '知道了', English: 'OK' },

@@ -57,6 +57,8 @@ export const me = {
     paymentPhoneRequired: { Chinese: '为了保障您的会员权益，请先绑定手机号。手机号是您会员身份的唯一标识。', English: 'Please set your phone number first to link your membership benefits. Your phone number is your unique member ID.' },
     nicknameTooLong: { Chinese: '用户名太长了', English: 'Nickname is too long' },
     resumeProfileEntry: { Chinese: '简历资料', English: 'Resume Profile' },
+    refineResumeEntry: { Chinese: 'AI 简历润色', English: 'AI Resume Polish' },
+    refineResumeSubtitle: { Chinese: '上传 PDF/图片 智能提取并美化', English: 'Polish PDF/Image with AI power' },
     generatedResumesEntry: { Chinese: '已生成简历', English: 'Generated Resumes' },
     loading: { Chinese: '加载中...', English: 'Loading...' },
     loginNow: { Chinese: '丈月尺用户', English: 'User' },

@@ -128,6 +128,13 @@ Component({
         // 同步全局选中的 Tab 索引，防止闪烁 (简历现在是 Index 1)
         if (app.globalData) {
             app.globalData.tabSelected = 1;
+
+            if (app.globalData._openRefineOnShow) {
+                app.globalData._openRefineOnShow = false;
+                setTimeout(() => {
+                    this.onRefineOldResume();
+                }, 300);
+            }
         }
 
         this.syncLoginState();
@@ -382,13 +389,15 @@ Component({
     */
 
     processUpload(path: string, name: string) {
-        ui.showLoading('请不要退出');
-        const token = wx.getStorageSync('token');
         const app = getApp<any>();
         const lang = normalizeLanguage(app.globalData.language);
+        ui.showLoading(t('resume.doNotExit', lang));
+        const token = wx.getStorageSync('token');
+        const env = require('../../env.js');
+        const baseUrl = env.serverUrl || 'https://feiwan.online';
 
         wx.uploadFile({
-            url: 'https://feiwan.online/api/refine-resume',
+            url: `${baseUrl}/api/refine-resume`,
             filePath: path,
             name: 'file',
             header: {
@@ -397,25 +406,29 @@ Component({
             formData: {
                 // You can add extra data here if needed
             },
-            success: (res) => {
+            success: (res: any) => {
                ui.hideLoading();
                try {
                    const data = JSON.parse(res.data);
                    if (data.success) {
-                       ui.showGenerationSuccessModal();
+                       // Using the customized modal strings from common UI utility
+                       ui.showGenerationSuccessModal(
+                           t('jobs.generateFinishedTitle', lang),
+                           t('jobs.generateFinishedContent', lang)
+                       );
                    } else {
                        // Handle Specific Errors
                        if (data.code === 40002 || data.code === 40003) { 
                            ui.showModal({
-                               title: '识别受阻',
-                               content: data.message || '未识别到有效信息，请确保上传的简历包含姓名和联系方式。',
+                               title: t('resume.refineErrorTitle', lang) || '识别受阻',
+                               content: data.message || t('resume.refineErrorContent', lang),
                                showCancel: false,
                                isAlert: true
                            });
                        } else if (data.code === 40302) {
                            ui.showModal({
-                               title: '额度不足',
-                               content: data.message || '您的生成额度已用完，请获取更多次数。',
+                               title: t('membership.quotaExceededTitle', lang) || '额度不足',
+                               content: data.message || t('membership.quotaExceededContent', lang),
                                showCancel: false,
                                isAlert: true
                            });
@@ -427,7 +440,7 @@ Component({
                    ui.showToast('Upload failed');
                }
             },
-            fail: (e) => {
+            fail: (e: any) => {
                 ui.hideLoading();
                 ui.showToast('Upload error ' + e.errMsg);
             }

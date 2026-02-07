@@ -38,13 +38,13 @@ export const ui = {
 
   /**   * 显示生成成功的统一弹窗
    */
-  showGenerationSuccessModal() {
+  showGenerationSuccessModal(customTitle?: string, customContent?: string) {
     const app = getApp<any>()
     const lang = normalizeLanguage(app.globalData.language)
     
     this.showModal({
-      title: t('jobs.generateRequestSubmittedTitle', lang),
-      content: t('jobs.generateRequestSubmittedContent', lang),
+      title: customTitle || t('jobs.generateRequestSubmittedTitle', lang),
+      content: customContent || t('jobs.generateRequestSubmittedContent', lang),
       confirmText: t('jobs.generateRequestSubmittedConfirm', lang),
       cancelText: t('jobs.generateRequestSubmittedCancel', lang),
       success: (res) => {

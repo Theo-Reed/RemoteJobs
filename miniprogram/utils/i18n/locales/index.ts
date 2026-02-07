@@ -4,6 +4,7 @@ import { jobs } from './jobs';
 import { me } from './me';
 import { resume } from './resume';
 import { tab } from './tab';
+import { membership } from './membership';
 
 export {
     app,
@@ -11,7 +12,8 @@ export {
     jobs,
     me,
     resume,
-    tab
+    tab,
+    membership
 };
 
 export const locales = {
@@ -20,5 +22,6 @@ export const locales = {
     jobs,
     me,
     resume,
-    tab
+    tab,
+    membership
 };

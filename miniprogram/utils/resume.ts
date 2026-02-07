@@ -105,7 +105,7 @@ export async function requestGenerateResume(jobData: any, options: ResumeGenerat
             await new Promise(resolve => setTimeout(resolve, remainingTime));
           }
           
-          ui.showLoading('正在生成简历...', true);
+          ui.showLoading(t('resume.doNotExit', interfaceLang), true);
         } catch (err) {
           ui.hideLoading();
           ui.showError('检测服务暂不可用，请稍后重试');
@@ -260,6 +260,8 @@ function handleGenerateError(err: any, _lang: string) {
   })
 }
 
+const pollingTasks = new Set<string>();
+
 /**
  * 启动后台任务检查逻辑 (用于用户异常退出后的补偿)
  * 会在 App 启动且登录成功后调用一次
@@ -273,16 +275,17 @@ export async function startBackgroundTaskCheck() {
     });
 
     if (res.success && res.result?.items && res.result.items.length > 0) {
-      console.log(`[TaskCheck] Found ${res.result.items.length} processing tasks. Starting poll...`);
+      console.log(`[TaskCheck] Found ${res.result.items.length} processing tasks.`);
       
       // 对于每个正在处理的任务，启动一个定时检查
       res.result.items.forEach((task: any) => {
-        pollTaskStatus(task.task_id);
+        if (!pollingTasks.has(task.task_id)) {
+          pollTaskStatus(task.task_id);
+        }
       });
     }
 
     // 2. [可选] 也可以检查最近 5 分钟内是否有成功但在用户“离线”期间完成的任务
-    // 这里简单处理：如果发现有 processing，就 poll。
   } catch (err) {
     console.error('[TaskCheck] Failed to check pending tasks:', err);
   }
@@ -292,10 +295,13 @@ export async function startBackgroundTaskCheck() {
  * 轮询特定任务的状态
  */
 async function pollTaskStatus(taskId: string, attempt = 0) {
-  if (attempt > 30) { // 最多轮询 30 次 (5 约分钟)
+  if (attempt > 30) { // 最多轮询 30 次 (约 5 分钟)
     console.warn(`[TaskCheck] Poll timeout for task ${taskId}`);
+    pollingTasks.delete(taskId);
     return;
   }
+
+  pollingTasks.add(taskId);
 
   try {
     const res = await callApi<any>('getGeneratedResumes', { task_id: taskId });
@@ -303,13 +309,22 @@ async function pollTaskStatus(taskId: string, attempt = 0) {
       const task = res.result.items[0];
       if (task.status === 'success') {
         console.log(`[TaskCheck] Task ${taskId} finished successfully! Showing modal.`);
-        ui.showGenerationSuccessModal();
+        pollingTasks.delete(taskId);
+        const lang = normalizeLanguage(getApp().globalData.language);
+        ui.showGenerationSuccessModal(
+          t('jobs.generateFinishedTitle', lang),
+          t('jobs.generateFinishedContent', lang)
+        );
       } else if (task.status === 'failed') {
         console.warn(`[TaskCheck] Task ${taskId} failed.`);
+        pollingTasks.delete(taskId);
       } else {
         // Still processing, wait 10s and retry
         setTimeout(() => pollTaskStatus(taskId, attempt + 1), 10000);
       }
+    } else {
+      // Not found or success but empty?
+      pollingTasks.delete(taskId);
     }
   } catch (err) {
     console.error(`[TaskCheck] Poll error for ${taskId}:`, err);

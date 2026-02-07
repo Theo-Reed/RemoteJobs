@@ -4,6 +4,7 @@ import { attachLanguageAware } from '../../utils/languageAware';
 import { attachThemeAware } from '../../utils/themeAware'
 import { t } from '../../utils/i18n/index';
 import { checkIsAuthed } from '../../utils/util';
+import { startBackgroundTaskCheck } from '../../utils/resume';
 
 const app = getApp<IAppOption>();
 
@@ -88,6 +89,8 @@ Page({
   onLoginSuccess(_e: any) {
     console.log('[Main] Login Success event caught');
     this.syncState();
+    // After login animation/wall, check for background tasks
+    startBackgroundTaskCheck();
   },
 
   onTabChange(e: any) {
