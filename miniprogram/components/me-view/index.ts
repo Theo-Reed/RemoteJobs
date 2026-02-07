@@ -1226,17 +1226,15 @@ Component({
                 ui.hideLoading()
                 
                 ui.showModal({
-
-                // 5. 刷新用户信息
-                const app = getApp<any>() as any
-                app.globalData.user = activateRes.result.user
-                this.syncUserFromApp()
-
-                ui.hideLoading()
-                ui.showSuccess(uiStrings.paySuccess)
-
-                // 如果是在会员中心操作，支付成功后关闭
-                this.closeMemberHub()
+                    title: uiStrings.paySuccessTitle,
+                    content: uiStrings.paySuccessContent,
+                    confirmText: uiStrings.confirm,
+                    showCancel: false,
+                    success: () => {
+                        this.openProfileSheet();
+                    }
+                });
+                return true;
             } catch (err: any) {
                 ui.hideLoading()
                 console.error('[Payment] Error:', err)
