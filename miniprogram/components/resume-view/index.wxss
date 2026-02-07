@@ -143,3 +143,40 @@
   line-height: 48rpx;
   color: var(--text-holder);
 }
+
+.upload-options {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+  padding: 24rpx 0;
+}
+
+.upload-btn {
+  display: flex;
+  align-items: center;
+  background: var(--bg-card);
+  padding: 32rpx;
+  border-radius: 24rpx;
+  border: 1px solid var(--border-light);
+  /* Reuse icon-box styles from tool-card if possible, otherwise adjust */
+}
+
+.upload-btn .icon-box {
+    margin-right: 24rpx;
+    width: 80rpx;
+    height: 80rpx;
+    border-radius: 20rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36rpx;
+}
+.upload-btn .icon-box.green { background: rgba(52, 199, 89, 0.1); color: #34C759; }
+.upload-btn .icon-box.purple { background: rgba(175, 82, 222, 0.1); color: #AF52DE; }
+
+.btn-text {
+  font-size: 32rpx;
+  font-weight: 500;
+  color: var(--text-main);
+  flex: 1;
+}

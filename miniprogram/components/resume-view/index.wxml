@@ -117,5 +117,33 @@
     </view>
   </ui-drawer>
 
+  <!-- Resume Refine Drawer -->
+  <ui-drawer 
+    id="refineDrawer" 
+    show="{{showRefineDrawer}}" 
+    title="{{ui.toolRefineTitle}}" 
+    useScroll="{{false}}"
+    bind:close="closeRefineDrawer"
+  >
+    <view class="drawer-body">
+      <view class="upload-options">
+         <view class="upload-btn" bindtap="onSelectFromChat">
+            <view class="icon-box green">
+              <text class="tool-emoji">💬</text>
+            </view>
+            <text class="btn-text">Select from Chat</text>
+            <text class="ui-arrow">❯</text>
+         </view>
+         <view class="upload-btn" bindtap="onSelectFromLocal">
+            <view class="icon-box purple">
+              <text class="tool-emoji">📁</text>
+            </view>
+            <text class="btn-text">Upload from Local</text>
+             <text class="ui-arrow">❯</text>
+         </view>
+      </view>
+    </view>
+  </ui-drawer>
+
   <!-- Login Wall & Splash Loader -->
 </view>

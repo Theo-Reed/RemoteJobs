@@ -47,6 +47,7 @@ Component({
     },
     jdText: '', // Deprecated, keep for now if needed or remove
     showJdDrawer: false,
+    showRefineDrawer: false,
     drawerTitle: t('resume.toolTextTitle'),
     targetJob: {
       title: '',
@@ -239,6 +240,80 @@ Component({
             },
             onCancel: () => {
                 complete(false)
+            }
+        })
+    },
+
+    // --- Resume Refine Actions ---
+    onRefineOldResume() {
+        if (!this.checkPhonePermission()) return;
+        this.setData({ showRefineDrawer: true });
+    },
+
+    closeRefineDrawer() {
+        this.setData({ showRefineDrawer: false });
+    },
+
+    onSelectFromChat() {
+       wx.chooseMessageFile({
+           count: 1,
+           type: 'file', 
+           extension: ['pdf', 'png', 'jpg', 'jpeg'],
+           success: (res) => {
+               const file = res.tempFiles[0];
+               this.processUpload(file.path, file.name || 'file.pdf');
+           }
+       });
+    },
+
+    onSelectFromLocal() {
+        wx.chooseImage({
+            count: 1,
+            sizeType: ['compressed'],
+            sourceType: ['album', 'camera'],
+            success: (res) => {
+                this.processUpload(res.tempFilePaths[0], 'image.jpg');
+            }
+        });
+    },
+
+    processUpload(path: string, name: string) {
+        ui.showLoading(t('resume.toolRefineTitle'));
+        const token = wx.getStorageSync('token');
+        const app = getApp<any>();
+        const lang = normalizeLanguage(app.globalData.language);
+
+        wx.uploadFile({
+            url: 'https://feiwan.online/api/refine-resume',
+            filePath: path,
+            name: 'file',
+            header: {
+                'Authorization': `Bearer ${token}`
+            },
+            formData: {
+                // You can add extra data here if needed
+            },
+            success: (res) => {
+               ui.hideLoading();
+               try {
+                   const data = JSON.parse(res.data);
+                   if (data.success) {
+                       this.closeRefineDrawer();
+                       ui.showToast('Starting Refinement...');
+                       
+                       // Navigate to Generated Resumes page or refresh list
+                       // Assuming Generated Resumes is in '/pages/generated-resumes/index'
+                       wx.navigateTo({ url: '/pages/generated-resumes/index' });
+                   } else {
+                       ui.showModal({ title: 'Error', content: data.message || 'Upload failed' });
+                   }
+               } catch (e) {
+                   ui.showToast('Upload failed');
+               }
+            },
+            fail: (e) => {
+                ui.hideLoading();
+                ui.showToast('Upload error ' + e.errMsg);
             }
         })
     },
