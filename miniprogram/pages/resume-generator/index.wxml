@@ -25,7 +25,6 @@
         <view class="picker-content {{validation.experience}}" bindtap="openExperiencePicker">
           <text wx:if="{{targetJob.experience}}">{{targetJob.experience}}</text>
           <text wx:else class="placeholder">{{ui.workYearsPlaceholder}}</text>
-          <text class="ui-arrow">▼</text>
         </view>
       </view>
       

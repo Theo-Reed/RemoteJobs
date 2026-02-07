@@ -3,6 +3,7 @@ import { t } from '../../utils/i18n/index'
 import { requestGenerateResume, showGenerationSuccessModal } from '../../utils/resume'
 
 const AI_MESSAGE_DEFAULT = "如果用户不满足目标岗位年限，会自动补充实习经历；如果岗位与用户过往工作经验不符，会自动更改过往工作岗位名称和填充工作内容；如果工作技能与目标岗位不符，会自动变更为目标岗位需要的工作技能";
+const DRAFT_STORAGE_KEY = 'resume_generator_draft';
 
 Page({
   data: {
@@ -40,6 +41,11 @@ Page({
 
   onLoad(options: any) {
     this.initUIStrings();
+    
+    // Check for draft if no explicit options provided
+    if (!options.title) {
+      this.checkDraft();
+    }
     
     if (options && options.title) {
       this.setData({
@@ -84,11 +90,17 @@ Page({
     const value = e.detail.value
 
     if (field === 'aiMessage') {
-      this.setData({ aiMessage: value }, () => this.validateField('aiMessage'));
+      this.setData({ aiMessage: value }, () => {
+        this.validateField('aiMessage');
+        this.saveDraft();
+      });
     } else {
       this.setData({
         [`targetJob.${field}`]: value
-      }, () => this.validateField(field));
+      }, () => {
+        this.validateField(field);
+        this.saveDraft();
+      });
     }
   },
 
@@ -114,7 +126,10 @@ Page({
       experienceIndex: index,
       'targetJob.experience': value,
       showExperiencePicker: false
-    }, () => this.validateField('experience'));
+    }, () => {
+      this.validateField('experience');
+      this.saveDraft();
+    });
   },
 
   onExperienceChange(e: any) {
@@ -268,6 +283,7 @@ Page({
   },
 
   handleSuccess() {
+    this.clearDraft();
     wx.navigateBack({
       success: () => {
         setTimeout(() => {
@@ -283,6 +299,54 @@ Page({
       content: (err && err.message) || '系统繁忙，请重试',
       showCancel: false
     });
+  },
+
+  onHide() {
+    this.saveDraft();
+  },
+
+  onUnload() {
+    this.saveDraft();
+  },
+
+  checkDraft() {
+    const draft = wx.getStorageSync(DRAFT_STORAGE_KEY);
+    if (draft && (draft.targetJob.title || draft.targetJob.content || draft.aiMessage !== AI_MESSAGE_DEFAULT)) {
+      ui.showModal({
+        title: '提示',
+        content: '上次有没写完的岗位信息，是否继续填写？',
+        cancelText: '清除',
+        confirmText: '继续',
+        success: (res) => {
+          if (res.confirm) {
+            this.setData({
+              targetJob: draft.targetJob,
+              aiMessage: draft.aiMessage,
+              experienceIndex: draft.experienceIndex || 0,
+              tempExperienceIndex: [draft.experienceIndex || 0]
+            }, () => this.validateAllFields());
+          } else {
+            this.clearDraft();
+          }
+        }
+      });
+    }
+  },
+
+  saveDraft() {
+    // Only save if there's actual content or non-default AI message
+    const { targetJob, aiMessage, experienceIndex } = this.data;
+    if (targetJob.title || targetJob.content || aiMessage !== AI_MESSAGE_DEFAULT) {
+      wx.setStorageSync(DRAFT_STORAGE_KEY, {
+        targetJob,
+        aiMessage,
+        experienceIndex
+      });
+    }
+  },
+
+  clearDraft() {
+    wx.removeStorageSync(DRAFT_STORAGE_KEY);
   }
 })
 
