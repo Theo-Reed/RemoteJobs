@@ -1184,7 +1184,7 @@ Component({
                         signType: payment.signType,
                         paySign: payment.paySign,
                         success: resolve,
-                        fail: (err) => {
+                        fail: (err: any) => {
                             console.error('[Payment] wx.requestPayment fail:', err)
                             reject(err)
                         }
@@ -1193,20 +1193,39 @@ Component({
 
                 ui.showLoading(uiStrings.activatingMember)
 
-                // 3. 更新订单状态
-                await callApi('updateOrderStatus', {
-                    order_id,
-                    status: '已支付'
-                })
+                // 3. 轮询检查订单状态 (代替原来的直接更新状态)
+                let checkCount = 0;
+                const maxChecks = 5;
+                let isPaid = false;
 
-                // 4. 激活会员权益
-                const activateRes = await callApi<any>('activateMembership', {
-                    order_id
-                })
-
-                if (!activateRes.success) {
-                    throw new Error(activateRes.message || uiStrings.activateMemberFailed)
+                while (checkCount < maxChecks && !isPaid) {
+                    await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1s
+                    
+                    try {
+                        const checkRes: any = await callApi('checkOrderStatus', { order_id });
+                        if (checkRes && checkRes.status === 'paid') {
+                            isPaid = true;
+                        } else if (checkRes && checkRes.status === 'failed') {
+                            throw new Error('Payment verification failed');
+                        }
+                    } catch (e) {
+                         console.warn('Check order status failed, retrying...', e);
+                    }
+                    checkCount++;
                 }
+
+                if (!isPaid) {
+                    ui.showToast(uiStrings.paymentProcessing || 'Payment Processing...');
+                }
+
+                const app = getApp<any>()
+                await app.refreshUser()
+                this.syncUserFromApp()
+                this.loadMemberSchemes()
+                
+                ui.hideLoading()
+                
+                ui.showModal({
 
                 // 5. 刷新用户信息
                 const app = getApp<any>() as any
