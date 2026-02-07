@@ -6,7 +6,7 @@ import { attachLanguageAware } from '../../utils/languageAware'
 import { attachThemeAware } from '../../utils/themeAware'
 import { themeManager } from '../../utils/themeManager'
 import { checkIsAuthed } from '../../utils/util'
-import { requestGenerateResume } from '../../utils/resume'
+import { requestGenerateResume, showGenerationSuccessModal } from '../../utils/resume'
 
 Component({
   properties: {
@@ -338,6 +338,7 @@ Component({
         }
 
         // Show Custom Preview Modal instead of standard modal
+        this.closeRefineDrawer();
         this.setData({
             showPreviewModal: true,
             previewPath: file.path,
@@ -398,12 +399,7 @@ Component({
                try {
                    const data = JSON.parse(res.data);
                    if (data.success) {
-                       this.closeRefineDrawer();
-                       ui.showToast('生成中...');
-                       
-                       // Navigate to Generated Resumes page or refresh list
-                       // Assuming Generated Resumes is in '/pages/generated-resumes/index'
-                       wx.navigateTo({ url: '/pages/generated-resumes/index' });
+                       showGenerationSuccessModal();
                    } else {
                        // Handle Specific Errors
                        if (data.code === 40002 || data.code === 40003) { 
