@@ -356,6 +356,21 @@ Component({
         this.processUpload(this.data.previewPath, this.data.previewName);
     },
 
+    openPdfPreview() {
+        if (this.data.previewType === 'pdf' && this.data.previewPath) {
+             wx.openDocument({
+                 filePath: this.data.previewPath,
+                 showMenu: true,
+                 success: function () {
+                    console.log('PDF Preview Open');
+                 },
+                 fail: (err) => {
+                     ui.showToast('无法预览文件');
+                 }
+             })
+        }
+    },
+
     /* Deprecated: Replaced by Custom Preview Modal
     showConfirmUpload(path: string, fileName: string) {
         ...
@@ -391,10 +406,10 @@ Component({
                        wx.navigateTo({ url: '/pages/generated-resumes/index' });
                    } else {
                        // Handle Specific Errors
-                       if (data.code === 40002) { // INVALID_DOCUMENT_CONTENT
+                       if (data.code === 40002 || data.code === 40003) { 
                            ui.showModal({
-                               title: '无法识别',
-                               content: data.message || '未识别到有效文字，请上传清晰的简历图片或PDF。',
+                               title: '识别受阻',
+                               content: data.message || '未识别到有效信息，请确保上传的简历包含姓名和联系方式。',
                                showCancel: false
                            });
                        } else if (data.code === 40302) {

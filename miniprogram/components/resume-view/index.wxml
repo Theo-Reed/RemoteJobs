@@ -165,10 +165,10 @@
             />
             
             <!-- PDF Preview (Icon) -->
-            <view wx:else class="file-preview-pdf">
+            <view wx:else class="file-preview-pdf" bindtap="openPdfPreview">
                 <view class="pdf-icon">📄</view>
                 <text class="pdf-name">{{previewName}}</text>
-                <text class="pdf-tip">预览仅显示第一页 (Mocked)</text>
+                <text class="pdf-tip">点击预览文件内容</text>
             </view>
 
             <view class="quota-warning">
