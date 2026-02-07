@@ -7,6 +7,8 @@ export enum StatusCode {
   // Client errors (40000+)
   BAD_REQUEST = 40000,
   INVALID_PARAMS = 40001,
+  INVALID_DOCUMENT_CONTENT = 40002,
+  MISSING_IDENTITY_INFO = 40003,
   
   // Auth errors (40100+)
   UNAUTHORIZED = 40101, // Missing token
@@ -31,6 +33,8 @@ export const StatusMessage: Record<number, string> = {
   [StatusCode.HTTP_CONFLICT]: '资源冲突 (409)',
   [StatusCode.BAD_REQUEST]: '请求参数错误',
   [StatusCode.INVALID_PARAMS]: '参数校验失败',
+  [StatusCode.INVALID_DOCUMENT_CONTENT]: '未识别到有效文字，请上传清晰的简历图片或PDF',
+  [StatusCode.MISSING_IDENTITY_INFO]: '未识别到姓名或联系方式，请确保简历包含个人信息',
   [StatusCode.UNAUTHORIZED]: '未授权或登录过期',
   [StatusCode.INVALID_TOKEN]: '登录凭证无效',
   [StatusCode.USER_NOT_FOUND]: '用户不存在',

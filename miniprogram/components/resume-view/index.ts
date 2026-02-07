@@ -8,6 +8,7 @@ import { themeManager } from '../../utils/themeManager'
 import { checkIsAuthed } from '../../utils/util'
 import { requestGenerateResume, showGenerationSuccessModal, startBackgroundTaskCheck } from '../../utils/resume'
 import { callApi, uploadApi } from '../../utils/request'
+import { StatusCode } from '../../utils/statusCodes'
 
 Component({
   properties: {
@@ -413,18 +414,18 @@ Component({
                     startBackgroundTaskCheck();
                 }
             } else {
-                // Handle Specific Errors
-                if (data.code === 40002 || data.code === 40003) { 
+                // Handle Logical Errors (200 OK but success=false)
+                if (data.code === StatusCode.INVALID_DOCUMENT_CONTENT || data.code === StatusCode.MISSING_IDENTITY_INFO) { 
                     ui.showModal({
                         title: t('resume.refineErrorTitle', lang) || '识别受阻',
-                        content: t('resume.refineErrorContent', lang), // Prioritize local translation over backend message
+                        content: t('resume.refineErrorContent', lang),
                         showCancel: false,
                         isAlert: true
                     });
-                } else if (data.code === 40302) {
+                } else if (data.code === StatusCode.QUOTA_EXHAUSTED) {
                     ui.showModal({
                         title: t('membership.quotaExceededTitle', lang) || '额度不足',
-                        content: t('membership.quotaExceededContent', lang), // Prioritize local translation over backend message
+                        content: t('membership.quotaExceededContent', lang),
                         showCancel: false,
                         isAlert: true
                     });
@@ -436,11 +437,32 @@ Component({
             ui.hideLoading();
             console.error('[Upload] Error:', err);
             
-            // uploadApi handles 401 and retries once, so if it still fails with 401, we show error
+            // Parse error data from non-2xx response
+            let errData = err.data;
+            if (typeof errData === 'string') {
+                try { errData = JSON.parse(errData); } catch(e){}
+            }
+            const code = (errData && errData.code);
+
             if (err.statusCode === 401) {
                 ui.showToast(t('resume.authFailedLogin', lang));
+            } else if (code === StatusCode.QUOTA_EXHAUSTED) { // Quota Exhausted (403)
+                ui.showModal({
+                    title: t('membership.quotaExceededTitle', lang) || '额度不足',
+                    content: t('membership.quotaExceededContent', lang),
+                    showCancel: false,
+                    isAlert: true
+                });
+            } else if (code === StatusCode.INVALID_DOCUMENT_CONTENT || code === StatusCode.MISSING_IDENTITY_INFO) { // Identify/Content Error (403/400)
+                 ui.showModal({
+                        title: t('resume.refineErrorTitle', lang) || '识别受阻',
+                        content: t('resume.refineErrorContent', lang),
+                        showCancel: false,
+                        isAlert: true
+                });
             } else {
-                ui.showToast(t('app.error', lang));
+                const msg = (errData && errData.message) || err.message || t('app.error', lang);
+                ui.showToast(msg);
             }
         }
     },
@@ -565,16 +587,56 @@ Component({
                             }
                         });
                     } else {
-                        // Show specific backend error message if available
-                        const errMsg = data.message || t('resume.parseJobFailed', lang);
-                        ui.showToast(errMsg);
+                        // Handle Logical Errors (200 OK but success=false)
+                        if (data.code === StatusCode.INVALID_DOCUMENT_CONTENT || data.code === StatusCode.MISSING_IDENTITY_INFO) { 
+                            ui.showModal({
+                                title: t('resume.refineErrorTitle', lang) || '识别受阻',
+                                content: t('resume.refineErrorContent', lang),
+                                showCancel: false,
+                                isAlert: true
+                            });
+                        } else if (data.code === StatusCode.QUOTA_EXHAUSTED) {
+                            ui.showModal({
+                                title: t('membership.quotaExceededTitle', lang) || '额度不足',
+                                content: t('membership.quotaExceededContent', lang),
+                                showCancel: false,
+                                isAlert: true
+                            });
+                        } else {
+                            const errMsg = data.message || t('resume.parseJobFailed', lang);
+                            ui.showToast(errMsg);
+                        }
                     }
                 } catch (err: any) {
                     ui.hideLoading();
-                    console.error(err);
-                    // Use error message from exception if it's a known format, else generic
-                    const errMsg = (err && err.message) || t('resume.parseJobFailed', lang);
-                    ui.showToast(errMsg);
+                    console.error('[Screenshot Upload] Error:', err);
+                    
+                    let errData = err.data;
+                    if (typeof errData === 'string') {
+                        try { errData = JSON.parse(errData); } catch(e){}
+                    }
+                    const code = (errData && errData.code);
+
+                    if (err.statusCode === 401) {
+                         ui.showToast(t('resume.authFailedLogin', lang));
+                    } else if (code === StatusCode.QUOTA_EXHAUSTED) {
+                         ui.showModal({
+                            title: t('membership.quotaExceededTitle', lang) || '额度不足',
+                            content: t('membership.quotaExceededContent', lang),
+                            showCancel: false,
+                            isAlert: true
+                        });
+                    } else if (code === StatusCode.INVALID_DOCUMENT_CONTENT || code === StatusCode.MISSING_IDENTITY_INFO) {
+                         ui.showModal({
+                                title: t('resume.refineErrorTitle', lang) || '识别受阻',
+                                content: t('resume.refineErrorContent', lang),
+                                showCancel: false,
+                                isAlert: true
+                        });
+                    } else {
+                        const errMsg = (errData && errData.message) || err.message || t('resume.parseJobFailed', lang);
+                        ui.showToast(errMsg);
+                    }
                 }
             },
             fail: (err) => {
