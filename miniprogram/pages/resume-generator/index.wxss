@@ -105,6 +105,10 @@
   color: var(--text-holder);
 }
 
+.bottom-spacer {
+  height: calc(env(safe-area-inset-bottom, 0) + 50rpx);
+}
+
 .picker-view-container {
   padding: 20rpx 0;
 }
