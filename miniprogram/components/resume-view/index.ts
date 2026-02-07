@@ -505,7 +505,8 @@ Component({
                     if (data.success && data.result) {
                         const { title, years, description } = data.result;
                         
-                        if (!description || (years === undefined && years === null)) {
+                        // Fallback check on frontend (though backend validation catches most)
+                        if (!description || (years === undefined || years === null)) {
                              ui.showModal({
                                 title: t('resume.missingJdOrExperience', lang),
                                 content: t('resume.missingJdOrExperienceContent', lang),
@@ -531,12 +532,16 @@ Component({
                             }
                         });
                     } else {
-                        ui.showToast(t('resume.parseJobFailed', lang));
+                        // Show specific backend error message if available
+                        const errMsg = data.message || t('resume.parseJobFailed', lang);
+                        ui.showToast(errMsg);
                     }
-                } catch (err) {
+                } catch (err: any) {
                     ui.hideLoading();
                     console.error(err);
-                    ui.showToast(t('resume.parseJobFailed', lang));
+                    // Use error message from exception if it's a known format, else generic
+                    const errMsg = (err && err.message) || t('resume.parseJobFailed', lang);
+                    ui.showToast(errMsg);
                 }
             },
             fail: (err) => {
