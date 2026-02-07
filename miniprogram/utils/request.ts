@@ -19,7 +19,7 @@ export interface IApiResponse<T = any> {
   message?: string;
 }
 
-export const request = <T = any>(options: WechatMiniprogram.RequestOption): Promise<T> => {
+export const request = <T = any>(options: WechatMiniprogram.RequestOption, retries = 2): Promise<T> => {
   return new Promise((resolve, reject) => {
     // 获取本地存储的身份标识
     const openid = wx.getStorageSync('user_openid');
@@ -50,7 +50,14 @@ export const request = <T = any>(options: WechatMiniprogram.RequestOption): Prom
         }
       },
       fail: (err) => {
-        reject(err);
+        if (retries > 0) {
+          console.warn(`[Network] Connection failed for ${url}. Retrying... (${retries} attempts left)`);
+          setTimeout(() => {
+             request<T>(options, retries - 1).then(resolve).catch(reject);
+          }, 1000); // Wait 1s before retry
+        } else {
+          reject(err);
+        }
       }
     });
   });
