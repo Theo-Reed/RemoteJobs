@@ -9,6 +9,7 @@ export const resume = {
     toolRefineDesc: { Chinese: '上传旧简历，AI 帮你重写升级', English: 'Upload old resume for AI upgrade' },
     confirmGenerate: { Chinese: '生成', English: 'Generate' },
     doNotExit: { Chinese: '请不要退出', English: 'Please do not exit' },
+    aiChecking: { Chinese: 'AI 校验中，请不要退出', English: 'AI verifying, please do not exit' },
     refineErrorTitle: { Chinese: '识别受阻', English: 'Extraction Failed' },
     refineErrorContent: { Chinese: '未识别到有效信息，请确保上传的简历包含姓名和联系方式。', English: 'No valid information found. Please ensure your resume includes name and contact details.' },
     jdPlaceholder: { Chinese: '请粘贴完整的职位描述（JD）...', English: 'Paste full job description (JD)...' },

@@ -3,7 +3,7 @@ import { t } from '../../utils/i18n/index'
 import { attachLanguageAware } from '../../utils/languageAware'
 import { attachThemeAware } from '../../utils/themeAware'
 import { themeManager } from '../../utils/themeManager'
-import { requestGenerateResume, showGenerationSuccessModal } from '../../utils/resume'
+import { requestGenerateResume, showGenerationSuccessModal, waitForTask } from '../../utils/resume'
 
 const DRAFT_STORAGE_KEY = 'resume_generator_draft';
 
@@ -316,22 +316,32 @@ Page({
       createdAt: new Date().toISOString()
     }
 
-    requestGenerateResume(mockJobData, {
-        showSuccessModal: false,
-        onFinish: (success) => {
-          if (success) {
-            ui.showLoading(t('resume.generating') || '生成中...', true);
-            setTimeout(() => {
-              ui.hideLoading();
-              this.handleSuccess();
-            }, 2000);
-          } else {
-            this.handleError(new Error('生成请求未成功'));
-          }
-        },
-        onCancel: () => {
+    const startGeneration = async () => {
+        const taskId = await requestGenerateResume(mockJobData, {
+            showSuccessModal: false,
+            waitForCompletion: true,
+            // We handle finish manually
+        });
+
+        if (taskId) {
+            // Poll for task (using standard polling logic but blocking UI)
+            // 'doNotExit' Loading is already shown by requestGenerateResume if waitForCompletion=true
+            const success = await waitForTask(taskId);
+            
+            ui.hideLoading();
+            this.isSubmitting = false;
+
+            if (success) {
+                this.handleSuccess();
+            } else {
+                this.handleError(new Error('生成失败'));
+            }
+        } else {
+             this.isSubmitting = false;
         }
-      })
+    };
+
+    startGeneration();
     }
   },
 

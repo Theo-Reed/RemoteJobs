@@ -9,6 +9,7 @@ export interface ResumeGenerateOptions {
   onFinish?: (success: boolean) => void
   onCancel?: () => void
   showSuccessModal?: boolean
+  waitForCompletion?: boolean // New Option
 }
 
 /**
@@ -25,7 +26,7 @@ export async function requestGenerateResume(jobData: any, options: ResumeGenerat
     if (!user) {
       if (options.onFinish) options.onFinish(false)
       ui.showError('获取用户信息失败，请重试')
-      return
+      return 
     }
 
     const profile = user.resume_profile || {}
@@ -78,7 +79,7 @@ export async function requestGenerateResume(jobData: any, options: ResumeGenerat
         const targetLang: AppLanguage = chosenIsChinese ? 'Chinese' : 'English'
         
         // --- NEW CONTENT CHECK & LOADING LOGIC ---
-        ui.showLoading('内容检测中...', true);
+        ui.showLoading(t('resume.aiChecking', interfaceLang), true);
         const startTime = Date.now();
 
         try {
@@ -105,7 +106,12 @@ export async function requestGenerateResume(jobData: any, options: ResumeGenerat
             await new Promise(resolve => setTimeout(resolve, remainingTime));
           }
           
-          ui.showLoading(t('resume.doNotExit', interfaceLang), true);
+          if (options.waitForCompletion) {
+             ui.showLoading(t('resume.aiChecking', interfaceLang), true);
+          } else {
+             ui.hideLoading(); // Should we hide here? Usually doGenerate implies some action, let's keep it visible until doGenerate decides
+          }
+
         } catch (err) {
           ui.hideLoading();
           ui.showError('检测服务暂不可用，请稍后重试');
@@ -122,6 +128,7 @@ export async function requestGenerateResume(jobData: any, options: ResumeGenerat
         console.log(`[ResumeService] Chosen: ${targetLang}, User Data (zh/en pool): ${!!profile.zh}/${!!profile.en}, Backend Level: ${completeness.level}`)
 
         if (completeness.level < 1) {
+          ui.hideLoading();
           if (options.onFinish) options.onFinish(false)
           
           ui.showModal({
@@ -261,6 +268,34 @@ function handleGenerateError(err: any, _lang: string) {
 }
 
 const pollingTasks = new Set<string>();
+
+/**
+ * 轮询特定任务的状态 (Resolve on Finish)
+ */
+export async function waitForTask(taskId: string): Promise<boolean> {
+  const check = async (attempt: number): Promise<boolean> => {
+    if (attempt > 60) { // 300s timeout
+       return false;
+    }
+
+    try {
+      const res = await callApi<any>('getGeneratedResumes', { task_id: taskId });
+      if (res.success && res.result?.items && res.result.items.length > 0) {
+        const task = res.result.items[0];
+        if (task.status === 'success') {
+          return true;
+        } else if (task.status === 'failed') {
+          return false;
+        }
+      }
+    } catch(e) { console.error(e) }
+
+    await new Promise(r => setTimeout(r, 5000));
+    return check(attempt + 1);
+  };
+  
+  return check(0);
+}
 
 /**
  * 启动后台任务检查逻辑 (用于用户异常退出后的补偿)

@@ -392,7 +392,7 @@ Component({
     async processUpload(path: string, name: string) {
         const app = getApp<any>();
         const lang = normalizeLanguage(app.globalData.language);
-        ui.showLoading(t('resume.doNotExit', lang));
+        ui.showLoading(t('resume.aiChecking', lang));
         
         try {
             const data = await uploadApi<any>({
@@ -517,7 +517,7 @@ Component({
                     return;
                 }
 
-                ui.showLoading(t('resume.aiProcessing', lang));
+                ui.showLoading(t('resume.aiChecking', lang));
                 
                 try {
                     const data = await uploadApi<any>({
