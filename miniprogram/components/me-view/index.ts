@@ -1222,7 +1222,7 @@ Component({
                 const app = getApp<any>()
                 await app.refreshUser()
                 this.syncUserFromApp()
-                this.loadMemberSchemes()
+                await this.fetchSchemes()
                 
                 ui.hideLoading()
                 
