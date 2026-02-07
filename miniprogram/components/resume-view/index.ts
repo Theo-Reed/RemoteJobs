@@ -468,7 +468,7 @@ Component({
         // Level Check: Must be VIP (>0) or have sufficient points? 
         // User request: "Check level > 0"
         const app = getApp<any>();
-        const level = app.globalData.userData?.membership?.level || 0;
+        const level = app.globalData.user?.membership?.level || 0;
         const lang = normalizeLanguage(app.globalData.language);
 
         if (level <= 0) {
