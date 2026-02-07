@@ -103,6 +103,13 @@ class ThemeManager {
   public getTheme(): ThemeMode {
       return this.currentTheme;
   }
+
+  /**
+   * Get the primary theme color (typically for cursors, actions)
+   */
+  public getPrimaryColor(): string {
+    return this.currentTheme === 'dark' ? '#8AB4F8' : '#2E5FE9';
+  }
 }
 
 export const themeManager = ThemeManager.getInstance();

@@ -1,6 +1,7 @@
 // miniprogram/pages/resume-profile/index.ts
 import { normalizeLanguage, t, AppLanguage } from '../../utils/i18n/index'
 import { attachLanguageAware } from '../../utils/languageAware'
+import { attachThemeAware } from '../../utils/themeAware'
 import { ui } from '../../utils/ui'
 import { callApi, formatFileUrl } from '../../utils/request'
 import * as UIConfig from '../../utils/i18n/configs/resume-profile'
@@ -140,6 +141,13 @@ Page({
       },
     })
 
+    // attach theme-aware behavior
+    ;(this as any)._themeDetach = attachThemeAware(this, {
+      onThemeChange: () => {
+        this.updateLanguage()
+      },
+    })
+
     const app = getApp<IAppOption>() as any
     const userUpdateHandler = () => {
       console.log('[ResumeProfile] User updated, reloading data...')
@@ -170,6 +178,10 @@ Page({
     const fn = (this as any)._langDetach
     if (typeof fn === 'function') fn()
     ;(this as any)._langDetach = null
+
+    const themeFn = (this as any)._themeDetach
+    if (typeof themeFn === 'function') themeFn()
+    ;(this as any)._themeDetach = null
 
     const userFn = (this as any)._userDetach
     if (typeof userFn === 'function') userFn()

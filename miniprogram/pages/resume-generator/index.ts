@@ -1,5 +1,8 @@
 import { ui } from '../../utils/ui'
 import { t } from '../../utils/i18n/index'
+import { attachLanguageAware } from '../../utils/languageAware'
+import { attachThemeAware } from '../../utils/themeAware'
+import { themeManager } from '../../utils/themeManager'
 import { requestGenerateResume, showGenerationSuccessModal } from '../../utils/resume'
 
 const DRAFT_STORAGE_KEY = 'resume_generator_draft';
@@ -43,6 +46,20 @@ Page({
   onLoad(options: any) {
     this.initUIStrings();
     
+    // attach language-aware behavior
+    ;(this as any)._langDetach = attachLanguageAware(this, {
+      onLanguageRevive: () => {
+        this.initUIStrings()
+      },
+    })
+
+    // attach theme-aware behavior
+    ;(this as any)._themeDetach = attachThemeAware(this, {
+      onThemeChange: () => {
+        this.initUIStrings()
+      },
+    })
+
     // Check for draft if no explicit options provided
     if (!options.title) {
       this.checkDraft();
@@ -88,6 +105,7 @@ Page({
       'ui.syncFromProfile': t('resume.syncFromProfile') || '与简历资料同步',
       'ui.confirmGenerate': t('resume.confirmGenerate') || '生成简历',
       'ui.confirm': t('resume.confirm') || '确定',
+      'ui.cursorColor': themeManager.getPrimaryColor(),
       aiMessage: this.data.aiMessage || t('resume.aiMessageDefault')
     });
   },
@@ -308,6 +326,16 @@ Page({
 
   onUnload() {
     this.saveDraft();
+  },
+
+  onUnload() {
+    const fn = (this as any)._langDetach
+    if (typeof fn === 'function') fn()
+    ;(this as any)._langDetach = null
+
+    const themeFn = (this as any)._themeDetach
+    if (typeof themeFn === 'function') themeFn()
+    ;(this as any)._themeDetach = null
   },
 
   checkDraft() {

@@ -1,4 +1,5 @@
 import { t, type AppLanguage } from '../index'
+import { themeManager } from '../../themeManager'
 
 /**
  * 简历编辑页面 UI 文案配置映射表
@@ -173,6 +174,9 @@ export function buildPageUI(lang: AppLanguage, data: any) {
         const i18nPath = UI_MAP[key as keyof typeof UI_MAP]
         ui[key] = t(i18nPath as any, lang)
     })
+
+    // 注入主题色
+    ui.cursorColor = themeManager.getPrimaryColor()
 
     // 2. 特殊逻辑：根据 Tab (中文/英文版) 切换的 Label
     ui.nameLabel = isEnglishResume ? t('resume.nameEn', lang) : t('resume.realName', lang)

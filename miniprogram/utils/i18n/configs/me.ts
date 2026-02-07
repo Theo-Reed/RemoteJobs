@@ -1,4 +1,5 @@
 import { t, type AppLanguage } from '../index'
+import { themeManager } from '../../themeManager'
 
 /**
  * 界面文案配置映射表
@@ -199,6 +200,9 @@ export function buildPageUI(lang: AppLanguage | undefined, data: any) {
         const i18nPath = UI_MAP[key as keyof typeof UI_MAP]
         ui[key] = t(i18nPath as any, lang)
     })
+
+    // 注入主题色
+    ui.cursorColor = themeManager.getPrimaryColor()
 
     // 2. 特殊动态逻辑处理：补差价升级引导
     const rawUpgradeGuide = t('me.upgradeGuide', lang) as string

@@ -3,6 +3,7 @@
 import {isAiChineseUnlocked} from '../../utils/subscription'
 import {normalizeLanguage, t, type AppLanguage} from '../../utils/i18n/index'
 import {attachLanguageAware} from '../../utils/languageAware'
+import {attachThemeAware} from '../../utils/themeAware'
 import {toDateMs} from '../../utils/time'
 import {getPhoneNumberFromAuth, updatePhoneNumber} from '../../utils/phoneAuth'
 import {callApi, formatFileUrl} from '../../utils/request'
@@ -129,6 +130,13 @@ Component({
                 },
             })
 
+            // attach theme-aware behavior
+            ;(this as any)._themeDetach = attachThemeAware(this, {
+                onThemeChange: () => {
+                    this.syncLanguageFromApp()
+                },
+            })
+
             // 关键：监听全局用户状态变化
             if (app.onUserChange) {
                 (this as any)._userListener = (_user: any) => {
@@ -143,8 +151,11 @@ Component({
              const app = getApp<any>() as any
             const fn = (this as any)._langDetach
             if (typeof fn === 'function') fn()
-            ;
-            (this as any)._langDetach = null
+            ;(this as any)._langDetach = null
+
+            const themeFn = (this as any)._themeDetach
+            if (typeof themeFn === 'function') themeFn()
+            ;(this as any)._themeDetach = null
 
             if (app.offUserChange && (this as any)._userListener) {
                 app.offUserChange((this as any)._userListener)
