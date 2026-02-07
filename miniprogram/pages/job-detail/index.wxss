@@ -201,6 +201,7 @@
   align-items: center;
   justify-content: center;
   gap: 12rpx;
+  padding-right: 10rpx; /* 视觉平衡：整体微调向左偏移 */
   box-shadow: 0 10rpx 25rpx rgba(37, 99, 235, 0.2);
   transition: all 0.2s ease;
 }
