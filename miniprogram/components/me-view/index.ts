@@ -1164,6 +1164,18 @@ Component({
                 if (!orderRes.success) {
                     throw new Error(orderRes.message || uiStrings.orderCreateFailed)
                 }
+                
+                // 处理 "已支付但未激活" 的特殊情况
+                if (orderRes.result && orderRes.result.alreadyPaid) {
+                     console.log('[Payment] Order already paid, skipping wx.requestPayment');
+                     ui.showToast(uiStrings.paySuccessTitle || 'Success');
+                     // 直接刷新用户信息
+                     const app = getApp<any>()
+                     await app.refreshUser()
+                     this.syncUserFromApp()
+                     await this.fetchSchemes()
+                     return true;
+                }
 
                 const orderResult = orderRes.result
                 const { payment, order_id } = orderResult as any;
