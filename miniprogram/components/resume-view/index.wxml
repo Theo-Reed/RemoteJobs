@@ -173,13 +173,13 @@
 
             <view class="quota-warning">
                 <text class="warning-icon">⚠️</text>
-                <text class="warning-text">上传并将消耗 1 次生成额度</text>
+                <text class="warning-text">{{previewAction === 'refine' ? ui.refineRefineReminder : ui.screenshotReminder}}</text>
             </view>
         </view>
 
         <view class="preview-footer">
             <button class="btn-cancel" bindtap="onCancelPreview">取消</button>
-            <button class="btn-confirm" bindtap="onConfirmPreview">确认上传</button>
+            <button class="btn-confirm" bindtap="onConfirmPreview">确认上传并消耗 1 额度</button>
         </view>
     </view>
   </view>

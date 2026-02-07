@@ -27,7 +27,7 @@ Page({
       content: ''
     },
     aiMessage: '',
-    experienceRange: [],
+    experienceRange: [] as string[],
     experienceIndex: 0,
     tempExperienceIndex: [0], // picker-view value is an array
     showExperiencePicker: false,
@@ -120,7 +120,6 @@ Page({
         }
         this.validateAllFields();
       });
-  },
   },
 
   validateAllFields() {
@@ -317,16 +316,16 @@ Page({
     }
 
     const startGeneration = async () => {
-        const taskId = await requestGenerateResume(mockJobData, {
+        const result = await requestGenerateResume(mockJobData, {
             showSuccessModal: false,
             waitForCompletion: true,
             // We handle finish manually
         });
 
-        if (taskId) {
+        if (typeof result === 'string') {
             // Poll for task (using standard polling logic but blocking UI)
             // 'doNotExit' Loading is already shown by requestGenerateResume if waitForCompletion=true
-            const success = await waitForTask(taskId);
+            const success = await waitForTask(result);
             
             ui.hideLoading();
             this.isSubmitting = false;
@@ -336,6 +335,11 @@ Page({
             } else {
                 this.handleError(new Error('生成失败'));
             }
+        } else if (result === true) {
+            // Some flows might have already finished or don't return taskId but success
+            ui.hideLoading();
+            this.isSubmitting = false;
+            this.handleSuccess();
         } else {
              this.isSubmitting = false;
         }

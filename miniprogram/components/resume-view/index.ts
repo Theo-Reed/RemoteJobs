@@ -45,7 +45,9 @@ Component({
       company: t('resume.company'),
       companyPlaceholder: t('resume.companyPlaceholder'),
       experience: t('resume.experience'),
-      experiencePlaceholder: t('resume.experiencePlaceholder')
+      experiencePlaceholder: t('resume.experiencePlaceholder'),
+      refineRefineReminder: t('resume.refineRefineReminder'),
+      screenshotReminder: t('resume.screenshotReminder')
     },
     jdText: '', // Deprecated, keep for now if needed or remove
     showJdDrawer: false,
@@ -60,6 +62,7 @@ Component({
     canSubmit: false,
     // Preview Modal State
     showPreviewModal: false,
+    previewAction: 'refine' as 'refine' | 'screenshot', // Context for the preview modal
     previewType: 'image', // 'image' | 'pdf'
     previewPath: '',
     previewName: '',
@@ -89,6 +92,8 @@ Component({
               companyPlaceholder: t('resume.companyPlaceholder', lang),
               experience: t('resume.experience', lang),
               experiencePlaceholder: t('resume.experiencePlaceholder', lang),
+              refineRefineReminder: t('resume.refineRefineReminder', lang),
+              screenshotReminder: t('resume.screenshotReminder', lang),
               cursorColor: themeManager.getPrimaryColor()
             },
             drawerTitle: t('resume.toolTextTitle', lang)
@@ -246,6 +251,7 @@ Component({
         }
 
         await requestGenerateResume(mockJobData, {
+            isPaid: !!this.data.targetJob._is_paid,
             onFinish: (success) => {
                 if (success) {
                     complete(true)
@@ -353,6 +359,7 @@ Component({
         this.closeRefineDrawer();
         this.setData({
             showPreviewModal: true,
+            previewAction: 'refine',
             previewPath: file.path,
             previewName: file.name,
             previewSize: file.size,
@@ -366,7 +373,11 @@ Component({
 
     onConfirmPreview() {
         this.setData({ showPreviewModal: false });
-        this.processUpload(this.data.previewPath, this.data.previewName);
+        if (this.data.previewAction === 'refine') {
+            this.processUpload(this.data.previewPath, this.data.previewName);
+        } else {
+            this.processScreenshotUpload();
+        }
     },
 
     openPdfPreview() {
@@ -467,6 +478,100 @@ Component({
         }
     },
 
+    async processScreenshotUpload() {
+        const path = this.data.previewPath;
+        const app = getApp<any>();
+        const lang = normalizeLanguage(app.globalData.language);
+        ui.showLoading(t('resume.aiChecking', lang));
+
+        try {
+            const data = await uploadApi<any>({
+                url: '/parse-job-screenshot',
+                filePath: path,
+                name: 'file'
+            });
+
+            ui.hideLoading();
+
+            if (data.success && data.result) {
+                const { title, years, description } = data.result;
+
+                // Fallback check on frontend (though backend validation catches most)
+                if (!description || (years === undefined || years === null)) {
+                    ui.showModal({
+                        title: t('resume.missingJdOrExperience', lang),
+                        content: t('resume.missingJdOrExperienceContent', lang),
+                        showCancel: false,
+                        isAlert: true
+                    });
+                    return;
+                }
+
+                // Instead of showModal, open the "Text to Resume" drawer with pre-filled data
+                this.setData({
+                    showJdDrawer: true,
+                    targetJob: {
+                        title: title || '',
+                        company: '', // Screenshot parser doesn't return company usually
+                        content: description || '',
+                        experience: String(years || ''),
+                        _is_paid: true // Mark as already paid via screenshot parsing
+                    }
+                }, () => this.validateForm());
+            } else {
+                // Handle Logical Errors (200 OK but success=false)
+                if (data.code === StatusCode.INVALID_DOCUMENT_CONTENT || data.code === StatusCode.MISSING_IDENTITY_INFO) {
+                    ui.showModal({
+                        title: t('resume.refineErrorTitle', lang) || '识别受阻',
+                        content: t('resume.parseJobErrorContent', lang),
+                        showCancel: false,
+                        isAlert: true
+                    });
+                } else if (data.code === StatusCode.QUOTA_EXHAUSTED) {
+                    ui.showModal({
+                        title: t('membership.quotaExceededTitle', lang) || '额度不足',
+                        content: t('membership.quotaExceededContent', lang),
+                        showCancel: false,
+                        isAlert: true
+                    });
+                } else {
+                    const errMsg = data.message || t('resume.parseJobFailed', lang);
+                    ui.showToast(errMsg);
+                }
+            }
+        } catch (err: any) {
+            ui.hideLoading();
+            console.error('[Screenshot Upload] Error:', err);
+
+            let errData = err.data;
+            if (typeof errData === 'string') {
+                try { errData = JSON.parse(errData); } catch (e) { }
+            }
+            const code = (errData && errData.code);
+
+            if (err.statusCode === 401) {
+                ui.showToast(t('resume.authFailedLogin', lang));
+            } else if (code === StatusCode.QUOTA_EXHAUSTED) {
+                ui.showModal({
+                    title: t('membership.quotaExceededTitle', lang) || '额度不足',
+                    content: t('membership.quotaExceededContent', lang),
+                    showCancel: false,
+                    isAlert: true
+                });
+            } else if (code === StatusCode.INVALID_DOCUMENT_CONTENT || code === StatusCode.MISSING_IDENTITY_INFO) {
+                ui.showModal({
+                    title: t('resume.refineErrorTitle', lang) || '识别受阻',
+                    content: t('resume.parseJobErrorContent', lang),
+                    showCancel: false,
+                    isAlert: true
+                });
+            } else {
+                const errMsg = (errData && errData.message) || err.message || t('resume.parseJobFailed', lang);
+                ui.showToast(errMsg);
+            }
+        }
+    },
+
     // --- Template Actions ---
     onTemplateTap() {
         if (!this.checkPhonePermission()) return
@@ -539,105 +644,15 @@ Component({
                     return;
                 }
 
-                ui.showLoading(t('resume.aiChecking', lang));
-                
-                try {
-                    const data = await uploadApi<any>({
-                        url: '/parse-job-screenshot',
-                        filePath: tempFilePath,
-                        name: 'file'
-                    });
-                    
-                    ui.hideLoading();
-                    
-                    if (data.success && data.result) {
-                        const { title, years, description } = data.result;
-                        
-                        // Fallback check on frontend (though backend validation catches most)
-                        if (!description || (years === undefined || years === null)) {
-                             ui.showModal({
-                                title: t('resume.missingJdOrExperience', lang),
-                                content: t('resume.missingJdOrExperienceContent', lang),
-                                showCancel: false,
-                                isAlert: true
-                            });
-                            return;
-                        }
-
-                        // Preview Modal
-                        ui.showModal({
-                            title: t('resume.parsedSuccess', lang),
-                            content: `${title ? `[${title}]\n` : ''}${t('resume.experience', lang)}: ${years} ${t('resume.year', lang)}\n\n${t('resume.confirmGenerateFromScreenshot', lang)}`,
-                            showCancel: true,
-                            success: (confirmRes) => {
-                                if (confirmRes.confirm) {
-                                    // Navigate to generator with EventChannel to avoid URL length limits
-                                    wx.navigateTo({
-                                        url: '/pages/resume-generator/index',
-                                        success: (res) => {
-                                            res.eventChannel.emit('acceptDataFromOpenerPage', { 
-                                                title: title || '',
-                                                years: years, 
-                                                content: description || '',
-                                                from: 'screenshot'
-                                            });
-                                        }
-                                    });
-                                }
-                            }
-                        });
-                    } else {
-                        // Handle Logical Errors (200 OK but success=false)
-                        if (data.code === StatusCode.INVALID_DOCUMENT_CONTENT || data.code === StatusCode.MISSING_IDENTITY_INFO) { 
-                            ui.showModal({
-                                title: t('resume.refineErrorTitle', lang) || '识别受阻',
-                                content: t('resume.parseJobErrorContent', lang),
-                                showCancel: false,
-                                isAlert: true
-                            });
-                        } else if (data.code === StatusCode.QUOTA_EXHAUSTED) {
-                            ui.showModal({
-                                title: t('membership.quotaExceededTitle', lang) || '额度不足',
-                                content: t('membership.quotaExceededContent', lang),
-                                showCancel: false,
-                                isAlert: true
-                            });
-                        } else {
-                            const errMsg = data.message || t('resume.parseJobFailed', lang);
-                            ui.showToast(errMsg);
-                        }
-                    }
-                } catch (err: any) {
-                    ui.hideLoading();
-                    console.error('[Screenshot Upload] Error:', err);
-                    
-                    let errData = err.data;
-                    if (typeof errData === 'string') {
-                        try { errData = JSON.parse(errData); } catch(e){}
-                    }
-                    const code = (errData && errData.code);
-
-                    if (err.statusCode === 401) {
-                         ui.showToast(t('resume.authFailedLogin', lang));
-                    } else if (code === StatusCode.QUOTA_EXHAUSTED) {
-                         ui.showModal({
-                            title: t('membership.quotaExceededTitle', lang) || '额度不足',
-                            content: t('membership.quotaExceededContent', lang),
-                            showCancel: false,
-                            isAlert: true
-                        });
-                    } else if (code === StatusCode.INVALID_DOCUMENT_CONTENT || code === StatusCode.MISSING_IDENTITY_INFO) {
-                         ui.showModal({
-                                title: t('resume.refineErrorTitle', lang) || '识别受阻',
-                                content: t('resume.parseJobErrorContent', lang),
-                                showCancel: false,
-                                isAlert: true
-                        });
-                    } else {
-                        const errMsg = (errData && errData.message) || err.message || t('resume.parseJobFailed', lang);
-                        ui.showToast(errMsg);
-                    }
-                }
+                // Show Preview Modal instead of proceeding directly
+                this.setData({
+                    showPreviewModal: true,
+                    previewAction: 'screenshot',
+                    previewPath: tempFilePath,
+                    previewName: 'screenshot.jpg',
+                    previewSize: fileSize,
+                    previewType: 'image'
+                });
             },
             fail: (err) => {
                 if (err.errMsg.indexOf('cancel') === -1) {
