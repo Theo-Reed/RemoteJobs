@@ -55,7 +55,13 @@ Component({
       content: '',
       experience: ''
     },
-    canSubmit: false
+    canSubmit: false,
+    // Preview Modal State
+    showPreviewModal: false,
+    previewType: 'image', // 'image' | 'pdf'
+    previewPath: '',
+    previewName: '',
+    previewSize: 0
   },
 
   lifetimes: {
@@ -331,26 +337,30 @@ Component({
             return;
         }
 
-        this.showConfirmUpload(file.path, file.name);
-    },
-
-    showConfirmUpload(path: string, fileName: string) {
-        // TODO: Move text to i18n
-        const title = 'Confirm Upload';
-        const content = `You selected "${fileName}". Uploading this file to generate a new resume will consume 1 quota. Continue?`;
-        
-        ui.showModal({
-            title: t('resume.confirmUploadTitle') || '确认上传',
-            content: t('resume.confirmUploadContent', { fileName }) || `您选择了"${fileName}"。\n上传并生成简历将消耗 1 次额度，是否继续？`,
-            confirmText: '确认上传',
-            cancelText: '取消',
-            success: (res) => {
-                if (res.confirm) {
-                    this.processUpload(path, fileName); 
-                }
-            }
+        // Show Custom Preview Modal instead of standard modal
+        this.setData({
+            showPreviewModal: true,
+            previewPath: file.path,
+            previewName: file.name,
+            previewSize: file.size,
+            previewType: ext === 'pdf' ? 'pdf' : 'image'
         });
     },
+
+    onCancelPreview() {
+        this.setData({ showPreviewModal: false });
+    },
+
+    onConfirmPreview() {
+        this.setData({ showPreviewModal: false });
+        this.processUpload(this.data.previewPath, this.data.previewName);
+    },
+
+    /* Deprecated: Replaced by Custom Preview Modal
+    showConfirmUpload(path: string, fileName: string) {
+        ...
+    },
+    */
 
     processUpload(path: string, name: string) {
         ui.showLoading(t('resume.toolRefineTitle'));

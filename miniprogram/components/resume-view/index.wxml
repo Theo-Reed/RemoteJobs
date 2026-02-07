@@ -147,4 +147,40 @@
   </ui-drawer>
 
   <!-- Login Wall & Splash Loader -->
+  
+  <!-- Custom File Preview Modal -->
+  <view class="preview-mask {{showPreviewModal ? 'visible' : ''}}" bindtap="onCancelPreview">
+    <view class="preview-container" catchtap="true">
+        <view class="preview-header">
+            <text class="preview-title">确认上传</text>
+        </view>
+        
+        <view class="preview-content">
+            <!-- Image Preview -->
+            <image 
+                wx:if="{{previewType === 'image'}}" 
+                src="{{previewPath}}" 
+                mode="aspectFit" 
+                class="file-preview-img"
+            />
+            
+            <!-- PDF Preview (Icon) -->
+            <view wx:else class="file-preview-pdf">
+                <view class="pdf-icon">📄</view>
+                <text class="pdf-name">{{previewName}}</text>
+                <text class="pdf-tip">预览仅显示第一页 (Mocked)</text>
+            </view>
+
+            <view class="quota-warning">
+                <text class="warning-icon">⚠️</text>
+                <text class="warning-text">上传并将消耗 1 次生成额度</text>
+            </view>
+        </view>
+
+        <view class="preview-footer">
+            <button class="btn-cancel" bindtap="onCancelPreview">取消</button>
+            <button class="btn-confirm" bindtap="onConfirmPreview">确认上传</button>
+        </view>
+    </view>
+  </view>
 </view>
