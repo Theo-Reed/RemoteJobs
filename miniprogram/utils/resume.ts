@@ -149,6 +149,12 @@ export async function requestGenerateResume(jobData: any, options: ResumeGenerat
 
           // 4. 资料已达标，进入正式生成流程
           const result = await doGenerate(user, profile, jobData, chosenIsChinese, interfaceLang, options)
+          
+          // 如果不需要等待完成，且没有显示成功弹窗（弹窗显示内部会自己 hideLoading），则在此处关闭 Loading
+          if (!options.waitForCompletion && options.showSuccessModal === false) {
+            ui.hideLoading();
+          }
+          
           resolve(result)
 
         } catch (err) {
@@ -231,6 +237,7 @@ async function doGenerate(user: any, profile: any, job: any, isChineseEnv: boole
  * @deprecated Use ui.showGenerationSuccessModal()
  */
 export function showGenerationSuccessModal() {
+  ui.hideLoading();
   ui.showGenerationSuccessModal();
 }
 
