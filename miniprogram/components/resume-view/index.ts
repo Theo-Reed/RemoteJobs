@@ -591,7 +591,7 @@ Component({
                         if (data.code === StatusCode.INVALID_DOCUMENT_CONTENT || data.code === StatusCode.MISSING_IDENTITY_INFO) { 
                             ui.showModal({
                                 title: t('resume.refineErrorTitle', lang) || '识别受阻',
-                                content: t('resume.refineErrorContent', lang),
+                                content: t('resume.parseJobErrorContent', lang),
                                 showCancel: false,
                                 isAlert: true
                             });
@@ -629,7 +629,7 @@ Component({
                     } else if (code === StatusCode.INVALID_DOCUMENT_CONTENT || code === StatusCode.MISSING_IDENTITY_INFO) {
                          ui.showModal({
                                 title: t('resume.refineErrorTitle', lang) || '识别受阻',
-                                content: t('resume.refineErrorContent', lang),
+                                content: t('resume.parseJobErrorContent', lang),
                                 showCancel: false,
                                 isAlert: true
                         });

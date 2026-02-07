@@ -12,6 +12,7 @@ export const resume = {
     aiChecking: { Chinese: 'AI 校验中，请不要退出', English: 'AI verifying, please do not exit' },
     refineErrorTitle: { Chinese: '识别受阻', English: 'Extraction Failed' },
     refineErrorContent: { Chinese: '未识别到有效信息，请确保上传的简历包含姓名和联系方式。', English: 'No valid information found. Please ensure your resume includes name and contact details.' },
+    parseJobErrorContent: { Chinese: '未识别到有效的职位描述或工作年限要求，请上传清晰的职位详情截图。', English: 'No valid job description or experience requirement found. Please upload a clear job post screenshot.' },
     jdPlaceholder: { Chinese: '请粘贴完整的职位描述（JD）...', English: 'Paste full job description (JD)...' },
     experience: { Chinese: '经验要求', English: 'Experience' },
     experiencePlaceholder: { Chinese: '例:1-3年 (填0则ai不会额外生成工作经历)', English: 'e.g. 1-3 years (fill 0 to disable AI-added experience)' },
