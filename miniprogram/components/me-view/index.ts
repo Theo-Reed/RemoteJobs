@@ -1159,14 +1159,14 @@ Component({
                     mchId: mchId
                 })
 
-                const orderResult = (orderRes as any).result || (orderRes as any)
-                console.log('[Payment] createOrder response:', orderResult)
+                console.log('[Payment] createOrder response:', orderRes)
 
-                if (!orderResult?.success) {
-                    throw new Error(orderResult?.message || uiStrings.orderCreateFailed)
+                if (!orderRes.success) {
+                    throw new Error(orderRes.message || uiStrings.orderCreateFailed)
                 }
 
-                const { payment, order_id } = orderResult
+                const orderResult = orderRes.result
+                const { payment, order_id } = orderResult as any;
                 
                 if (!payment || !payment.paySign) {
                     console.error('[Payment] Missing payment parameters:', payment)
