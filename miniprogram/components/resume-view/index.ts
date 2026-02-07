@@ -461,6 +461,92 @@ Component({
         })
     },
 
+    onScreenshotResumeTap() {
+        if (!this.checkPhonePermission()) return;
+        
+        // Level Check: Must be VIP (>0) or have sufficient points? 
+        // User request: "Check level > 0"
+        const app = getApp<any>();
+        const level = app.globalData.userData?.membership?.level || 0;
+        const lang = normalizeLanguage(app.globalData.language);
+
+        if (level <= 0) {
+            ui.showModal({
+                title: t('membership.quotaExceededTitle', lang) || '需要升级会员',
+                content: '该功能仅限会员使用，请前往会员中心升级。', 
+                showCancel: true,
+                confirmText: t('membership.viewDetails', lang),
+                success: (res) => {
+                    if (res.confirm) {
+                         wx.navigateTo({ url: '/pages/membership/index' });
+                    }
+                }
+            });
+            return;
+        }
+
+        wx.chooseMedia({
+            count: 1,
+            mediaType: ['image'],
+            sourceType: ['album', 'camera'],
+            success: async (res) => {
+                const tempFilePath = res.tempFiles[0].tempFilePath;
+                ui.showLoading(t('resume.aiProcessing', lang));
+                
+                try {
+                    const data = await uploadApi<any>({
+                        url: '/parse-job-screenshot',
+                        filePath: tempFilePath,
+                        name: 'file'
+                    });
+                    
+                    ui.hideLoading();
+                    
+                    if (data.success && data.result) {
+                        const { title, years, description } = data.result;
+                        
+                        if (!description || (years === undefined && years === null)) {
+                             ui.showModal({
+                                title: t('resume.missingJdOrExperience', lang),
+                                content: t('resume.missingJdOrExperienceContent', lang),
+                                showCancel: false,
+                                isAlert: true
+                            });
+                            return;
+                        }
+
+                        // Preview Modal
+                        ui.showModal({
+                            title: t('resume.parsedSuccess', lang),
+                            content: `${title ? `[${title}]\n` : ''}${t('resume.experience', lang)}: ${years} ${t('resume.year', lang)}\n\n${t('resume.confirmGenerateFromScreenshot', lang)}`,
+                            showCancel: true,
+                            success: (confirmRes) => {
+                                if (confirmRes.confirm) {
+                                    // Navigate to generator with pre-filled data
+                                    const params = `title=${encodeURIComponent(title || '')}&years=${years}&content=${encodeURIComponent(description)}`;
+                                    wx.navigateTo({
+                                        url: `/pages/resume-generator/index?${params}`
+                                    });
+                                }
+                            }
+                        });
+                    } else {
+                        ui.showToast(t('resume.parseJobFailed', lang));
+                    }
+                } catch (err) {
+                    ui.hideLoading();
+                    console.error(err);
+                    ui.showToast(t('resume.parseJobFailed', lang));
+                }
+            },
+            fail: (err) => {
+                if (err.errMsg.indexOf('cancel') === -1) {
+                    ui.showToast(t('resume.selectImageFailed', lang));
+                }
+            }
+        });
+    },
+
     onImportTap() {
         if (!this.checkPhonePermission()) return
         

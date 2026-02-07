@@ -9,6 +9,8 @@ const DRAFT_STORAGE_KEY = 'resume_generator_draft';
 
 Page({
   data: {
+    // ... data properties
+    parsedData: null as any, // Flag to indicate if data came from screenshot
     ui: {
       title: '',
       subtitle: '',
@@ -66,14 +68,33 @@ Page({
     }
     
     if (options && options.title) {
+      let experience = decodeURIComponent(options.experience || '');
+      
+      // Adapt from Screenshot Parsing result
+      if (!experience && options.years) {
+        const yearSuffix = t('resume.year') || '年';
+        const y = parseInt(options.years, 10);
+        if (!isNaN(y)) {
+          experience = `${y}${yearSuffix}`;
+        }
+      }
+
       this.setData({
         'targetJob.title': decodeURIComponent(options.title || ''),
         'targetJob.content': decodeURIComponent(options.content || ''),
-        'targetJob.experience': decodeURIComponent(options.experience || '')
+        'targetJob.experience': experience,
+        parsedData: options.years ? { from: 'screenshot' } : null
       }, () => {
         // 如果有传入经验，尝试匹配 picker index
         if (this.data.targetJob.experience) {
-          const idx = this.data.experienceRange.findIndex(item => item === this.data.targetJob.experience);
+          let range = this.data.experienceRange;
+          // Fallback if range not yet set by async initUIStrings
+          if (!range || range.length === 0) {
+             const yearSuffix = t('resume.year') || '年';
+             range = Array.from({ length: 50 }, (_, i) => `${i + 1}${yearSuffix}`);
+          }
+
+          const idx = range.findIndex(item => item === this.data.targetJob.experience);
           if (idx >= 0) {
             this.setData({ 
               experienceIndex: idx,

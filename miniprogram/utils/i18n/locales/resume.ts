@@ -55,6 +55,11 @@ export const resume = {
     
     // --- Upload & File Errors ---
     uploadFailed: { Chinese: '上传失败', English: 'Upload Failed' },
+    parseJobFailed: { Chinese: '解析失败，请确保图片包含清晰的岗位信息', English: 'Parse failed. Please ensure the image contains clear job info.' },
+    parsedSuccess: { Chinese: '解析成功', English: 'Parse Success' },
+    confirmGenerateFromScreenshot: { Chinese: '确定使用解析内容生成简历吗？将扣除 1 个额度。', English: 'Confirm to generate resume using parsed content? 1 quota will be deducted.' },
+    missingJdOrExperience: { Chinese: '无法识别有效信息', English: 'Valid info not found' },
+    missingJdOrExperienceContent: { Chinese: '必须包含有效的岗位描述和年限要求。', English: 'Must contain valid Job Description and Years of Experience.' },
     selectFileFailed: { Chinese: '选择文件失败', English: 'Failed to select file' },
     selectImageFailed: { Chinese: '选择图片失败', English: 'Failed to select image' },
     fileTooLarge: { Chinese: '文件过大', English: 'File Too Large' },
