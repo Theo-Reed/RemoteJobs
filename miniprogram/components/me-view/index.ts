@@ -1241,7 +1241,7 @@ Component({
                 
                 if (err.errMsg && (err.errMsg.includes('requestPayment:fail cancel') || err.errMsg.includes('cancel'))) {
                     // 温和提示用户再次重试，且不关闭弹窗
-                    ui.showToast(t('me.payCancelledToast'))
+                    ui.showToast(uiStrings.payCancelledToast || 'Payment Cancelled')
                     return
                 }
 

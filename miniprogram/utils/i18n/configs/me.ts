@@ -185,6 +185,22 @@ const UI_MAP = {
     aiUnlockTitle: 'me.aiUnlockTitle',
     /** AI 解锁弹窗内容 */
     aiUnlockContent: 'me.aiUnlockContent',
+
+    // --- Payment Flow (Added Dynamically) ---
+    creatingOrder: 'me.creatingOrder',
+    orderCreateFailed: 'me.orderCreateFailed',
+    payParamMissing: 'me.payParamMissing',
+    activatingMember: 'me.activatingMember',
+    paymentProcessing: 'me.paymentProcessing',
+    paySuccessTitle: 'me.paySuccessTitle',
+    paySuccessContent: 'me.paySuccessContent',
+    payPrompt: 'me.payPrompt',
+    payError: 'me.payError',
+    payCancelledToast: 'me.payCancelledToast',
+    payFailed: 'me.payFailed',
+    mchIdMissing: 'me.mchIdMissing',
+    activateMemberFailed: 'me.activateMemberFailed',
+    
 } as const
 
 /**
