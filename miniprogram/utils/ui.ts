@@ -39,6 +39,15 @@ export const ui = {
   /**   * 显示生成成功的统一弹窗
    */
   showGenerationSuccessModal(customTitle?: string, customContent?: string) {
+    const pages = getCurrentPages();
+    const currentPage = pages[pages.length - 1];
+    
+    // 如果用户当前就在已生成的简历页面，不用再弹窗提醒去查看
+    if (currentPage && currentPage.route === 'pages/generated-resumes/index') {
+      // this.showSuccess(t('jobs.generateRequestSubmittedTitle', normalizeLanguage(getApp<any>().globalData.language)));
+      return;
+    }
+
     const app = getApp<any>()
     const lang = normalizeLanguage(app.globalData.language)
     
