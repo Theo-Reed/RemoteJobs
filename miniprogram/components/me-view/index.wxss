@@ -1406,49 +1406,99 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 10rpx 0 15rpx;
+    padding: 20rpx 0 40rpx;
 }
 
-.author-sheet-body .author-slogan {
-    font-size: 28rpx;
+/* 场景化标签 Tags Area */
+.feedback-tags {
+    display: flex;
+    gap: 16rpx;
+    margin-bottom: 32rpx;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.f-tag {
+    font-size: 22rpx;
+    background: var(--primary-light);
+    color: var(--primary);
+    padding: 10rpx 24rpx;
+    border-radius: 100rpx;
+    font-weight: 600;
+    border: 1rpx solid rgba(46, 95, 233, 0.1);
+}
+
+.t-icon {
+    margin-right: 4rpx;
+}
+
+.author-sheet-body .author-slogan-v2 {
+    font-size: 26rpx;
     color: var(--text-sub);
-    margin-bottom: 40rpx; 
-    text-align: left;
-    display: inline-block;
-    width: auto;
+    margin-bottom: 30rpx; 
+    text-align: center; /* 改为居中，配合标签 */
     line-height: 1.6;
-    padding: 0 40rpx; 
+    padding: 0 60rpx; 
     box-sizing: border-box;
     white-space: pre-wrap;
 }
 
-.qr-code-container-sheet {
-    width: 50vw; 
-    height: 50vw;
-    background: var(--bg-card);
-    border-radius: 0; 
-    padding: 0; 
-    border: none;
-    box-shadow: none;
-    overflow: hidden;
+.qr-wrapper-v3 {
+    position: relative;
+    padding: 20rpx;
+    margin-top: 10rpx;
 }
 
-.qr-code-image-sheet {
+.qr-container-premium {
+    width: 400rpx; /* 稍微缩小一点，更精致 */
+    height: 400rpx;
+    background: #fff; /* 保持白色底，优化扫码率 */
+    border-radius: 40rpx;
+    padding: 24rpx;
+    box-shadow: 0 12rpx 40rpx rgba(0, 0, 0, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+.qr-image-v3 {
     width: 100%;
+    height: 100%;
     display: block;
 }
 
+/* 暗黑模式下，给二维码容器增加一个微弱的发光边界，防止纯黑背景下消失 */
 @media (prefers-color-scheme: dark) {
-    .qr-code-image-sheet {
-        filter: invert(0.92) hue-rotate(180deg);
-        background: #fff; /* Ensure it has a base to invert from if transparent, though usually these SVGs have white backgrounds */
+    .qr-container-premium {
+        background: #fff; /* 二维码区域保持白色 */
+        box-shadow: 0 0 30rpx rgba(255, 255, 255, 0.1);
     }
 }
 
-.qr-hint {
-    margin-top: 0rpx;
+.qr-hint-v2 {
+    margin-top: 24rpx;
     font-size: 24rpx;
     color: var(--text-holder);
+}
+
+/* 快捷复制按钮 */
+.copy-wechat-btn {
+    margin-top: 50rpx;
+    background: var(--bg-main);
+    color: var(--text-main);
+    padding: 20rpx 48rpx;
+    border-radius: 100rpx;
+    font-size: 26rpx;
+    font-weight: 600;
+    border: 2rpx solid var(--border);
+    transition: all 0.2s ease;
+    box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.02);
+}
+
+.copy-wechat-btn:active {
+    transform: scale(0.96);
+    background: var(--divider);
 }
 
 .sheet-close {

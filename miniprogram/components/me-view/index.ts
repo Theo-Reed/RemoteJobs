@@ -1356,5 +1356,16 @@ Component({
                 url: '/pages/generated-resumes/index',
             })
         },
+
+        onCopyWechatRaw() {
+            const wechatId = 'Sangyufeiwan-1920';
+            wx.setClipboardData({
+                data: wechatId,
+                success: () => {
+                    // 微信会自动弹出一个提示，但我们可以自定义更友好的反馈
+                    ui.showToast(this.data.ui.wechatIdCopied || 'ID Copied');
+                }
+            });
+        },
     }
 })

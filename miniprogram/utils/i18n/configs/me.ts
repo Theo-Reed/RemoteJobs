@@ -39,6 +39,16 @@ const UI_MAP = {
     authorWechatSlogan: 'me.authorWechatSlogan',
     /** 二维码识别提示 */
     qrHint: 'me.qrHint',
+    /** 反馈标签 - Bug */
+    feedbackTagBug: 'me.feedbackTagBug',
+    /** 反馈标签 - 辅导 */
+    feedbackTagCoach: 'me.feedbackTagCoach',
+    /** 反馈标签 - 合作 */
+    feedbackTagCollab: 'me.feedbackTagCollab',
+    /** 复制微信号按钮 */
+    copyWechatId: 'me.copyWechatId',
+    /** 微信号已复制提示 */
+    wechatIdCopied: 'me.wechatIdCopied',
 
     // --- 会员与配额 ---
     /** 会员权益管理 */

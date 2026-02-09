@@ -358,11 +358,26 @@
     bind:close="closeContactSheet"
   >
     <view class="author-sheet-body">
-      <text class="author-slogan">{{ui.authorWechatSlogan}}</text>
-      <view class="qr-code-container-sheet">
-        <image class="qr-code-image-sheet" src="/assets/contact-qr.svg" mode="widthFix" show-menu-by-longpress="{{true}}" />
+      <!-- 场景化标签 Tags Area -->
+      <view class="feedback-tags">
+        <view class="f-tag">{{ui.feedbackTagBug}}</view>
+        <view class="f-tag">{{ui.feedbackTagCoach}}</view>
+        <view class="f-tag">{{ui.feedbackTagCollab}}</view>
       </view>
-      <text class="qr-hint">{{ui.qrHint}}</text>
+
+      <text class="author-slogan-v2">{{ui.authorWechatSlogan}}</text>
+      
+      <view class="qr-wrapper-v3">
+        <view class="qr-container-premium">
+          <image class="qr-image-v3" src="/assets/contact-qr.svg" mode="widthFix" show-menu-by-longpress="{{true}}" />
+        </view>
+      </view>
+      
+      <text class="qr-hint-v2">{{ui.qrHint}}</text>
+
+      <view class="copy-wechat-btn" bindtap="onCopyWechatRaw">
+        <text>{{ui.copyWechatId}}</text>
+      </view>
     </view>
   </ui-drawer>
   </block>
