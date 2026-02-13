@@ -4,6 +4,7 @@ import { themeManager } from './utils/themeManager'
 import { request, callApi, performLogin } from './utils/request'
 import { checkIsAuthed } from './utils/util'
 import { startBackgroundTaskCheck } from './utils/resume'
+import { cacheImage } from './utils/fileCache'
 import { StatusCode } from './utils/statusCodes'
 
 App<IAppOption>({
@@ -149,6 +150,18 @@ App<IAppOption>({
         if (cachedUser) {
           console.log('[App] Loaded user from cache:', cachedUser.phone || cachedUser.phoneNumber);
           this.globalData.user = cachedUser;
+          
+          // 尝试使用本地缓存的头像
+          if (cachedUser.avatar) {
+            cacheImage(cachedUser.avatar).then(localPath => {
+              // 只有当路径真正改变（变成更快的本地路径）时才触发更新
+              if (this.globalData.user && this.globalData.user.avatar !== localPath) {
+                 this.globalData.user.avatar = localPath;
+                 this.notifyUserListeners(this.globalData.user);
+              }
+            }).catch(e => console.error('[App] Avatar cache failed:', e));
+          }
+
           // 此时虽然已经 loaded，但为了数据新鲜度，继续走网络请求（静默刷新）
         }
       } catch (e) {
@@ -178,6 +191,16 @@ App<IAppOption>({
         const responseData = res.result;
         console.log('[App] User refreshed successfully:', responseData.user.phone || responseData.user.phoneNumber);
         this.globalData.user = responseData.user;
+
+        // 尝试预缓存并更新头像为本地路径
+        if (responseData.user.avatar) {
+             cacheImage(responseData.user.avatar).then(localPath => {
+                 if (this.globalData.user && this.globalData.user.id === responseData.user.id) {
+                     this.globalData.user.avatar = localPath;
+                     this.notifyUserListeners(this.globalData.user);
+                 }
+             }).catch(e => console.error('[App] Live avatar cache failed:', e));
+        }
         
         // Sync language from user profile
         if (responseData.user.language) {
