@@ -1517,9 +1517,16 @@ Page({
 
       ui.hideLoading();
 
-      if (res?.success) {
-        ui.showSuccess('资料已更新');
+      if (res?.success && res.result?.user) {
+        // Critical: Update global user first, then reload local logic
+        const app = getApp<any>();
+        console.log('[ResumeProfile] Update success. Syncing global user...', res.result.user.resume_profile);
+        app.globalData.user = res.result.user;
+        
+        // Force reload from the newly updated global user
         this.loadResumeData();
+
+        ui.showSuccess('资料已更新');
       } else {
         ui.showToast('更新失败');
       }
