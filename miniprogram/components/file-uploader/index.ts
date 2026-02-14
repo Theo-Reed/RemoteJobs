@@ -20,6 +20,10 @@ Component({
         cancel: '取消',
         quotaWarning: '请确保文件清晰'
       }
+    },
+    mode: {
+        type: String,
+        value: 'resume' // 'resume' | 'job'
     }
   },
 
@@ -137,8 +141,9 @@ Component({
       ui.showLoading(t('resume.aiChecking', lang)); // "AI 校验中"
 
       try {
+        const url = this.data.mode === 'job' ? '/parse-job-screenshot' : '/resume/parse';
         const data = await uploadApi<any>({
-          url: '/resume/parse',
+          url: url,
           filePath: this.data.previewPath,
           name: 'file'
         });

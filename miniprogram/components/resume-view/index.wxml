@@ -46,11 +46,12 @@
   </ui-scroll-view>
 
   <!-- Resume Refine Drawer (Replaced by Component) -->
-  <resume-uploader
+  <file-uploader
     show="{{showRefineDrawer}}"
-    config="{{ { title: ui.toolRefineTitle, selectFromChat: ui.selectFromChat, uploadFromLocal: ui.uploadFromLocal, confirmUpload: ui.confirmUpload, previewTip: ui.previewTip, cancel: ui.cancel, quotaWarning: ui.refineRefineReminder } }}"
+    mode="{{uploaderMode}}"
+    config="{{uploaderConfig}}"
     bind:close="closeRefineDrawer"
-    bind:success="onRefineParseSuccess"
+    bind:success="onUploaderSuccess"
   />
 
   <!-- Login Wall & Splash Loader -->

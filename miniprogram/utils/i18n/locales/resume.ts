@@ -1,10 +1,11 @@
 export const resume = {
     toolTitle: { Chinese: '求职助手', English: 'Career Assistant' },
     toolSubtitle: { Chinese: '让 AI 帮你搞定简历与面试', English: 'AI Resume & Interview Assistant' },
-    toolScreenshotTitle: { Chinese: '截图生成简历', English: 'Screenshot to Resume' },
-    toolScreenshotDesc: { Chinese: '上传岗位截图，AI 自动生成匹配简历', English: 'Upload screenshot for AI match' },
+    toolScreenshotTitle: { Chinese: '上传生成简历', English: 'Upload to Resume' },
+    toolScreenshotDesc: { Chinese: '上传岗位截图或PDF，AI 自动生成匹配简历', English: 'Upload JD screenshot or PDF for AI match' },
     toolTextTitle: { Chinese: '文字生成简历', English: 'Text to Resume' },
     toolTextDesc: { Chinese: '粘贴文字，AI 自动生成匹配简历', English: 'Paste text for AI match' },
+    uploadJdTitle: { Chinese: '上传JD', English: 'Upload JD' },
     toolRefineTitle: { Chinese: '简历润色', English: 'Resume Refinement' },
     toolRefineDesc: { Chinese: '上传旧简历，AI 帮你重写升级', English: 'Upload old resume for AI upgrade' },
     onboardingSuccess: { Chinese: '简历初始化成功', English: 'Resume initialized successfully' },

@@ -28,6 +28,8 @@ Component({
       }
   },
   data: {
+    uploaderMode: 'resume', 
+    uploaderConfig: {},
     isInitializing: true,
     ui: {
       title: t('resume.toolTitle'),
@@ -252,15 +254,38 @@ Component({
     onRefineOldResume() {
         if (!this.checkPhonePermission()) return;
         if (!this.checkQuota()) return;
-        this.setData({ showRefineDrawer: true });
+        
+        const app = getApp<any>();
+        const lang = normalizeLanguage(app.globalData.language);
+
+        this.setData({ 
+            showRefineDrawer: true,
+            uploaderMode: 'resume',
+            uploaderConfig: {
+                title: t('resume.toolRefineTitle', lang),
+                selectFromChat: t('resume.selectFromChat', lang),
+                uploadFromLocal: t('resume.uploadFromLocal', lang),
+                confirmUpload: t('resume.confirmUpload', lang),
+                previewTip: t('resume.previewTip', lang),
+                cancel: t('resume.cancel', lang),
+                quotaWarning: t('resume.refineRefineReminder', lang)
+            }
+        });
     },
 
     closeRefineDrawer() {
         this.setData({ showRefineDrawer: false });
     },
 
-    // Replaces onSelectFromChat, onSelectFromLocal, validateAndConfirm, processUpload
-    async onRefineParseSuccess(e: any) {
+    async onUploaderSuccess(e: any) {
+        if (this.data.uploaderMode === 'job') {
+            await this.handleJobParseSuccess(e);
+        } else {
+            await this.handleRefineSuccess(e);
+        }
+    },
+
+    async handleRefineSuccess(e: any) {
         const { result } = e.detail;
         if (!result) return;
         
@@ -272,6 +297,43 @@ Component({
         if (targetLang) {
              this.applyRefineData(result, targetLang as 'chinese' | 'english');
         }
+    },
+
+    async handleJobParseSuccess(e: any) {
+        const { result } = e.detail;
+        if (!result) return;
+        
+        const app = getApp<any>();
+        const lang = normalizeLanguage(app.globalData.language);
+        const { title, years, description } = result;
+
+        // Fallback check on frontend (though backend validation catches most)
+        if (!description || (years === undefined || years === null)) {
+            ui.showModal({
+                title: t('resume.parseJobErrorContent', lang), // "未识别到有效的职位描述..."
+                content: t('resume.parseJobErrorContent', lang),
+                showCancel: false,
+                isAlert: true
+            });
+            return;
+        }
+        
+        // Navigate to generator with extracted job info
+        // We pass it via globalData or url params (url params limited length)
+        // Use globalData for complex objects
+        app.globalData._prefilledJob = {
+            title,
+            experience: years,
+            description // JD Content
+        };
+        
+        wx.navigateTo({
+            url: '/pages/resume-generator/index?from=screenshot'
+        });
+        
+        // Close drawer? Usually navigation does this automatically or keeps it open?
+        // Better to close drawer after navigation starts or success
+        this.setData({ showRefineDrawer: false });
     },
 
     async applyRefineData(result: any, targetLang: 'chinese' | 'english') {
@@ -750,51 +812,17 @@ Component({
         const app = getApp<any>();
         const lang = normalizeLanguage(app.globalData.language);
 
-        wx.chooseMedia({
-            count: 1,
-            mediaType: ['image'],
-            sourceType: ['album', 'camera'],
-            success: async (res) => {
-                const tempFilePath = res.tempFiles[0].tempFilePath;
-                const fileSize = res.tempFiles[0].size;
-                const MAX_SIZE = 10 * 1024 * 1024; // 10MB
-                const MIN_SIZE = 100; // 100 Bytes
-
-                // 1. Size Validation (Frontend)
-                if (fileSize > MAX_SIZE) {
-                    ui.showModal({
-                        title: t('resume.fileTooLarge', lang),
-                        content: t('resume.fileSizeExceededPrefix', lang) + (fileSize / 1024 / 1024).toFixed(2) + 'MB',
-                        showCancel: false,
-                        isAlert: true
-                    });
-                    return;
-                }
-
-                if (fileSize < MIN_SIZE) {
-                     ui.showModal({
-                        title: t('resume.fileInvalid', lang) || '无效文件',
-                        content: t('resume.fileEmptyOrTooSmall', lang),
-                        showCancel: false,
-                        isAlert: true
-                    });
-                    return;
-                }
-
-                // Show Preview Modal instead of proceeding directly
-                this.setData({
-                    showPreviewModal: true,
-                    previewAction: 'screenshot',
-                    previewPath: tempFilePath,
-                    previewName: 'screenshot.jpg',
-                    previewSize: fileSize,
-                    previewType: 'image'
-                });
-            },
-            fail: (err) => {
-                if (err.errMsg.indexOf('cancel') === -1) {
-                    ui.showToast(t('resume.selectImageFailed', lang));
-                }
+        this.setData({ 
+            showRefineDrawer: true,
+            uploaderMode: 'job',
+            uploaderConfig: {
+                title: t('resume.uploadJdTitle', lang),
+                selectFromChat: t('resume.selectFromChat', lang),
+                uploadFromLocal: t('resume.uploadFromLocal', lang),
+                confirmUpload: t('resume.confirmUpload', lang),
+                previewTip: t('resume.previewTip', lang),
+                cancel: t('resume.cancel', lang),
+                quotaWarning: t('resume.screenshotReminder', lang) // Use existing reminder for job
             }
         });
     },

@@ -7,6 +7,6 @@
     "ui-card": "../ui/card/index",
     "ui-drawer": "../ui/drawer/index",
     "ui-scroll-view": "../ui/scroll-view/index",
-    "resume-uploader": "../resume-uploader/index"
+    "file-uploader": "../file-uploader/index"
   }
 }
