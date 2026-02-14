@@ -3,7 +3,7 @@ import { t, normalizeLanguage } from '../../utils/i18n/index'
 import { attachLanguageAware } from '../../utils/languageAware'
 import { attachThemeAware } from '../../utils/themeAware'
 import { themeManager } from '../../utils/themeManager'
-import { requestGenerateResume, showGenerationSuccessModal, waitForTask } from '../../utils/resume'
+import { requestGenerateResume } from '../../utils/resume'
 import { ResumeDecision } from '../../utils/resumeDecision'
 
 const DRAFT_STORAGE_KEY = 'resume_generator_draft';
@@ -415,33 +415,21 @@ Page({
 
         const result = await requestGenerateResume(payloadWithLang, {
             isPaid: this.data.isPaid,
-            showSuccessModal: false,
-            waitForCompletion: true,
+          showSuccessModal: true,
+          waitForCompletion: false,
             skipLangSelect: true,
             preferredLang: targetLang === 'chinese' ? 'chinese' : 'english'
             // We handle finish manually
         });
 
-        if (typeof result === 'string') {
-            // Poll for task
-            const success = await waitForTask(result);
-            
-            ui.hideLoading();
-            this.isSubmitting = false;
-
-            if (success) {
-                this.handleSuccess();
-            } else {
-                this.handleError(new Error('生成失败'));
-            }
-        } else if (result === true) {
-            ui.hideLoading();
-            this.isSubmitting = false;
-            this.handleSuccess();
-        } else {
-            ui.hideLoading();
-            this.isSubmitting = false;
+        if (typeof result === 'string' || result === true) {
+          this.clearDraft();
+          this.isSubmitting = false;
+          return;
         }
+
+        ui.hideLoading();
+        this.isSubmitting = false;
     };
 
     startGeneration();
@@ -450,17 +438,6 @@ Page({
 
   showMissingFieldsToast() {
     // Deprecated by onDisabledTap logic
-  },
-
-  handleSuccess() {
-    this.clearDraft();
-    wx.navigateBack({
-      success: () => {
-        setTimeout(() => {
-          showGenerationSuccessModal();
-        }, 500);
-      }
-    });
   },
 
   handleError(err: any) {
