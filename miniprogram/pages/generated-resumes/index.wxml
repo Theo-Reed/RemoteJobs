@@ -1,7 +1,7 @@
 <view class="page-container">
   <ui-feedback id="ui-feedback" />
   <view class="header-section" wx:if="{{resumes.length > 0}}">
-    <text class="count-text">{{ui.totalPrefix}}{{resumes.length}} {{ui.assetCount}}</text>
+    <text class="count-text">{{ui.totalPrefix}}{{total || resumes.length}} {{ui.assetCount}}</text>
     <view class="edit-btn" bindtap="onToggleEdit">{{isEditMode ? ui.done : ui.edit}}</view>
   </view>
 
@@ -49,6 +49,15 @@
             </block>
           </block>
         </view>
+      </view>
+
+      <view wx:if="{{loadingMore}}" class="list-loading-container">
+        <view class="loading-spinner"></view>
+        <text class="loading-text">{{ui.loading}}</text>
+      </view>
+
+      <view wx:if="{{!loading && !loadingMore && !hasMore && resumes.length > 0}}" class="no-more-container no-more-visible">
+        <text class="no-more-text">{{ui.allDataLoaded}}</text>
       </view>
     </block>
 

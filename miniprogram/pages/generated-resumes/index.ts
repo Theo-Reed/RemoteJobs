@@ -7,7 +7,10 @@ Page({
   data: {
     resumes: [] as any[],
     loading: true,
+    loadingMore: false,
     page: 1,
+    pageSize: 20,
+    total: 0,
     hasMore: true,
     ui: {} as any,
     isEditMode: false,
@@ -18,14 +21,14 @@ Page({
 
   onLoad() {
     this.syncLanguage()
-    this.fetchResumes()
+    this.fetchResumes({ reset: true })
     this.startPolling()
   },
 
   onShow() {
     // 每次显示页面时，如果不在轮询中，刷新一次列表
     if (!this.data.isPolling) {
-       this.fetchResumes()
+       this.fetchResumes({ reset: true })
        this.startPolling()
     }
   },
@@ -118,7 +121,10 @@ Page({
                     ui.showSuccess(t('resume.deleteSuccess'))
                     // Remove from local list
                     const updatedResumes = this.data.resumes.filter((r: any) => r._id !== item._id)
-                    this.setData({ resumes: updatedResumes } as any);
+                    this.setData({
+                      resumes: updatedResumes,
+                      total: Math.max(0, (this.data.total || 0) - 1)
+                    } as any);
                     
                     // If list becomes empty, exit edit mode
                     if (updatedResumes.length === 0) {
@@ -149,7 +155,9 @@ Page({
       this.setData({ isPolling: true } as any)
       
       this.pollingTimer = setInterval(() => {
-          this.fetchResumes(true) // Silent update
+        // 用户已加载到第 2 页及以上时，避免轮询重置列表位置
+        if ((this.data.page || 1) > 2) return
+        this.fetchResumes({ silent: true, reset: true })
       }, 3000)
   },
 
@@ -161,20 +169,45 @@ Page({
       this.setData({ isPolling: false } as any)
   },
 
-  async fetchResumes(silent = false) {
-    if (!silent) this.setData({ loading: true })
+  async fetchResumes(options: { silent?: boolean; reset?: boolean; append?: boolean } = {}) {
+    const { silent = false, reset = false, append = false } = options
+
+    if (append) {
+      if (this.data.loadingMore || this.data.loading || !this.data.hasMore) return
+      this.setData({ loadingMore: true })
+    } else if (!silent) {
+      this.setData({ loading: true })
+    }
+
+    const pageSize = this.data.pageSize || 20
+    const targetPage = reset ? 1 : this.data.page
+    const skip = (targetPage - 1) * pageSize
     
     try {
       const res = await callApi<any>('getGeneratedResumes', {
-        limit: 20
+        limit: pageSize,
+        skip
       })
 
       const list = res.result?.items || []
-      this.processResumes(list)
-      this.setData({ loading: false })
+      const formattedList = this.processResumes(list)
+      const nextResumes = append
+        ? [...this.data.resumes, ...formattedList]
+        : formattedList
+      const total = Number(res.result?.total || 0)
+      const hasMore = nextResumes.length < total
+
+      this.setData({
+        resumes: nextResumes,
+        total,
+        hasMore,
+        page: hasMore ? targetPage + 1 : targetPage,
+        loading: false,
+        loadingMore: false,
+      })
       
       // 检查是否还有 processing 状态的任务
-      const hasProcessing = list.some((item: any) => item.status === 'processing')
+      const hasProcessing = nextResumes.some((item: any) => item.status === 'processing')
       if (!hasProcessing) {
           this.stopPolling()
       } else {
@@ -185,7 +218,7 @@ Page({
     } catch (err) {
       console.error('获取简历列表失败:', err)
       if (!silent) ui.showToast(t('resume.loadingFailed'))
-      this.setData({ loading: false })
+      this.setData({ loading: false, loadingMore: false })
     }
   },
 
@@ -205,6 +238,8 @@ Page({
         generalResume: t('resume.generalResume'),
         view: t('resume.view'),
         loadFailed: t('jobs.loadFailed'),
+        loading: t('jobs.loading'),
+        allDataLoaded: t('jobs.allDataLoaded'),
         totalPrefix: t('resume.totalPrefix'),
         emptyTitle: t('resume.emptyTitle'),
         emptySubtitle: t('resume.emptySubtitle'),
@@ -214,11 +249,14 @@ Page({
   },
 
   onPullDownRefresh() {
-    this.setData({ page: 1, hasMore: true }, () => {
-      this.fetchResumes().then(() => {
+    this.fetchResumes({ reset: true })
+      .finally(() => {
         wx.stopPullDownRefresh()
       })
-    })
+  },
+
+  onReachBottom() {
+    this.fetchResumes({ append: true, silent: true })
   },
 
 
@@ -232,9 +270,7 @@ Page({
       }
     })
 
-    this.setData({
-      resumes: formattedResumes
-    })
+    return formattedResumes
   },
 
   async onPreviewResume(e: any) {
