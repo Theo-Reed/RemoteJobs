@@ -59,6 +59,7 @@ Component({
         expiredDate: null as any, // Member expired date
         expiredDateText: '', // Formatted expired date text
         memberLevel: 0, // 0:普通用户, 1:3天会员, 2:普通月卡, 3:高级月卡
+        displayMemberLevel: 0, // 展示用等级：过期后统一按普通用户展示
         memberBadgeText: '', // 会员徽章文本（从数据库查询）
         memberExpiryText: '', // 会员到期时间文案
 
@@ -286,6 +287,7 @@ Component({
                     isMember = true
                 }
             }
+            const displayMemberLevel = isMember ? memberLevel : 0
 
             const uiStrings = this.data.ui || {}
             const userInfo = user ? ({ 
@@ -339,6 +341,7 @@ Component({
                 isVerified,
                 isMember,
                 memberLevel,
+                displayMemberLevel,
                 userInfo,
                 userPhone: rawPhone,
                 isAiChineseUnlocked: isAiUnlocked,
@@ -358,7 +361,7 @@ Component({
             })
 
             // 加载会员徽章及差价逻辑
-            this.loadMemberBadgeText(memberLevel)
+            this.loadMemberBadgeText(displayMemberLevel)
         },
 
         syncLanguageFromApp() {
@@ -375,7 +378,7 @@ Component({
             // intentionally do not set navigationBarTitleText
             
             // 语言切换时重新加载徽章文本
-            const currentMemberLevel = (this.data as any).memberLevel || 0
+            const currentMemberLevel = (this.data as any).displayMemberLevel || 0
             this.loadMemberBadgeText(currentMemberLevel)
         },
 
@@ -383,7 +386,7 @@ Component({
             if (memberLevel === undefined) {
                 const app = getApp<any>() as any
                 const user = app?.globalData?.user
-                memberLevel = (this.data as any).memberLevel || user?.membership?.level || 0
+                memberLevel = (this.data as any).displayMemberLevel || 0
             }
 
             if (memberLevel === 0) {

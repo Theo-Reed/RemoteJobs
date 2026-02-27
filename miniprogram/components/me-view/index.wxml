@@ -6,7 +6,7 @@
     <view class="hero-section">
       <view class="hero-bg"></view>
       <view class="user-container" bindtap="onAvatarTap">
-        <view class="avatar-wrapper member-color-{{memberLevel}}">
+        <view class="avatar-wrapper member-color-{{displayMemberLevel}}">
           <block wx:if="{{userInfo}}">
             <image class="avatar-large" src="{{userInfo.avatar}}" />
           </block>
@@ -29,7 +29,7 @@
 
     <view class="content-body">
     <!-- 2. 会员权益看板 VIP Benefit Card (Redesigned) -->
-    <view class="vip-card-v3 {{isMember ? 'level-' + memberLevel : 'level-0'}}" bindtap="openMemberHub">
+    <view class="vip-card-v3 {{isMember ? 'level-' + displayMemberLevel : 'level-0'}}" bindtap="openMemberHub">
       <!-- 背景光效 -->
       <view class="card-glow"></view>
       <view class="card-content">
@@ -246,7 +246,7 @@
   >
     <ui-scroll-view scrollY="{{true}}" custom-class="sheet-body-v3">
       <!-- 1. Dashboard: Points & Identity (Clean version without user info) -->
-      <view class="dashboard-card tier-{{memberLevel}}">
+      <view class="dashboard-card tier-{{displayMemberLevel}}">
         <view class="dash-row-top">
            <view class="dash-identity-box">
               <text class="dash-badge-v3">{{memberBadgeText || ui.regularUser}}</text>
